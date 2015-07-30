@@ -1,1 +1,4 @@
 data
+utils/slice_map_creator/*.png
+utils/slice_map_creator/data
+*.pyc
