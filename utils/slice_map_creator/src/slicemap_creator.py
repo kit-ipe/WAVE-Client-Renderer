@@ -15,22 +15,18 @@ class SliceMapCreator:
         from scipy import misc
         import math
 
-        # width = 256
-        # height = 256
-        # depth = 256
-
-        # slicesX = self.config.row_col[0]
-        # slicesY = self.config.row_col[1]
+        from skimage import img_as_ubyte
+        from skimage.transform import resize
 
         # Type of image filter for slicemap
         if self.config.filter == 'n':
-            filter = Image.NEAREST;
+            filter = Image.NEAREST
         elif self.config.filter == 'bl':
-            filter = Image.BILINEAR;
+            filter = Image.BILINEAR
         elif self.config.filter == 'bc':
-            filter = Image.BICUBIC;
+            filter = Image.BICUBIC
         elif self.config.filter == 'a':
-            filter = Image.ANTIALIAS;
+            filter = Image.ANTIALIAS
         
         # Path to slices
         path_to_slices = self.config.path_to_slices
@@ -81,8 +77,6 @@ class SliceMapCreator:
 
         files_list = sorted(files_list, cmp=sort_slices)
 
-        # print(files_list)
-
         slices_path_list = []
         slices_name_list = []
         for slice_name in files_list:
@@ -90,14 +84,6 @@ class SliceMapCreator:
             if re.match(slice_name_format, slice_name) and os.path.isfile(path_to_slice):
                 slices_path_list.append(path_to_slice)
                 slices_name_list.append(slice_name)
-
-        # def sort_slices(a, b):
-        #     a_value = int(re.findall("[0-9]+", a)[0])
-        #     b_value = int(re.findall("[0-9]+", b)[0])
-        #     return a_value - b_value;
-
-        # slices_name_list = sorted(slices_name_list, cmp=sort_slices)
-        # print(slices_name_list)
 
         # Slices range
         slices_range = self.config.slices_range
@@ -114,23 +100,34 @@ class SliceMapCreator:
         print("Original slice size: {0},{1}".format(original_slice_size[0], original_slice_size[1]))        
 
         # Slicemap slice size
-        slicemap_slice_size = [int(math.floor(slicemap_size[0] / row_col[0])), int(math.floor(slicemap_size[1] / row_col[1]))]
+        slicemap_slice_size = [slicemap_size[0] / row_col[0], slicemap_size[1] / row_col[1]]
         print("Slicemap slice size: {0},{1}".format(slicemap_slice_size[0], slicemap_slice_size[1]))
 
-        # Area of every slice for slice map
-        area_of_slice = self.config.area_of_slice
-        area_of_slice[1][0] = slicemap_slice_size[0] if area_of_slice[1][0] == "*" else int(area_of_slice[1][0])
-        area_of_slice[1][1] = slicemap_slice_size[1] if area_of_slice[1][1] == "*" else int(area_of_slice[1][1])
+        # Proposional slicemap slice size
+        proposional_slicemap_slice_size = [0,0]
+        if original_slice_size[0] <= original_slice_size[1]:            
+            proposional_slicemap_slice_size[1] = int(slicemap_slice_size[1])
+            proposional_slicemap_slice_size[0] = int(math.ceil( slicemap_slice_size[0] * original_slice_size[0] / original_slice_size[1] ))
+        else:
+            proposional_slicemap_slice_size[0] = int(slicemap_slice_size[0])
+            proposional_slicemap_slice_size[1] = int(math.ceil( slicemap_slice_size[1] * original_slice_size[1] / original_slice_size[0] ))
+        print("Proposional slicemap slice size: {0},{1}".format(proposional_slicemap_slice_size[0], proposional_slicemap_slice_size[1]))
+
+        ## Area of every slice for slice map
+        # area_of_slice = self.config.area_of_slice
+        # area_of_slice[1][0] = slicemap_slice_size[0] if area_of_slice[1][0] == "*" else int(area_of_slice[1][0])
+        # area_of_slice[1][1] = slicemap_slice_size[1] if area_of_slice[1][1] == "*" else int(area_of_slice[1][1])
+
 
         # Images for slicemaps
         slicemaps_images = []
 
-        slicemap_slices_number = float(row_col[0] * row_col[1])
+        slicemap_slices_number = int(row_col[0] * row_col[1])
 
         slicemaps_number = int(math.ceil(number_of_slices / slicemap_slices_number))
 
         for i in range(0, slicemaps_number):
-            slicemap_image = Image.new('L', (slicemap_size[0], slicemap_size[1]))
+            slicemap_image = Image.new('L', (slicemap_size[0], slicemap_size[1]), 255.0)
             slicemaps_images.append(slicemap_image)
 
         print("Number of slicemaps: {0}".format(slicemaps_number))
@@ -143,20 +140,21 @@ class SliceMapCreator:
             slice_global_order_id = int(slice_id - slices_range[0])
             print("Slice global order id: {0}".format(slice_global_order_id))
 
-            slice_local_order_id = slice_global_order_id % slicemap_slices_number
+            slice_local_order_id = int(slice_global_order_id % slicemap_slices_number)
             print("Slice local order id: {0}".format(slice_local_order_id))
             
             slicemap_id = int(slice_global_order_id / slicemap_slices_number)
             print("Slicemap id: {0}".format(slicemap_id))
-            
+
             slice_image = Image.open(slice_path)
-            slice_image = slice_image.resize((slicemap_slice_size[0], slicemap_slice_size[1]), filter)
+
+            slice_image = slice_image.resize((proposional_slicemap_slice_size[0], proposional_slicemap_slice_size[1]), filter)
 
             slice_col_pos = int(slice_local_order_id % row_col[0])
             slice_row_pos = int(slice_local_order_id / row_col[1])
 
-            point0 = [slice_col_pos * slicemap_slice_size[0], slice_row_pos * slicemap_slice_size[1]]
-            point1 = [point0[0] + slice_image.size[0], point0[1] + slice_image.size[1]]
+            point0 = [ int(slice_col_pos * slicemap_slice_size[0]), int(slice_row_pos * slicemap_slice_size[1]) ]
+            point1 = [ int((slice_col_pos + 1) * slicemap_slice_size[0]), int((slice_row_pos + 1) * slicemap_slice_size[1]) ]
 
             print(point0[0], point0[1], point1[0], point1[1])
 
@@ -164,11 +162,19 @@ class SliceMapCreator:
 
 
         for i in range(0, slicemaps_number):
-            slicemaps_images[i].save(os.path.join(path_to_slicemaps, slicemap_name_format.format(i)))
+            slicemaps_images[i].save(os.path.join(path_to_slicemaps, slicemap_name_format.format(i)), format='PNG', filter=filter, progressive=True)
+
+        print("******************************************************************")
+        print("Slicemap size: {0}, {1}".format(slicemap_size[0], slicemap_size[1]))
+        print("Number of slices: {0}".format(number_of_slices))
+        print("Original slice size: {0},{1}".format(original_slice_size[0], original_slice_size[1]))        
+        print("Slicemap slice size: {0},{1}".format(slicemap_slice_size[0], slicemap_slice_size[1]))
+        print("Proposional slicemap slice size: {0},{1}".format(proposional_slicemap_slice_size[0], proposional_slicemap_slice_size[1]))
+
 
     def getJsonConfig(self):
         data = {}
-        data["area_of_slice"] = self.config.area_of_slice
+        # data["area_of_slice"] = self.config.area_of_slice
         data["filter"] = self.config.filter
         data["path_to_slicemaps"] = self.config.path_to_slicemaps
         data["path_to_slices"] = self.config.path_to_slices
