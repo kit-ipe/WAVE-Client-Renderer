@@ -1,0 +1,356 @@
+<html lang="en">
+	<head>
+		<title>Lidar - WebGL Volume Rendering</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+
+		<script src="./libs/three.js"></script>
+		<script src="./libs/Detector.js"></script>
+		<script src="./libs/OrbitControls.js"></script>
+		<script src="./libs/stats.min.js"></script>
+
+		<script src="./src/raycasterNamespace.js"></script>
+		<script src="./src/delegate.js"></script>
+		<script src="./src/adaptaionManager.js"></script>
+		<script src="./src/GeometryHelper.js"></script>
+		<script src="./src/core.js"></script>
+		<script src="./src/raycaster.js"></script>
+
+	</head>
+	<body>
+		<div id="container">
+		</div>
+
+		<script id="vertexShaderFirstPass" type="x-shader/x-vertex">
+			#ifdef GL_ES
+			precision highp float;
+			#endif
+
+			attribute vec4 vertColor;
+
+			varying vec4 backColor;
+			varying vec4 pos;
+
+			void main(void)
+			{
+				backColor = vertColor;
+
+				pos = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+				gl_Position = pos;
+			}
+
+		</script>
+
+		<script id="fragmentShaderFirstPass" type="x-shader/x-fragment">
+			varying vec4 backColor;
+
+			void main(void)
+			{
+				gl_FragColor = backColor;
+			}
+
+		</script>
+
+		<script id="vertexShaderSecondPass" type="x-shader/x-vertex">
+			#ifdef GL_ES
+			precision highp float;
+			#endif
+			
+			attribute vec4 vertColor;
+
+			varying vec4 frontColor;
+			varying vec4 pos;
+
+			void main(void)
+			{
+				frontColor = vertColor;
+
+				pos = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+				gl_Position = pos;
+			}
+
+
+		</script>
+
+		<script id="fragmentShaderSecondPass" type="x-shader/x-fragment">
+			#ifdef GL_ES
+			precision highp float;
+			#endif
+
+			varying vec4 frontColor;
+			varying vec4 pos;
+
+			uniform sampler2D uBackCoord;
+			// uniform sampler2D uVolData;
+			uniform sampler2D uSliceMaps[10];
+			// uniform sampler2D uTransferFunction;
+
+			uniform float uNumberOfSlices;
+			uniform float uMinGrayVal;
+			uniform float uMaxGrayVal;
+			uniform float uOpacityVal;
+			uniform float uColorVal;
+			uniform float uSlicesOverX;
+			uniform float uSlicesOverY;
+			uniform float uSteps;
+
+			float getVolumeValue(vec3 volpos)
+			{
+				float s1,s2;
+				float dx1,dy1;
+				float dx2,dy2;
+
+				vec2 texpos1,texpos2;
+
+				s1 = floor(volpos.z*uNumberOfSlices);
+				s2 = s1+1.0;
+
+				dx1 = fract(s1/uSlicesOverX);
+				dy1 = floor(s1/uSlicesOverY)/uSlicesOverY;
+
+				dx2 = fract(s2/uSlicesOverX);
+				dy2 = floor(s2/uSlicesOverY)/uSlicesOverY;
+
+				texpos1.x = dx1+(volpos.x/uSlicesOverX);
+				texpos1.y = dy1+(volpos.y/uSlicesOverY);
+
+				texpos2.x = dx2+(volpos.x/uSlicesOverX);
+				texpos2.y = dy2+(volpos.y/uSlicesOverY);
+
+				return mix( texture2D(uSliceMaps[0],texpos1).x, texture2D(uSliceMaps[0],texpos2).x, fract( volpos.z*uNumberOfSlices ));
+			}
+
+			// //Acts like a texture3D using Z slices and trilinear filtering.
+			// float getVolumeValue(vec3 volpos)
+			// {
+			// 	float s1Original, s2Original, s1, s2;
+			// 	float dx1, dy1;
+			// 	float dx2, dy2;
+			// 	float value;
+
+			// 	vec2 texpos1,texpos2;
+
+			// 	s1Original = floor(volpos.z*uNumberOfSlices);
+			// 	s2Original = s1+1.0;
+
+			// 	float slicesPerSprite = floor(uSlicesOverX * uSlicesOverY);
+
+			// 	int tex1Index = int(floor(s1Original / slicesPerSprite));
+			// 	int tex2Index = int(floor(s2Original / slicesPerSprite));
+
+			// 	s1 = mod(s1Original, slicesPerSprite);
+			// 	s2 = mod(s2Original, slicesPerSprite);
+
+			// 	dx1 = fract(s1/uSlicesOverX);
+			// 	dy1 = floor(s1/uSlicesOverY)/uSlicesOverY;
+
+			// 	dx2 = fract(s2/uSlicesOverX);
+			// 	dy2 = floor(s2/uSlicesOverY)/uSlicesOverY;
+
+			// 	texpos1.x = dx1+(volpos.x/uSlicesOverX);
+			// 	texpos1.y = dy1+(volpos.y/uSlicesOverY);
+
+			// 	texpos2.x = dx2+(volpos.x/uSlicesOverX);
+			// 	texpos2.y = dy2+(volpos.y/uSlicesOverY);
+
+			// 	// texpos2.y = 1.0 - texpos2.y;
+			// 	// texpos2.x = 1.0 - texpos2.x;
+
+			// 	// texpos1.y = 1.0 - texpos1.y;
+			// 	// texpos1.x = 1.0 - texpos1.x;
+
+			// 	float value1, value2;
+			// 	bool value1Set = false, value2Set = false;
+
+			// 	for (int x = 0; x < 10; x++) {
+			// 	    if(x == tex1Index) {
+			// 	        value1 = texture2D(uSliceMaps[x],texpos1).x;
+			// 	        value1Set = true;
+			// 	    }
+
+			// 	    if(x == tex2Index) {
+			// 	        value2 = texture2D(uSliceMaps[x],texpos2).x;
+			// 	        value2Set = true;
+			// 	    }
+
+			// 	    if(value1Set && value2Set) {
+			// 	        break;
+			// 	    }
+			// 	}
+
+			// 	// if(s2 >= uNumberOfSlices) {
+			// 	//     value = value1;
+			// 	// } else {
+			// 	//     value = value1;
+			// 	// }
+
+			// 	return mix( value1, value2, fract( volpos.z*uNumberOfSlices ));
+			// 	// return 0.3;
+			// }
+
+			void main(void)
+			{
+				vec2 texC = ((pos.xy/pos.w) + 1.0) / 2.0;
+
+				vec4 backColor = texture2D(uBackCoord,texC);
+
+				vec3 dir = backColor.rgb - frontColor.rgb;
+				vec4 vpos = frontColor;
+
+				vec3 Step = dir/uSteps;
+
+				vec4 accum = vec4(0, 0, 0, 0);
+				vec4 sample = vec4(0.0, 0.0, 0.0, 0.0);
+			 	vec4 value = vec4(0, 0, 0, 0);
+
+				float opacityFactor = 8.0;//uOpacityVal;
+				float lightFactor = 1.3;//uColorVal;
+	
+				// const 999 - only how example big number
+				// It because expression i < uSteps impossible
+				for(float i = 0.0; i < 9999.0; i+=1.0)
+				{
+				//It because expression i < uSteps impossible
+					if(i == uSteps) {
+						break;
+					}
+
+					vec2 tf_pos;
+					tf_pos.x = getVolumeValue(vpos.xyz);
+					tf_pos.y = 0.5;
+
+					value = vec4(tf_pos.x, tf_pos.x, tf_pos.x, 1.0);
+					
+					// value = texture2D(uTransferFunction,tf_pos);
+
+					if(value.x < uMinGrayVal || value.x > uMaxGrayVal) {
+					    value = vec4(0.0);
+					}
+
+
+					float mode = 1.0;
+
+					if(mode == 1.0)
+					{
+						sample.a = value.a * opacityFactor * (1.0 / uSteps);
+						sample.rgb = (1.0 - accum.a) * value.rgb * sample.a * lightFactor;
+
+					}
+					else
+					{
+						sample.a = value.a * opacityFactor;
+						sample.rgb = value.rgb * uColorVal;
+
+					}
+
+			        accum.rgb += sample.rgb;
+			        accum.a += sample.a;
+			        
+					//advance the current position
+					vpos.xyz += Step;
+
+					//break if the position is greater than <1, 1, 1>
+					if(vpos.x > 1.0 || vpos.y > 1.0 || vpos.z > 1.0)
+					{
+						break;
+					}
+
+					if(accum.a>=0.95)
+						break;
+				}
+
+				gl_FragColor = accum;
+
+			}
+		</script>
+
+		<script>
+
+			var download_images = function(images_paths, one_on_load, all_on_load, on_error) {
+				var downloaded_images = [];
+				var downloaded_images_number = 0;
+
+				try {
+					for (var image_index = 0; image_index < images_paths.length; image_index++) {
+						var image = new Image();
+						(function(image, image_index) {
+							image.onload = function() {
+								downloaded_images[image_index] = image;
+								downloaded_images_number++;
+								
+								one_on_load(image);
+								
+								if(downloaded_images_number == images_paths.length) {
+									all_on_load(downloaded_images);
+								};
+
+							};
+
+							image.src = images_paths[image_index];
+
+						})(image, image_index);
+
+					};
+				}
+				catch(e) {
+					on_error(e);
+
+				};
+
+			};
+
+			var images_paths = [
+			// 'sara_1024x1024_26x26_0.png',
+			// 'sara_2048x2048_26x26_0.png',
+			// 'sara_4096x4096_26x26_0.png',
+			'sara_4096x4096_26x26_n_0.jpg',
+			// 'slicemap_99992_2.png',
+			// '90bb6810-bacf-472e-9fc0-bbbebc6d7680.jpg',
+			// 'slicemap0.png', 
+			// 'slicemap1.png', 
+			// 'slicemap2.png', 
+			// 'slicemap3.png', 
+			// 'slicemap4.png', 
+			// 'slicemap5.png', 
+			// 'slicemap6.png', 
+			// 'slicemap7.png', 
+			// 'slicemap8.png',
+			// 'slicemap9.png'
+			];
+
+			textures = [];
+
+			var one_on_load = function(img) {
+				console.log(img.src);
+
+			};
+
+			var all_on_load = function(images) {
+				console.log(images);
+				window.images = images;
+
+				rcl = new RC.RaycasterLib();
+				rcl.autoStepsOn(false);
+				rcl.setImages(images);
+				rcl.setSlicesGap(0, 675);
+				rcl.setMinGrayValue(0.4);
+				rcl.setRowCol(26, 26);
+				rcl.setSteps(1024);
+				rcl.setResolution(1024, 1024);
+
+				rcl.addOnResizeCallback(function() {
+				    rcl.setResolution(window.innerWidth, window.innerHeight);
+				});
+
+			};
+
+			var on_error = function(e) {
+				console.log(e);
+			};
+
+			download_images(images_paths, one_on_load, all_on_load, on_error);
+
+		</script>
+
+	</body>
+</html>

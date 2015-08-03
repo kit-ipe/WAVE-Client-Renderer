@@ -3,11 +3,11 @@
  * Delegate
  * 
  * @class Delegate
- * @this {KTV.Delegate}
+ * @this {RC.Delegate}
  * @author sogimu@nxt.ru Aleksandr Lizin aka sogimu
  * @version 0.1
  *
- * @requires NamespaceKTV.js
+ * @requires NamespaceRC.js
  */
 
 (function(namespace) {
@@ -20,7 +20,7 @@
         me._context = window;
 
         me.Add = function(func) {
-            gizmo.Filter(func, "Function");
+            // gizmo.Filter(func, "Function");
             me._functions.push(func);
 
         };
@@ -30,7 +30,8 @@
         };
 
         me.Call = function(value, context) {
-            var context = gizmo.isSet(context)? context : me._context;
+            // var context = gizmo.isSet(context)? context : me._context;
+            var context = context ? context : me._context;
 
             for(i in me._functions) {
                 var func = me._functions[i];
@@ -45,11 +46,11 @@
         };
 
         me.SetConfig = function(O) {
-            gizmo.Filter(O, "Object");
+            // gizmo.Filter(O, "Object");
             for(prop in O) {
                 switch(prop) {
                     case "context": {
-                        gizmo.Filter(O[prop], "Object");
+                        // gizmo.Filter(O[prop], "Object");
                         this._context = O[prop];
                     };break;
 
@@ -62,15 +63,12 @@
         * Constructor
         *
         * @method Delegate.Constructor
-        * @this {KTV.Delegate}
+        * @this {RC.Delegate}
         * @Delegate {Object} O
         * @Delegate {Object} O.self         Context for calling
         */
         me.Constructor = function(O) {
-            if(gizmo.isSet(O)) {
-                this.SetConfig(O);
-
-            };
+            this.SetConfig(O);
             
         };
 
@@ -82,4 +80,4 @@
     
     namespace.Delegate = Delegate;
 
-})(window.KTV);
+})(window.RC);
