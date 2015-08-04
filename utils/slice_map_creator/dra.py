@@ -105,10 +105,6 @@ def createParser ():
             help = 'Number of rows and cols in slicemap. Format: ^([0-9]+x[0-9]+)$. Example: 16x16.',
             metavar = 'STR')
 
-    # create_group.add_argument ('-sn', '--slicemaps-number', type=int, default=1,
-    #         help = 'Number of slicemaps. Example: 3',
-    #         metavar = 'NUMBER')
-
     create_group.add_argument ('-f', '--filter', type=str, default='bl', choices=['n', 'bl', 'bc', 'a'],
             help = 'Name of filter for image. Possible values: "n" - NEAREST, "bl" - BILINEAR, "bc" - BICUBIC, "a" - ANTIALIAS. Example: n',
             metavar = 'STR')

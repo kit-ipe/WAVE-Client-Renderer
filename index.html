@@ -22,8 +22,14 @@
 		</div>
 
 		<script id="vertexShaderFirstPass" type="x-shader/x-vertex">
-			#ifdef GL_ES
-			precision highp float;
+			#ifdef GL_FRAGMENT_PRECISION_HIGH
+				// highp is supported
+				precision highp int;
+			    precision highp float;
+			#else
+			    // high is not supported
+		    	precision mediump int;
+		        precision mediump float;
 			#endif
 
 			attribute vec4 vertColor;
@@ -42,6 +48,16 @@
 		</script>
 
 		<script id="fragmentShaderFirstPass" type="x-shader/x-fragment">
+			#ifdef GL_FRAGMENT_PRECISION_HIGH
+				// highp is supported
+				precision highp int;
+			    precision highp float;
+			#else
+			    // high is not supported
+		    	precision mediump int;
+		        precision mediump float;
+			#endif
+
 			varying vec4 backColor;
 
 			void main(void)
@@ -52,8 +68,14 @@
 		</script>
 
 		<script id="vertexShaderSecondPass" type="x-shader/x-vertex">
-			#ifdef GL_ES
-			precision highp float;
+			#ifdef GL_FRAGMENT_PRECISION_HIGH
+				// highp is supported
+				precision highp int;
+			    precision highp float;
+			#else
+			    // high is not supported
+		    	precision mediump int;
+		        precision mediump float;
 			#endif
 			
 			attribute vec4 vertColor;
@@ -73,15 +95,20 @@
 		</script>
 
 		<script id="fragmentShaderSecondPass" type="x-shader/x-fragment">
-			#ifdef GL_ES
-			precision highp float;
+			#ifdef GL_FRAGMENT_PRECISION_HIGH
+				// highp is supported
+				precision highp int;
+			    precision highp float;
+			#else
+			    // high is not supported
+		    	precision mediump int;
+		        precision mediump float;
 			#endif
 
 			varying vec4 frontColor;
 			varying vec4 pos;
 
 			uniform sampler2D uBackCoord;
-			// uniform sampler2D uVolData;
 			uniform sampler2D uSliceMaps[10];
 			// uniform sampler2D uTransferFunction;
 
@@ -93,32 +120,6 @@
 			uniform float uSlicesOverX;
 			uniform float uSlicesOverY;
 			uniform float uSteps;
-
-			// float getVolumeValue(vec3 volpos)
-			// {
-			// 	float s1,s2;
-			// 	float dx1,dy1;
-			// 	float dx2,dy2;
-
-			// 	vec2 texpos1,texpos2;
-
-			// 	s1 = floor(volpos.z*uNumberOfSlices);
-			// 	s2 = s1+1.0;
-
-			// 	dx1 = fract(s1/uSlicesOverX);
-			// 	dy1 = floor(s1/uSlicesOverY)/uSlicesOverY;
-
-			// 	dx2 = fract(s2/uSlicesOverX);
-			// 	dy2 = floor(s2/uSlicesOverY)/uSlicesOverY;
-
-			// 	texpos1.x = dx1+(volpos.x/uSlicesOverX);
-			// 	texpos1.y = dy1+(volpos.y/uSlicesOverY);
-
-			// 	texpos2.x = dx2+(volpos.x/uSlicesOverX);
-			// 	texpos2.y = dy2+(volpos.y/uSlicesOverY);
-
-			// 	return mix( texture2D(uSliceMaps[0],texpos1).x, texture2D(uSliceMaps[0],texpos2).x, fract( volpos.z*uNumberOfSlices ));
-			// }
 
 			//Acts like a texture3D using Z slices and trilinear filtering.
 			float getVolumeValue(vec3 volpos)
@@ -153,12 +154,6 @@
 				texpos2.x = dx2+(volpos.x/uSlicesOverX);
 				texpos2.y = dy2+(volpos.y/uSlicesOverY);
 
-				// texpos2.y = 1.0 - texpos2.y;
-				// texpos2.x = 1.0 - texpos2.x;
-
-				// texpos1.y = 1.0 - texpos1.y;
-				// texpos1.x = 1.0 - texpos1.x;
-
 				float value1, value2;
 				bool value1Set = false, value2Set = false;
 
@@ -184,7 +179,6 @@
 				    value = value1;
 				// }
 
-				// return mix( value1, value2, fract( volpos.z*uNumberOfSlices ));
 				return value1;
 			}
 
@@ -206,11 +200,11 @@
 				float opacityFactor = 8.0;//uOpacityVal;
 				float lightFactor = 1.3;//uColorVal;
 	
-				// const 999 - only how example big number
-				// It because expression i < uSteps impossible
-				for(float i = 0.0; i < 9999.0; i+=1.0)
+				// const 4095 - only example of big number
+				// It because expression i > uSteps impossible
+				for(float i = 0.0; i < 4095.0; i+=1.0)
 				{
-				//It because expression i < uSteps impossible
+				// It because expression i > uSteps impossible
 					if(i == uSteps) {
 						break;
 					}
@@ -304,27 +298,17 @@
 			// 'sara_2048x2048_26x26_0.png',
 			// 'sara_4096x4096_26x26_0.png',
 			// 'sara_4096x4096_26x26_n_0.jpg',
-			'sara_4096x4096_26x26_n_0.jpg',
-			'sara_4096x4096_26x26_n_1.jpg',
-			'sara_4096x4096_26x26_n_2.jpg',
-			'sara_4096x4096_26x26_n_3.jpg',
-			'sara_4096x4096_26x26_n_4.jpg',
-			'sara_4096x4096_26x26_n_5.jpg',
-			'sara_4096x4096_26x26_n_6.jpg',
+			// 'sara_4096x4096_14x14_n_0.jpg',
+			// 'sara_4096x4096_14x14_n_1.jpg',
+			// 'sara_4096x4096_14x14_n_2.jpg',
+			// 'sara_4096x4096_14x14_n_3.jpg',
+			// 'sara_4096x4096_14x14_n_4.jpg',
+			// 'sara_4096x4096_14x14_n_5.jpg',
+			// 'sara_4096x4096_14x14_n_6.jpg',
+
 			// 'lidar_4096x4096_8x8_n_0.jpg',
 			// 'lidar_4096x4096_8x8_n_1.jpg',
-			// 'slicemap_99992_2.png',
-			// '90bb6810-bacf-472e-9fc0-bbbebc6d7680.jpg',
-			// 'slicemap0.png', 
-			// 'slicemap1.png', 
-			// 'slicemap2.png', 
-			// 'slicemap3.png', 
-			// 'slicemap4.png', 
-			// 'slicemap5.png', 
-			// 'slicemap6.png', 
-			// 'slicemap7.png', 
-			// 'slicemap8.png',
-			// 'slicemap9.png'
+			'lidar_2048x2048_16x16_n_0.jpg'
 			];
 
 			textures = [];
@@ -339,13 +323,16 @@
 				window.images = images;
 
 				rcl = new RC.RaycasterLib();
-				rcl.autoStepsOn(false);
-				rcl.setImages(images);
-				rcl.setSlicesGap(0, 1349);
-				rcl.setMinGrayValue(0.42);
-				rcl.setRowCol(14, 14);
-				rcl.setSteps(1024);
-				rcl.setResolution(1024, 1024);
+
+				rcl.setConfig({
+					"images": images,
+					"slices_gap": [0, 110],
+					// "min_gray": 0.01,
+					"row_col": [12, 12],
+					// "steps": 100,
+					// "resolution": ['*', '*'],
+					// "autoStepsOn": true,
+				});
 
 				rcl.addOnResizeCallback(function() {
 				    rcl.setResolution(window.innerWidth, window.innerHeight);
