@@ -23,7 +23,7 @@
 
         me.init = function() {
             me._core.init();
-            // me._adaptationManager.init( me._core );
+            me._adaptationManager.init( me._core );
 
             me.addOnCameraChangeCallback(function() {
                 me._needRedraw = true;
@@ -111,7 +111,7 @@
             }
 
             if(config['auto_steps']) {
-                me.autoStepsOn( config['auto_steps'] );
+                me.setAutoStepsOn( config['auto_steps'] );
             }
 
             if(config['absorption_mode']) {
@@ -147,8 +147,8 @@
 
         };
 
-        me.autoStepsOn = function(flag) {
-            me._adaptationManager.switchOn(flag);
+        me.setAutoStepsOn = function(flag) {
+            me._adaptationManager.run(flag);
             me._needRedraw = true;
 
         };

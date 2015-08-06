@@ -9,10 +9,65 @@
  *
  */
 
+// vs_first_pass = ["#ifdef GL_FRAGMENT_PRECISION_HIGH",
+//                 "precision highp int;",
+//                 "precision highp float;",
+//             "#else",
+//                 "precision mediump int;",
+//                 "precision mediump float;",
+//             "#endif",
+
+//             "attribute vec4 vertColor;",
+
+//             "varying vec4 backColor;",
+//             "varying vec4 pos;",
+
+//             "void main(void)",
+//             "{",
+//             "    backColor = vertColor;",
+
+//             "    pos = projectionMatrix * modelViewMatrix * vec4(position, 1.0);",
+//             "    gl_Position = pos;",
+//             "}"].join('\n');
+
 (function(namespace) {
     var Core = function() {
 
         var me = {};
+
+        me._steps                 = 20;
+        me._slices_gap            = [0,    '*'];
+        me._slicemap_row_col      = [16,   16];
+        me._gray_value            = [0.0, 1.0];
+        me._images                = [];
+        me._textures              = [];
+        me._opacity_factor        = 1.0;
+        me._color_factor          = 1.0;
+        me._absorption_mode_index = 0.0;
+        me._render_resolution     = ['*', '*'];
+        me._render_clear_color    = "#ffffff";
+        me._transfer_function     = [];
+        me._geometry_dimension    = {"xmin": 0.0, "xmax": 1.0, "ymin": 0.0, "ymax": 1.0, "zmin": 0.0, "zmax": 1.0};
+
+        me._firtsPassMaterial     = {};
+        me._secondPassMaterial    = {};
+
+        me._container = {};
+        me._renderer = {};
+        me._camera = {};
+        me._rtTexture = {};
+
+        me._geometry = {};
+        me._materialFirstPass     = {};
+        me._materialSecondPass    = {};
+
+        me._sceneFirstPass        = {};
+        me._sceneSecondPass       = {};
+
+        me._meshFirstPass         = {};
+        me._meshSecondPass        = {};
+
+        me._shaders = new RC.Shaders();
 
         me.init = function() {
             me._container = document.getElementById( 'container' );
@@ -33,8 +88,8 @@
             me._rtTexture.wrapS = me._rtTexture.wrapT = THREE.ClampToEdgeWrapping;
             
             me._materialFirstPass = new THREE.ShaderMaterial( {
-                vertexShader: document.getElementById( 'vertexShaderFirstPass' ).textContent,
-                fragmentShader: document.getElementById( 'fragmentShaderFirstPass' ).textContent,
+                vertexShader: me._shaders.firtsPass_vs,
+                fragmentShader: me._shaders.firtsPass_fs,
                 attributes: {
                     vertColor: {type: 'c', value: [] }
                 },
@@ -43,8 +98,8 @@
             } );
             
             me._materialSecondPass = new THREE.ShaderMaterial( {
-                vertexShader: document.getElementById( 'vertexShaderSecondPass' ).textContent,
-                fragmentShader: document.getElementById( 'fragmentShaderSecondPass' ).textContent,
+                vertexShader: me._shaders.secondPass_vs,
+                fragmentShader: me._shaders.secondPass_fs,
                 attributes: {
                     vertColor: {type: 'c', value: [] }
                 },
@@ -399,38 +454,6 @@
         me.getGeometryMaxZ = function() {
             return me._geometry_dimension["zmax"];
         };
-
-        me._steps                 = 20;
-        me._slices_gap            = [0,    '*'];
-        me._slicemap_row_col      = [16,   16];
-        me._gray_value            = [0.0, 1.0];
-        me._images                = [];
-        me._textures              = [];
-        me._opacity_factor        = 1.0;
-        me._color_factor          = 1.0;
-        me._absorption_mode_index = 0.0;
-        me._render_resolution     = ['*', '*'];
-        me._render_clear_color    = "#ffffff";
-        me._transfer_function     = [];
-        me._geometry_dimension    = {"xmin": 0.0, "xmax": 1.0, "ymin": 0.0, "ymax": 1.0, "zmin": 0.0, "zmax": 1.0};
-
-        me._firtsPassMaterial     = {};
-        me._secondPassMaterial    = {};
-
-        me._container = {};
-        me._renderer = {};
-        me._camera = {};
-        me._rtTexture = {};
-
-        me._geometry = {};
-        me._materialFirstPass     = {};
-        me._materialSecondPass    = {};
-
-        me._sceneFirstPass        = {};
-        me._sceneSecondPass       = {};
-
-        me._meshFirstPass         = {};
-        me._meshSecondPass        = {};
 
         return me;
 

@@ -21,12 +21,29 @@
 
         me.Add = function(func) {
             // gizmo.Filter(func, "Function");
-            me._functions.push(func);
+            me._functions.push({"is_work": true, "func": func});
+            return me._functions.length-1;
 
         };
 
-        me.Remove = function() {
+        me.Remove = function(index) {
+            delete( me._functions[index] );
+        };
 
+        me.Get = function(index) {
+            return me._functions[index];
+        };
+
+        me.Stop = function(index) {
+            me._functions[index]["is_work"] = false;
+        };
+
+        me.Start = function(index) {
+            me._functions[index]["is_work"] = true;
+        };
+
+        me.IsWork = function(index) {
+            return me._functions[index]["is_work"];
         };
 
         me.Call = function(value, context) {
@@ -34,8 +51,11 @@
             var context = context ? context : me._context;
 
             for(i in me._functions) {
-                var func = me._functions[i];
-                func.call(context, value);
+                var task = me._functions[i];
+                if(task["is_work"]) {
+                    task["func"].call(context, value);
+
+                }
             };
 
         };

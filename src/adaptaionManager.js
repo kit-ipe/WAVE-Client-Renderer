@@ -19,25 +19,25 @@
         me._possible_steps = [32, 64, 128, 256, 512, 1024];
         // me._possible_steps = [10, 20, 50, 80, 100, 150, 200];
         me._current_steps_index = 0;
-        me._is_auto_updating = true;
 
-        me._last
+        me._onPostDrawFuncIndex = -1;
+        me._onCameraChangeStartFuncIndex = -1;
+        me._onCameraChangeEndFuncIndex = -1;
 
         me.init = function(core) {
             me._core = core;
 
-            me._core.onPostDraw.Add(function(fps) {
+            me._onPostDrawFuncIndex = me._core.onPostDraw.Add(function(fps) {
                 me.do(fps);
             });
 
-            me._core.onCameraChangeStart.Add(function() {
-
-                me.switchOn(false);
+            me._onCameraChangeStartFuncIndex = me._core.onCameraChangeStart.Add(function() {
+                me.pause(true);
 
             });
 
-            me._core.onCameraChangeEnd.Add(function() {
-                me.switchOn(true);
+            me._onCameraChangeEndFuncIndex = me._core.onCameraChangeEnd.Add(function() {
+                me.pause(false);
             });
 
         };
@@ -46,31 +46,34 @@
             me._possible_steps = possible_steps;
         };
 
-        me.switchOn = function(flag) {
-            me._is_auto_updating = flag;
+        me.run = function(flag) {
+            if(flag) {
+                me._core.onPostDraw.Start(me._onPostDrawFuncIndex);
+                me._core.onCameraChangeStart.Start(me._onCameraChangeEndFuncIndex);
+                me._core.onCameraChangeEnd.Start(me._onCameraChangeStartFuncIndex);
+
+            } else {
+                me._core.onPostDraw.Stop(me._onPostDrawFuncIndex);
+                me._core.onCameraChangeStart.Stop(me._onCameraChangeEndFuncIndex);
+                me._core.onCameraChangeEnd.Stop(me._onCameraChangeStartFuncIndex);
+               
+            }
+
         };
 
-        // me.adaptToStep = function(steps_number) {
-        //     last_step_index    = 0;
-        //     current_step_index = 0;
+        me.pause = function(flag) {
+            if(flag) {
+                me._core.onCameraChangeStart.Stop(me._onCameraChangeEndFuncIndex);
+                me._core.onPostDraw.Stop(me._onPostDrawFuncIndex);
+             
 
-        //     for(var i=0; i<me._possible_steps.length; i++) {
-        //         last_step    = me._possible_steps[ last_step_index ];
-        //         current_step = me._possible_steps[ current_step_index ];
+            } else {
+                me._core.onCameraChangeStart.Start(me._onCameraChangeEndFuncIndex);
+                me._core.onPostDraw.Start(me._onPostDrawFuncIndex);
 
-        //         if(steps_number >= last_step && steps_number < current_step) {
-        //             me._current_steps_index = last_step_index;
-        //             return;
-        //         };
+            }
 
-        //         last_step_index = current_step_index;
-        //         current_step_index++;
-
-        //     };
-
-        //     me._current_steps_index = me._possible_steps.length-1;
-
-        // };
+        };
 
         me.decreaseSteps = function() {
             me._current_steps_index--;
@@ -86,25 +89,32 @@
             return me._possible_steps[me._current_steps_index];
         };
 
-        me.isWork = function() {
-            return me._is_auto_updating;
+        me.isRun = function() {
+            var isRunOnPostDraw = me._core.onPostDraw.IsRun(me._onPostDrawFuncIndex)
+            var isRunOnCameraChangeStart = me._core.onCameraChangeStart.IsRun(me._onCameraChangeEndFuncIndex);
+            var isRunOnCameraChangeEnd = me._core.onCameraChangeEnd.IsRun(me._onCameraChangeStartFuncIndex);
+
+            return isRunOnPostDraw && isRunOnCameraChangeStart && isRunOnCameraChangeEnd;
+        };
+
+        me.isPause = function() {
+            var isRunOnPostDraw = me._core.onPostDraw.IsRun(me._onPostDrawFuncIndex)
+            var isRunOnCameraChangeStart = me._core.onCameraChangeStart.IsRun(me._onCameraChangeEndFuncIndex);
+            var isRunOnCameraChangeEnd = me._core.onCameraChangeEnd.IsRun(me._onCameraChangeStartFuncIndex);
+
+            return !isRunOnPostDraw && !isRunOnCameraChangeStart && isRunOnCameraChangeEnd;
         };
 
         me.do = function(fps) {
-            if(me._is_auto_updating == true) {
-                if( fps < 10 && me._current_steps_index > 0 ) {
-                    me.decreaseSteps();
-                    console.log("FPS: " + fps + ", Number of steps: " + me.getSteps() );
+            if( fps < 15 && me._current_steps_index > 0 ) {
+                console.log("FPS: " + fps + ", Number of steps: " + me.getSteps() );
+                me.decreaseSteps();
 
-                }
+            } else if( fps > 40 && me._current_steps_index < me._possible_steps.length-1 ) {
+                console.log("FPS: " + fps + ", Number of steps: " + me.getSteps() );
+                me.increaseSteps();
 
-                if( fps > 20 && me._current_steps_index < me._possible_steps.length-1 ) {
-                    me.increaseSteps();
-                    console.log("FPS: " + fps + ", Number of steps: " + me.getSteps() );
-
-                }
-
-            };
+            }
 
         };
 
