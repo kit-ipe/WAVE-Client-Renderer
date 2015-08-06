@@ -89,23 +89,23 @@ var GeometryHelper = function() {
 
 var GeometryDimension = function() {
     this.xmin = 0.005;
-    this.xmax = 0.995;
+    this.xmax = 0.5;
     this.ymin = 0.005;
     this.ymax = 0.995;
     this.zmin = 0.005;
     this.zmax = 0.995;
 }
 
-var VolumeDimension = function() {
-    this.xmin;
-    this.xmax;
-    this.ymin;
-    this.ymax;
-    this.zmin;
-    this.zmax;
-    return {
-        getZStretchFactor: function() {
-            return (this.zmax - this.zmin + 1) / (this.xmax - this.xmin);
-        }
-    }
-}
+// var VolumeDimension = function() {
+//     this.xmin;
+//     this.xmax;
+//     this.ymin;
+//     this.ymax;
+//     this.zmin;
+//     this.zmax;
+//     return {
+//         getZStretchFactor: function() {
+//             return (this.zmax - this.zmin + 1) / (this.xmax - this.xmin);
+//         }
+//     }
+// }

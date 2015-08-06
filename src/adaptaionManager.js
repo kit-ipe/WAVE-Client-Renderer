@@ -31,6 +31,7 @@
             });
 
             me._core.onCameraChangeStart.Add(function() {
+
                 me.switchOn(false);
 
             });
@@ -83,6 +84,10 @@
 
         me.getSteps = function() {
             return me._possible_steps[me._current_steps_index];
+        };
+
+        me.isWork = function() {
+            return me._is_auto_updating;
         };
 
         me.do = function(fps) {

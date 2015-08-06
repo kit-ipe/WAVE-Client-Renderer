@@ -23,7 +23,7 @@
 
         me.init = function() {
             me._core.init();
-            me._adaptationManager.init( me._core );
+            // me._adaptationManager.init( me._core );
 
             me.addOnCameraChangeCallback(function() {
                 me._needRedraw = true;
@@ -54,8 +54,8 @@
                 me.setImages( config['images'] );
             }
 
-            if(config['slices_gap']) {
-                me._core.setSlicesGap( config['slices_gap'][0], config['slices_gap'][1] );
+            if(config['gap_slices']) {
+                me._core.setSlicesGap( config['gap_slices'][0], config['gap_slices'][1] );
             }
 
             if(config['steps']) {
@@ -66,24 +66,36 @@
                 me._core.setRowCol( config['row_col'][0], config['row_col'][1] );
             }
 
-            if(config['min_gray']) {
-                me._core.setMinGrayValue( config['min_gray'] );
+            if(config['gray_min']) {
+                me._core.setMinGrayValue( config['gray_min'] );
             }
 
-            if(config['max_gray']) {
-                me._core.setMaxGrayValue( config['max_gray'] );
+            if(config['gray_max']) {
+                me._core.setMaxGrayValue( config['gray_max'] );
             }
 
-            if(config['border_XX']) {
-                me._core.setBordersXX( config['border_XX'][0], config['border_XX'][1] );
+            if(config['x_min']) {
+                me._core.setGeometryMinX( config['x_min'] );
             }
 
-            if(config['border_YY']) {
-                me._core.setBordersYY( config['border_YY'][0], config['border_YY'][1] );                
+            if(config['x_max']) {
+                me._core.setGeometryMaxX( config['x_max'] );
             }
 
-            if(config['border_ZZ']) {
-                me._core.setBordersZZ( config['border_ZZ'][0], config['border_ZZ'][1] );
+            if(config['y_min']) {
+                me._core.setGeometryMinY( config['y_min'] );
+            }
+
+            if(config['y_max']) {
+                me._core.setGeometryMaxY( config['y_max'] );
+            }
+
+            if(config['z_min']) {
+                me._core.setGeometryMinZ( config['z_min'] );
+            }
+
+            if(config['z_max']) {
+                me._core.setGeometryMaxZ( config['z_max'] );
             }
 
             if(config['opacity_factor']) {
@@ -98,11 +110,11 @@
                 me._core.setBackgoundColor( config['backgound'] );
             }
 
-            if(config['autoStepsOn']) {
-                me._adaptationManager.switchOn( config['autoStepsOn'] );
+            if(config['auto_steps']) {
+                me.autoStepsOn( config['auto_steps'] );
             }
 
-            if(config['absorptionMode']) {
+            if(config['absorption_mode']) {
                 me._core.setAbsorptionMode( config['absorption_mode'] );
             }
 
@@ -165,20 +177,89 @@
 
         };
 
-        me.setBordersXX = function(x0, x1) {
-            me._core.setBordersXX(x0, x1);
+        me.setGeometryMinX = function(value) {
+            if(value > 1.0 || value < 0.0) {
+                throw Error("Geometry size  should be in range [0.0 - 1.0] !");
+            }
+
+            if(value > me._core.getGeometryMaxX()) {
+                throw Error("Min X should be lower than max X!");
+            }
+
+            me._core.setGeometryMinX(value);
+            me._needRedraw = true;
+
+
+        };
+
+        me.setGeometryMaxX = function(value) {
+            if(value > 1.0 || value < 0.0) {
+                throw Error("Geometry size  should be in range [0.0 - 1.0] !");
+            }
+
+            if(value < me._core.getGeometryMinX()) {
+                throw Error("Max X should be bigger than min X!");
+            }
+
+            me._core.setGeometryMaxX(value);
+            me._needRedraw = true;
+
+
+        };
+
+        me.setGeometryMinY = function(value) {
+            if(value > 1.0 || value < 0.0) {
+                throw Error("Geometry size  should be in range [0.0 - 1.0] !");
+            }
+
+            if(value > me._core.getGeometryMaxY()) {
+                throw Error("Min Y should be lower than max Y!");
+            }
+
+            me._core.setGeometryMinY(value);
             me._needRedraw = true;
 
         };
 
-        me.setBordersYY = function(y0, y1) {
-            me._core.setBordersYY(y0, y1);
+        me.setGeometryMaxY = function(value) {
+            if(value > 1.0 || value < 0.0) {
+                throw Error("Geometry size  should be in range [0.0 - 1.0] !");
+            }
+
+            if(value < me._core.getGeometryMinY()) {
+                throw Error("Max Y should be bigger than min Y!");
+
+            }
+
+            me._core.setGeometryMaxY(value);
             me._needRedraw = true;
 
         };
 
-        me.setBordersZZ = function(z0, z1) {
-            me._core.setBordersZZ(z0, z1);
+        me.setGeometryMinZ = function(value) {
+            if(value > 1.0 || value < 0.0) {
+                throw Error("Geometry size  should be in range [0.0 - 1.0] !");
+            }
+
+            if(value > me._core.getGeometryMaxZ()) {
+                throw Error("Min Z should be lower than max Z!");
+            }
+
+            me._core.setGeometryMinZ(value);
+            me._needRedraw = true;
+
+        };
+
+        me.setGeometryMaxZ = function(value) {
+            if(value > 1.0 || value < 0.0) {
+                throw Error("Geometry size  should be in range [0.0 - 1.0] !");
+            }
+
+            if(value < me._core.getGeometryMinZ()) {
+                throw Error("Max Z should be bigger than min Z!");
+            }
+
+            me._core.setGeometryMaxZ(value);
             me._needRedraw = true;
 
         };
@@ -219,6 +300,12 @@
 
         me.setMaxGrayValue = function(value) {
             me._core.setMaxGrayValue(value);
+            me._needRedraw = true;
+
+        };
+
+        me.setTransferFunction = function(colors, size) {
+            me._core.setTransferFunction(colors, size);
             me._needRedraw = true;
 
         };

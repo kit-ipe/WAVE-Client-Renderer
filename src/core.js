@@ -14,37 +14,6 @@
 
         var me = {};
 
-        me._steps              = 20;
-        me._slices_gap         = [0,    '*'];
-        me._slicemap_row_col   = [16,   16];
-        me._gray_value         = [0.01, 1.0];
-        me._border_XX          = [0,    1];
-        me._border_YY          = [0,    1];
-        me._border_ZZ          = [0,    1];
-        me._images             = [];
-        me._textures           = [];
-        me._opacity_factor     = 1.0;
-        me._color_factor       = 1.0;
-        me._render_resolution  = ['*', '*'];
-        me._render_clear_color = "#ffffff";
-
-        me._firtsPassMaterial =  {};
-        me._secondPassMaterial = {};
-
-        me._container = {};
-        me._renderer = {};
-        me._camera = {};
-        me._rtTexture = {};
-
-        me._materialFirstPass = {};
-        me._materialSecondPass = {};
-
-        me._sceneFirstPass = {};
-        me._sceneSecondPass = {};
-
-        me._meshFirstPass = {};
-        me._meshSecondPass = {};
-
         me.init = function() {
             me._container = document.getElementById( 'container' );
 
@@ -69,7 +38,7 @@
                 attributes: {
                     vertColor: {type: 'c', value: [] }
                 },
-                side: THREE.BackSide,
+                side: THREE.FrontSide,
                 transparent: true
             } );
             
@@ -80,38 +49,38 @@
                     vertColor: {type: 'c', value: [] }
                 },
                 uniforms: {
-                    uBackCoord:       { type: "t",  value: me._rtTexture }, 
-                    uSliceMaps:       { type: "tv", value: me._textures }, 
-                    // uTransferFunction:{ type: "t",  value: transferTexture },
+                    uBackCoord:           { type: "t",  value: me._rtTexture }, 
+                    uSliceMaps:           { type: "tv", value: me._textures }, 
+                    uTransferFunction:    { type: "t",  value: me._transfer_function },
 
-                    uSteps:           { type: "f", value: me._steps },
-                    uNumberOfSlices:  { type: "f", value: me.getSlicesGap()[1] },
-                    uSlicesOverX:     { type: "f", value: me._slicemap_row_col[0] },
-                    uSlicesOverY:     { type: "f", value: me._slicemap_row_col[1] },
-                    uOpacityVal:      { type: "f", value: me._opacity_factor },
-                    uColorVal:        { type: "f", value: me._color_factor },
-                    uMinGrayVal:      { type: "f", value: me._gray_value[0] },
-                    uMaxGrayVal:      { type: "f", value: me._gray_value[1] }
+                    uSteps:               { type: "f", value: me._steps },
+                    uNumberOfSlices:      { type: "f", value: me.getSlicesGap()[1] },
+                    uSlicesOverX:         { type: "f", value: me._slicemap_row_col[0] },
+                    uSlicesOverY:         { type: "f", value: me._slicemap_row_col[1] },
+                    uOpacityVal:          { type: "f", value: me._opacity_factor },
+                    uColorVal:            { type: "f", value: me._color_factor },
+                    uAbsorptionModeIndex: { type: "f", value: me._absorption_mode_index },
+                    uMinGrayVal:          { type: "f", value: me._gray_value[0] },
+                    uMaxGrayVal:          { type: "f", value: me._gray_value[1] }
                 },
-                side: THREE.FrontSide,
+                side: THREE.BackSide,
                 transparent: true
             });
 
             me._sceneFirstPass = new THREE.Scene();
             me._sceneSecondPass = new THREE.Scene();
 
-            var originalDimension = new GeometryDimension();
+            // var originalDimension = new GeometryDimension();
 
             var geometryHelper = new GeometryHelper();
-            geometry = geometryHelper.createBoxGeometry(originalDimension);
+            me._geometry = geometryHelper.createBoxGeometry(me.getGeometryDimension());
 
-            geometry.applyMatrix( new THREE.Matrix4().makeTranslation( -0.5, -0.5, -0.5 ) );
-            geometry.applyMatrix( new THREE.Matrix4().makeRotationX(Math.PI));
-
-            geometry.doubleSided = true;
+            me._geometry.applyMatrix( new THREE.Matrix4().makeTranslation( -0.5, -0.5, -0.5 ) );
+            me._geometry.applyMatrix( new THREE.Matrix4().makeRotationX(Math.PI));
+            me._geometry.doubleSided = true;
             
-            me._meshFirstPass = new THREE.Mesh( geometry.clone(), me._materialFirstPass );
-            me._meshSecondPass = new THREE.Mesh( geometry.clone(), me._materialSecondPass );
+            me._meshFirstPass = new THREE.Mesh( me._geometry, me._materialFirstPass );
+            me._meshSecondPass = new THREE.Mesh( me._geometry, me._materialSecondPass );
                     
             me._sceneFirstPass.add( me._meshFirstPass );
             me._sceneSecondPass.add( me._meshSecondPass );
@@ -141,6 +110,17 @@
                 me.onCameraChangeEnd.Call();
 
             });
+
+            me._transfer_function = me._genTransferTexture(
+                        [
+                        {"pos": 0.25, "color": "#ff0000"},
+                        {"pos": 0.5,  "color": "#00ff00"},
+                        {"pos": 0.75, "color": "#0000ff"},
+
+                        ],
+
+                        [10, 255]
+                    );
 
         };
 
@@ -177,6 +157,54 @@
 
         };
 
+        me._genTransferTexture = function(colors, size) {
+            var canvas = document.createElement('canvas');
+            canvas.width  = size[1];
+            canvas.height = size[0];
+
+            var ctx = canvas.getContext('2d');
+            
+            var grd = ctx.createLinearGradient(0, 0, canvas.width -1 , canvas.height - 1);
+
+            for(var i=0; i<colors.length; i++) {
+                grd.addColorStop(colors[i].pos, colors[i].color);
+
+            }
+
+            ctx.fillStyle = grd;
+            ctx.fillRect(0,0,canvas.width ,canvas.height);
+
+            var img = document.getElementById("transferFunctionImg");
+            img.src = canvas.toDataURL();
+            img.style.width = size[0] + " px";
+            img.style.height = size[1] + " px";
+
+            var transferTexture =  new THREE.Texture(canvas);
+            transferTexture.wrapS = transferTexture.wrapT =  THREE.ClampToEdgeWrapping;
+            transferTexture.flipY = true;
+            transferTexture.needsUpdate = true;
+
+            me._materialSecondPass.uniforms.uTransferFunction.value = transferTexture;
+
+            return transferTexture;  
+        };
+
+        me._updateGeometry = function(geometryDimension) {
+            var geometry      = (new GeometryHelper()).createBoxGeometry(geometryDimension);
+            var colorArray    = geometry.attributes.vertColor.array;
+            var positionArray = geometry.attributes.position.array;
+
+            me._geometry.attributes.vertColor.array = colorArray;
+            me._geometry.attributes.vertColor.needsUpdate = true;
+
+            me._geometry.attributes.position.array = positionArray;
+            me._geometry.attributes.position.needsUpdate = true;
+
+            me._geometry.applyMatrix( new THREE.Matrix4().makeTranslation( -0.5, -0.5, -0.5 ) );
+            me._geometry.applyMatrix( new THREE.Matrix4().makeRotationX(Math.PI));
+            me._geometry.doubleSided = true;
+        };
+
         me.setImages = function(images) {
             me._images = images;
             me._setTextures(images);
@@ -210,22 +238,44 @@
 
         me.setAbsorptionMode = function(mode_index) {
             me._absorption_mode_index = mode_index;
+            me._materialSecondPass.uniforms.uAbsorptionModeIndex.value = me._absorption_mode_index;
             console.log("Core: setAbsorptionMode()");
         };
 
-        me.setBordersXX = function(x0, x1) {
-            me._border_XX = [x0, x1];
-            console.log("Core: setBordersXX()");
+        me.setGeometryMinX = function(value) {
+            me._geometry_dimension["xmin"] = value;
+            me._updateGeometry(me._geometry_dimension);
+            console.log("Core: setGeometryMinX()");
         };
 
-        me.setBordersYY = function(y0, y1) {
-            me._border_YY = [y0, y1];
-            console.log("Core: setBordersYY()");
+        me.setGeometryMaxX = function(value) {
+            me._geometry_dimension["xmax"] = value;
+            me._updateGeometry(me._geometry_dimension);
+            console.log("Core: setGeometryMaxX()");
         };
 
-        me.setBordersZZ = function(z0, z1) {
-            me._border_ZZ = [z0, z1];            
-            console.log("Core: setBordersZZ()");
+        me.setGeometryMinY = function(value) {
+            me._geometry_dimension["ymin"] = value;
+            me._updateGeometry(me._geometry_dimension);
+            console.log("Core: setGeometryMinY()");
+        };
+
+        me.setGeometryMaxY = function(value) {
+            me._geometry_dimension["ymax"] = value;
+            me._updateGeometry(me._geometry_dimension);
+            console.log("Core: setGeometryMaxY()");
+        };
+
+        me.setGeometryMinZ = function(value) {
+            me._geometry_dimension["zmin"] = value;
+            me._updateGeometry(me._geometry_dimension);
+            console.log("Core: setGeometryMinZ()");
+        };
+
+        me.setGeometryMaxZ = function(value) {
+            me._geometry_dimension["zmax"] = value;
+            me._updateGeometry(me._geometry_dimension);
+            console.log("Core: setGeometryMaxZ()");
         };
 
         me.setResolution = function(width, height) {
@@ -258,6 +308,11 @@
             me._gray_value[1] = value;
             me._materialSecondPass.uniforms.uMaxGrayVal.value = me._gray_value[1];
             console.log("Core: setMaxGrayValue()");
+        };
+
+        me.setTransferFunction = function(colors, size) {
+            me._genTransferTexture(colors, size);
+
         };
 
         me.onPreDraw           = new RC.Delegate();
@@ -316,6 +371,66 @@
 
             return [width, height];
         };
+
+        me.getGeometryDimension = function() {
+            return me._geometry_dimension;
+        };
+
+        me.getGeometryMinX = function() {
+            return me._geometry_dimension["xmin"];
+        };
+
+        me.getGeometryMaxX = function() {
+            return me._geometry_dimension["xmax"];
+        };
+
+        me.getGeometryMinY = function() {
+            return me._geometry_dimension["ymin"];
+        };
+
+        me.getGeometryMaxY = function() {
+            return me._geometry_dimension["ymax"];
+        };
+
+        me.getGeometryMinZ = function() {
+            return me._geometry_dimension["zmin"];
+        };
+
+        me.getGeometryMaxZ = function() {
+            return me._geometry_dimension["zmax"];
+        };
+
+        me._steps                 = 20;
+        me._slices_gap            = [0,    '*'];
+        me._slicemap_row_col      = [16,   16];
+        me._gray_value            = [0.0, 1.0];
+        me._images                = [];
+        me._textures              = [];
+        me._opacity_factor        = 1.0;
+        me._color_factor          = 1.0;
+        me._absorption_mode_index = 0.0;
+        me._render_resolution     = ['*', '*'];
+        me._render_clear_color    = "#ffffff";
+        me._transfer_function     = [];
+        me._geometry_dimension    = {"xmin": 0.0, "xmax": 1.0, "ymin": 0.0, "ymax": 1.0, "zmin": 0.0, "zmax": 1.0};
+
+        me._firtsPassMaterial     = {};
+        me._secondPassMaterial    = {};
+
+        me._container = {};
+        me._renderer = {};
+        me._camera = {};
+        me._rtTexture = {};
+
+        me._geometry = {};
+        me._materialFirstPass     = {};
+        me._materialSecondPass    = {};
+
+        me._sceneFirstPass        = {};
+        me._sceneSecondPass       = {};
+
+        me._meshFirstPass         = {};
+        me._meshSecondPass        = {};
 
         return me;
 
