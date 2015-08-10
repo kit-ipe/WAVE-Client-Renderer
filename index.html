@@ -52,7 +52,7 @@
 			// 'lidar_4096x4096_8x8_n_1.jpg',
 			// 'lidar_2048x2048_16x16_n_0.jpg'
 			];
-			rcl = new VRC.VolumeRaycaster({
+			rcl0 = new VRC.VolumeRaycaster({
 				"dom_container_id": "container",
 				// "slicemaps_images": images,
 				"slicemaps_paths": images_paths,
@@ -61,14 +61,71 @@
 				"gray_max": 1.0,
 				"row_col": [16, 16],
 				"steps": 1024,
-				"resolution": ['*', '*'],
+				"resolution": [700, 700],
+				"absorption_mode": 0,
+				// "z_min": 0.4,
+				// "z_max": 0.6,
+				"auto_steps": false,
+			});
+
+			rcl0.setTransferFunctionByColors(
+				[
+	                {"pos": 1.0, "color": "#7F0000"},
+	                {"pos": 0.75, "color": "#FF9400"},
+	                {"pos": 0.5,  "color": "#7CFF79"},
+	                {"pos": 0.0, "color": "#000000"},
+	                {"pos": 1.0, "color": "#FFFFFF"},
+
+	            ]
+
+			);
+
+			rcl1 = new VRC.VolumeRaycaster({
+				"dom_container_id": "container",
+				// "slicemaps_images": images,
+				"slicemaps_paths": images_paths,
+				"gap_slices": [0, 255],
+				"gray_min": 0.1,
+				"gray_max": 1.0,
+				"row_col": [16, 16],
+				"steps": 1024,
+				"resolution": [700, 700],
+				"absorption_mode": 1,
+				// "z_min": 0.4,
+				// "z_max": 0.6,
+				"auto_steps": false,
+			});
+
+			rcl1.setTransferFunctionByColors(
+				[
+	                {"pos": 1.0, "color": "#7F0000"},
+	                {"pos": 0.75, "color": "#FF9400"},
+	                {"pos": 0.5,  "color": "#7CFF79"},
+	                {"pos": 0.0, "color": "#000000"},
+	                {"pos": 1.0, "color": "#FFFFFF"},
+
+	            ]
+
+			);
+
+
+			rcl2 = new VRC.VolumeRaycaster({
+				"dom_container_id": "container",
+				// "slicemaps_images": images,
+				"slicemaps_paths": images_paths,
+				"gap_slices": [0, 255],
+				"gray_min": 0.1,
+				"gray_max": 1.0,
+				"row_col": [16, 16],
+				"steps": 1024,
+				"resolution": [700, 700],
 				"absorption_mode": 2,
 				// "z_min": 0.4,
 				// "z_max": 0.6,
 				"auto_steps": false,
 			});
 
-			rcl.setTransferFunctionByColors(
+			rcl2.setTransferFunctionByColors(
 				[
 	                {"pos": 1.0, "color": "#7F0000"},
 	                {"pos": 0.75, "color": "#FF9400"},
