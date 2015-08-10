@@ -12,10 +12,10 @@
 		<script src="./src/raycasterNamespace.js"></script>
 		<script src="./src/delegate.js"></script>
 		<script src="./src/adaptaionManager.js"></script>
-		<script src="./src/GeometryHelper.js"></script>
+		<script src="./src/geometryHelper.js"></script>
 		<script src="./src/shaders.js"></script>
 		<script src="./src/core.js"></script>
-		<script src="./src/raycaster.js"></script>
+		<script src="./src/volumeRaycaster.js"></script>
 
 	</head>
 	<body>
@@ -25,39 +25,6 @@
 		<img id="transferFunctionImg"/>
 
 		<script>
-
-			var download_images = function(images_paths, one_on_load, all_on_load, on_error) {
-				var downloaded_images = [];
-				var downloaded_images_number = 0;
-
-				try {
-					for (var image_index = 0; image_index < images_paths.length; image_index++) {
-						var image = new Image();
-						(function(image, image_index) {
-							image.onload = function() {
-								downloaded_images[image_index] = image;
-								downloaded_images_number++;
-								
-								one_on_load(image);
-								
-								if(downloaded_images_number == images_paths.length) {
-									all_on_load(downloaded_images);
-								};
-
-							};
-
-							image.src = images_paths[image_index];
-
-						})(image, image_index);
-
-					};
-				}
-				catch(e) {
-					on_error(e);
-
-				};
-
-			};
 
 			var images_paths = [
 			// 'slicemap0.png',
@@ -74,71 +41,44 @@
 			// 'sara_8192x8192_19x19_bl_1.jpg',
 			// 'sara_8192x8192_19x19_bl_2.jpg',
 			// 'sara_8192x8192_19x19_bl_3.jpg',
+			
 
-			'lidar_4096x4096_8x8_n_0.jpg',
-			'lidar_4096x4096_8x8_n_1.jpg',
+			// 'patient17_clinc_sinc24.jpg',
+			// 'Jena_P16_km3-sinc12.jpg',
+			'data/bonsai.raw.png',
+
+
+			// 'lidar_4096x4096_8x8_n_0.jpg',
+			// 'lidar_4096x4096_8x8_n_1.jpg',
 			// 'lidar_2048x2048_16x16_n_0.jpg'
 			];
+			rcl = new VRC.VolumeRaycaster({
+				"dom_container_id": "container",
+				// "slicemaps_images": images,
+				"slicemaps_paths": images_paths,
+				"gap_slices": [0, 255],
+				"gray_min": 0.1,
+				"gray_max": 1.0,
+				"row_col": [16, 16],
+				"steps": 1024,
+				"resolution": ['*', '*'],
+				"absorption_mode": 2,
+				// "z_min": 0.4,
+				// "z_max": 0.6,
+				"auto_steps": false,
+			});
 
-			textures = [];
+			rcl.setTransferFunctionByColors(
+				[
+	                {"pos": 1.0, "color": "#7F0000"},
+	                {"pos": 0.75, "color": "#FF9400"},
+	                {"pos": 0.5,  "color": "#7CFF79"},
+	                {"pos": 0.0, "color": "#000000"},
+	                {"pos": 1.0, "color": "#FFFFFF"},
 
-			var one_on_load = function(img) {
-				console.log(img.src);
+	            ]
 
-			};
-
-			var all_on_load = function(images) {
-				console.log(images);
-				window.images = images;
-
-				rcl = new RC.RaycasterLib();
-
-				rcl.setConfig({
-					"images": images,
-					"gap_slices": [0, 110],
-					"gray_min": 0.1,
-					"gray_max": 1.0,
-					"row_col": [8, 8],
-					"steps": 1024,
-					// "resolution": [512, 512],
-					"absorption_mode": 1,
-					// "x_min": 0.4,
-					// "x_max": 0.6,
-					"auto_steps": true,
-				});
-
-				rcl.addOnResizeCallback(function() {
-					rcl._core._camera.aspect = window.innerWidth / window.innerHeight;
-					rcl._core._camera.updateProjectionMatrix();
-				    rcl.setResolution(window.innerWidth, window.innerHeight);
-				});
-
-				rcl.setTransferFunction(
-					[
-                        {"pos": 1.0, "color": "#7F0000"},
-                        {"pos": 0.75, "color": "#FF9400"},
-                        {"pos": 0.5,  "color": "#7CFF79"},
-                        {"pos": 0.0, "color": "#000000"},
-                        {"pos": 1.0, "color": "#FFFFFF"},
-
-                        // {"pos": 0.0, "color": "#00007F"},
-                        // {"pos": 0.25, "color": "#0080FF"},
-                        // {"pos": 0.5,  "color": "#7CFF79"},
-                        // {"pos": 0.75, "color": "#FF9400"},
-                        // {"pos": 1.0, "color": "#7F0000"},
-
-
-                    ],
-                    [20, 500]
-
-    			);
-			};
-
-			var on_error = function(e) {
-				console.log(e);
-			};
-
-			download_images(images_paths, one_on_load, all_on_load, on_error);
+			);
 
 		</script>
 

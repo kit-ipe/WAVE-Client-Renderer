@@ -3,7 +3,7 @@
  * Shaders
  * 
  * @class Shaders
- * @this {RC.Delegate}
+ * @this {RC.Shader}
  * @author sogimu@nxt.ru Aleksandr Lizin aka sogimu
  * @version 0.1
  *
@@ -181,7 +181,8 @@
 
             "    vec4 accum = vec4(0, 0, 0, 0);",
             "    vec4 sample = vec4(0.0, 0.0, 0.0, 0.0);",
-            "    vec4 value = vec4(0, 0, 0, 0);",
+            "    vec4 color_value = vec4(0, 0, 0, 0);",
+            "    float biggest_gray_value = 0.0;",
 
             "    float opacityFactor = 8.0;//uOpacityVal;",
             "    float lightFactor = 1.3;//uColorVal;",
@@ -195,37 +196,41 @@
             "            break;",
             "        }",
 
-            "        float pos = getVolumeValue(vpos.xyz);",
+            "        float gray_val = getVolumeValue(vpos.xyz);",
 
-            "       // value = vec4(tf_pos.x, tf_pos.x, tf_pos.x, 1.0);",
-
-            "        if(pos < uMinGrayVal || pos > uMaxGrayVal) {",
-            "            value = vec4(0.0);",
+            "        if(gray_val < uMinGrayVal || gray_val > uMaxGrayVal) {",
+            "            color_value = vec4(0.0);",
             "        } else {",
+            "            if(biggest_gray_value < gray_val) {",
+            "               biggest_gray_value = gray_val;",
+            "            }",
             "            vec2 tf_pos;",
-            "            tf_pos.x = (pos - uMinGrayVal) / (uMaxGrayVal - uMinGrayVal);",
+            "            tf_pos.x = (gray_val - uMinGrayVal) / (uMaxGrayVal - uMinGrayVal);",
             "            tf_pos.y = 0.5;",
 
-            "            value = texture2D(uTransferFunction,tf_pos); " ,  
-            "            // value = vec4(pos, pos, pos, 1.0);",
+            "            color_value = texture2D(uTransferFunction,tf_pos); " ,
+            "            // color_value = vec4(pos, pos, pos, 1.0);",
+
+            "            if(uAbsorptionModeIndex == 0.0)",
+                "        {",
+                "            sample.a = color_value.a * opacityFactor;",
+                "            sample.rgb = color_value.rgb * uColorVal;",
+                "            accum += sample;",
+                "            if(accum.a>=0.95)",
+                "               break;",
+
+                "        }",
+
+                "        if(uAbsorptionModeIndex == 1.0)",
+                "        {",
+                "            sample.a = color_value.a * opacityFactor * (1.0 / uSteps);",
+                "            sample.rgb = (1.0 - accum.a) * color_value.rgb * sample.a * lightFactor;",
+                "            accum += sample;",
+                "            if(accum.a>=0.95)",
+                "               break;",
+
+                "        }",
             "        }",
-
-            "        if(uAbsorptionModeIndex == 1.0)",
-            "        {",
-            "            sample.a = value.a * opacityFactor * (1.0 / uSteps);",
-            "            sample.rgb = (1.0 - accum.a) * value.rgb * sample.a * lightFactor;",
-
-            "        }",
-            "        else",
-            "        {",
-            "            sample.a = value.a * opacityFactor;",
-            "            sample.rgb = value.rgb * uColorVal;",
-
-            "        }",
-
-            "        // accum.rgb += sample.rgb;",
-            "        // accum.a += sample.a;",
-            "        accum += sample;",
 
             "        //advance the current position",
             "        vpos.xyz += Step;",
@@ -236,9 +241,22 @@
             "            break;",
             "        }",
 
-            "        if(accum.a>=0.95)",
-            "           break;",
             "    }",
+
+            "    if(uAbsorptionModeIndex == 2.0)",
+            "    {",
+            "       if(biggest_gray_value == 0.0) {",
+            "           accum = vec4(0.0);",                              
+            "       } else {",
+            "            vec2 tf_pos;",
+            "            tf_pos.x = (biggest_gray_value - uMinGrayVal) / (uMaxGrayVal - uMinGrayVal);",
+            "            tf_pos.y = 0.5;",
+
+            "            accum = texture2D(uTransferFunction,tf_pos); " ,
+            "       }",
+                     
+            "    }",
+
 
             "    gl_FragColor = accum;",
 
@@ -248,10 +266,9 @@
         /**
         * Constructor
         *
-        * @method Delegate.Constructor
-        * @this {RC.Delegate}
-        * @Delegate {Object} O
-        * @Delegate {Object} O.self         Context for calling
+        * @method Shader.Constructor
+        * @this {RC.Shader}
+        * @EventDispatcher {Object} O
         */
         me.Constructor = function(O) {
             
@@ -265,4 +282,4 @@
     
     namespace.Shaders = Shaders;
 
-})(window.RC);
+})(window.VRC);

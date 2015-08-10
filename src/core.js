@@ -9,29 +9,8 @@
  *
  */
 
-// vs_first_pass = ["#ifdef GL_FRAGMENT_PRECISION_HIGH",
-//                 "precision highp int;",
-//                 "precision highp float;",
-//             "#else",
-//                 "precision mediump int;",
-//                 "precision mediump float;",
-//             "#endif",
-
-//             "attribute vec4 vertColor;",
-
-//             "varying vec4 backColor;",
-//             "varying vec4 pos;",
-
-//             "void main(void)",
-//             "{",
-//             "    backColor = vertColor;",
-
-//             "    pos = projectionMatrix * modelViewMatrix * vec4(position, 1.0);",
-//             "    gl_Position = pos;",
-//             "}"].join('\n');
-
 (function(namespace) {
-    var Core = function() {
+    var Core = function(domContainerId) {
 
         var me = {};
 
@@ -39,8 +18,8 @@
         me._slices_gap            = [0,    '*'];
         me._slicemap_row_col      = [16,   16];
         me._gray_value            = [0.0, 1.0];
-        me._images                = [];
-        me._textures              = [];
+        me._slicemaps_images      = [];
+        me._slicemaps_textures    = [];
         me._opacity_factor        = 1.0;
         me._color_factor          = 1.0;
         me._absorption_mode_index = 0.0;
@@ -49,15 +28,47 @@
         me._transfer_function     = [];
         me._geometry_dimension    = {"xmin": 0.0, "xmax": 1.0, "ymin": 0.0, "ymax": 1.0, "zmin": 0.0, "zmax": 1.0};
 
+        me._transfer_function_colors = [
+                        {"pos": 0.25, "color": "#ff0000"},
+                        {"pos": 0.5,  "color": "#00ff00"},
+                        {"pos": 0.75, "color": "#0000ff"}]
+
         me._firtsPassMaterial     = {};
         me._secondPassMaterial    = {};
 
-        me._container = {};
-        me._renderer = {};
-        me._camera = {};
-        me._rtTexture = {};
+        me._dom_container_id      = domContainerId != undefined ? domContainerId : "container";
+        me._dom_container         = {};
+        me._renderer              = {};
+        me._camera                = {};
+        me._camera_settings       = {
+            "rotation": {
+                x: 0.0,
+                y: 0.0,
+                z: 0.0
+            },
+            "position": {
+                "x": 0,
+                "y": 0,
+                "z": 2
+            }
+        };
 
-        me._geometry = {};
+        me._rtTexture             = {};
+
+        me._geometry              = {};
+        me._geometry_settings     = {
+            "rotation": {
+                x: Math.PI,
+                y: 0.0,
+                z: 0.0
+            },
+            "position": {
+                "x": -0.5,
+                "y": -0.5,
+                "z": -0.5
+            }
+        };
+
         me._materialFirstPass     = {};
         me._materialSecondPass    = {};
 
@@ -67,18 +78,33 @@
         me._meshFirstPass         = {};
         me._meshSecondPass        = {};
 
-        me._shaders = new RC.Shaders();
+        me.onPreDraw              = new VRC.EventDispatcher();
+        me.onPostDraw             = new VRC.EventDispatcher();
+        me.onResize               = new VRC.EventDispatcher();
+        me.onCameraChange         = new VRC.EventDispatcher();
+        me.onCameraChangeStart    = new VRC.EventDispatcher();
+        me.onCameraChangeEnd      = new VRC.EventDispatcher();
+
+        me._onWindowResizeFuncIndex = -1;
+
+        me._shaders = new VRC.Shaders();
 
         me.init = function() {
-            me._container = document.getElementById( 'container' );
+            me._container = me.getDOMContainer();
 
             me._renderer = new THREE.WebGLRenderer();
             me._renderer.setSize( me.getResolution()[0], me.getResolution()[1] );
             me._renderer.setClearColor( me._render_clear_color );
             me._container.appendChild( me._renderer.domElement );
 
-            me._camera = new THREE.PerspectiveCamera( 45, me.getResolution()[0] / me.getResolution()[1], 0.01, 1000 );
-            me._camera.position.z = 2;
+            me._camera = new THREE.PerspectiveCamera( 45, me.getResolution()[0] / me.getResolution()[1], 0.01, 11 );
+            me._camera.position.x = me._camera_settings["position"]["x"];
+            me._camera.position.y = me._camera_settings["position"]["y"];
+            me._camera.position.z = me._camera_settings["position"]["z"];
+
+            me._camera.rotation.x = me._camera_settings["rotation"]["x"];
+            me._camera.rotation.y = me._camera_settings["rotation"]["y"];
+            me._camera.rotation.z = me._camera_settings["rotation"]["z"];
 
             me._controls = new THREE.OrbitControls( me._camera, me._renderer.domElement );
             me._controls.center.set( 0.0, 0.0, 0.0 );
@@ -105,7 +131,7 @@
                 },
                 uniforms: {
                     uBackCoord:           { type: "t",  value: me._rtTexture }, 
-                    uSliceMaps:           { type: "tv", value: me._textures }, 
+                    uSliceMaps:           { type: "tv", value: me._slicemaps_textures }, 
                     uTransferFunction:    { type: "t",  value: me._transfer_function },
 
                     uSteps:               { type: "f", value: me._steps },
@@ -130,8 +156,10 @@
             var geometryHelper = new GeometryHelper();
             me._geometry = geometryHelper.createBoxGeometry(me.getGeometryDimension());
 
-            me._geometry.applyMatrix( new THREE.Matrix4().makeTranslation( -0.5, -0.5, -0.5 ) );
-            me._geometry.applyMatrix( new THREE.Matrix4().makeRotationX(Math.PI));
+            me._geometry.applyMatrix( new THREE.Matrix4().makeTranslation( me._geometry_settings["position"]["x"], me._geometry_settings["position"]["y"], me._geometry_settings["position"]["z"] ) );
+            me._geometry.applyMatrix( new THREE.Matrix4().makeRotationX( me._geometry_settings["rotation"]["x"] ));
+            me._geometry.applyMatrix( new THREE.Matrix4().makeRotationY( me._geometry_settings["rotation"]["y"] ));
+            me._geometry.applyMatrix( new THREE.Matrix4().makeRotationZ( me._geometry_settings["rotation"]["z"] ));
             me._geometry.doubleSided = true;
             
             me._meshFirstPass = new THREE.Mesh( me._geometry, me._materialFirstPass );
@@ -147,54 +175,40 @@
             container.appendChild( stats.domElement );
 
             window.addEventListener( 'resize', function() {
-                me.onResize.Call();
+                me.onResize.call();
 
             }, false );
 
             me._controls.addEventListener("change", function() {
-                me.onCameraChange.Call();
+                me.onCameraChange.call();
 
             });
 
             me._controls.addEventListener("start", function() {
-                me.onCameraChangeStart.Call();
+                me.onCameraChangeStart.call();
 
             });
 
             me._controls.addEventListener("end", function() {
-                me.onCameraChangeEnd.Call();
+                me.onCameraChangeEnd.call();
 
             });
 
-            me._transfer_function = me._genTransferTexture(
-                        [
-                        {"pos": 0.25, "color": "#ff0000"},
-                        {"pos": 0.5,  "color": "#00ff00"},
-                        {"pos": 0.75, "color": "#0000ff"},
+            me._transfer_function = me.setTransferFunctionByColors(me._transfer_function_colors);
 
-                        ],
+            me._onWindowResizeFuncIndex = me.onResize.add(function() {
+                me.setResolution('*', '*');
 
-                        [10, 255]
-                    );
+            }, false);
 
         };
 
-        // me.setConfig = function(config) {
-        //     me._steps              = config['steps']             ? config['steps'] : me._steps;
-        //     me._slices_gap         = config['slices_gap']        ? config['slices_gap'] : me._slices_gap;
-        //     me._border_XX          = config['border_XX']         ? config['border_XX'] : me._border_XX;
-        //     me._border_YY          = config['border_YY']         ? config['border_YY'] : me._border_YY;
-        //     me._border_ZZ          = config['border_ZZ']         ? config['border_ZZ'] : me._border_ZZ;
-        //     me._images             = config['images']            ? config['images'] : me._images;
-        //     me._opacity_factor     = config['opacity_factor']    ? config['opacity_factor'] : me._opacity_factor;
-        //     me._color_factor       = config['color_factor']      ? config['color_factor'] : me._color_factor;
-        //     me._render_resolution  = config['resolution']        ? config['resolution'] : me._render_resolution;
-        //     me._render_clear_color = config['backgound']         ? config['backgound'] : me._render_clear_color;
+        me._secondPassSetUniformValue = function(key, value) {
+            me._materialSecondPass.uniforms[key].value = value;
 
-        //     me._updateUniforms();
-        // };
+        };
 
-        me._setTextures = function(images) {
+        me._setSlicemapsTextures = function(images) {
             var textures = [];
 
             for(var i=0; i<images.length; i++) {
@@ -208,14 +222,24 @@
                 textures.push(texture);
             };
 
-            me._textures = textures;
+            me._slicemaps_textures = textures;
 
         };
 
-        me._genTransferTexture = function(colors, size) {
+        me.setTransferFunctionByImage = function(image) {
+            var transferTexture =  new THREE.Texture(image);
+            transferTexture.wrapS = transferTexture.wrapT =  THREE.ClampToEdgeWrapping;
+            transferTexture.flipY = true;
+            transferTexture.needsUpdate = true;
+
+            me._secondPassSetUniformValue("uTransferFunction", transferTexture);
+
+        };
+
+        me.setTransferFunctionByColors = function(colors) {
             var canvas = document.createElement('canvas');
-            canvas.width  = size[1];
-            canvas.height = size[0];
+            canvas.width  = 512;
+            canvas.height = 2;
 
             var ctx = canvas.getContext('2d');
             
@@ -231,20 +255,14 @@
 
             var img = document.getElementById("transferFunctionImg");
             img.src = canvas.toDataURL();
-            img.style.width = size[0] + " px";
-            img.style.height = size[1] + " px";
+            img.style.width = 20 + " px";
+            img.style.height = 512 + " px";
 
-            var transferTexture =  new THREE.Texture(canvas);
-            transferTexture.wrapS = transferTexture.wrapT =  THREE.ClampToEdgeWrapping;
-            transferTexture.flipY = true;
-            transferTexture.needsUpdate = true;
+            var transferTexture = me.setTransferFunctionByImage(canvas);
 
-            me._materialSecondPass.uniforms.uTransferFunction.value = transferTexture;
-
-            return transferTexture;  
         };
 
-        me._updateGeometry = function(geometryDimension) {
+        me._setGeometry = function(geometryDimension) {
             var geometry      = (new GeometryHelper()).createBoxGeometry(geometryDimension);
             var colorArray    = geometry.attributes.vertColor.array;
             var positionArray = geometry.attributes.position.array;
@@ -255,88 +273,111 @@
             me._geometry.attributes.position.array = positionArray;
             me._geometry.attributes.position.needsUpdate = true;
 
-            me._geometry.applyMatrix( new THREE.Matrix4().makeTranslation( -0.5, -0.5, -0.5 ) );
-            me._geometry.applyMatrix( new THREE.Matrix4().makeRotationX(Math.PI));
+            me._geometry.applyMatrix( new THREE.Matrix4().makeTranslation( me._geometry_settings["position"]["x"], me._geometry_settings["position"]["y"], me._geometry_settings["position"]["z"] ) );
+            me._geometry.applyMatrix( new THREE.Matrix4().makeRotationX( me._geometry_settings["rotation"]["x"] ));
+            me._geometry.applyMatrix( new THREE.Matrix4().makeRotationY( me._geometry_settings["rotation"]["y"] ));
+            me._geometry.applyMatrix( new THREE.Matrix4().makeRotationZ( me._geometry_settings["rotation"]["z"] ));
+
             me._geometry.doubleSided = true;
         };
 
-        me.setImages = function(images) {
-            me._images = images;
-            me._setTextures(images);
-            me._materialSecondPass.uniforms.uSliceMaps.value = me._textures;
-            console.log("Core: setImages()");
+        me.setSlicemapsImages = function(images) {
+            me._slicemaps_images = images;
+            me._setSlicemapsTextures(images);
+            me._secondPassSetUniformValue("uSliceMaps", me._slicemaps_textures);
+            console.log("Core: setSlicemapsImages()");
         };
 
         me.setSteps = function(steps) {
             me._steps = steps;
-            me._materialSecondPass.uniforms.uSteps.value = me._steps;
+            me._secondPassSetUniformValue("uSteps", me._steps);
             console.log("Core: setSteps()");
         };
 
         me.setSlicesGap = function(from, to) {
             me._slices_gap = [from, to];
-            me._materialSecondPass.uniforms.uNumberOfSlices.value = me.getSlicesGap()[1];
+            me._secondPassSetUniformValue("uNumberOfSlices", me.getSlicesGap()[1])
             console.log("Core: setSlicesGap()");
         };
 
         me.setOpacityFactor = function(opacity_factor) {
             me._opacity_factor = opacity_factor;
-            me._materialSecondPass.uniforms.uOpacityVal.value = me._opacity_factor;
+            me._secondPassSetUniformValue("uOpacityVal", me._opacity_factor);
             console.log("Core: setOpacityFactor()");
         };
 
         me.setColorFactor = function(color_factor) {
             me._color_factor = color_factor;
-            me._materialSecondPass.uniforms.uColorVal.value = me._color_factor;
+            me._secondPassSetUniformValue("uColorVal", me._color_factor);
             console.log("Core: setColorFactor()");
         };
 
         me.setAbsorptionMode = function(mode_index) {
             me._absorption_mode_index = mode_index;
-            me._materialSecondPass.uniforms.uAbsorptionModeIndex.value = me._absorption_mode_index;
+            me._secondPassSetUniformValue("uAbsorptionModeIndex", me._absorption_mode_index);
             console.log("Core: setAbsorptionMode()");
         };
 
         me.setGeometryMinX = function(value) {
             me._geometry_dimension["xmin"] = value;
-            me._updateGeometry(me._geometry_dimension);
+            me._setGeometry(me._geometry_dimension);
             console.log("Core: setGeometryMinX()");
         };
 
         me.setGeometryMaxX = function(value) {
             me._geometry_dimension["xmax"] = value;
-            me._updateGeometry(me._geometry_dimension);
+            me._setGeometry(me._geometry_dimension);
             console.log("Core: setGeometryMaxX()");
         };
 
         me.setGeometryMinY = function(value) {
             me._geometry_dimension["ymin"] = value;
-            me._updateGeometry(me._geometry_dimension);
+            me._setGeometry(me._geometry_dimension);
             console.log("Core: setGeometryMinY()");
         };
 
         me.setGeometryMaxY = function(value) {
             me._geometry_dimension["ymax"] = value;
-            me._updateGeometry(me._geometry_dimension);
+            me._setGeometry(me._geometry_dimension);
             console.log("Core: setGeometryMaxY()");
         };
 
         me.setGeometryMinZ = function(value) {
             me._geometry_dimension["zmin"] = value;
-            me._updateGeometry(me._geometry_dimension);
+            me._setGeometry(me._geometry_dimension);
             console.log("Core: setGeometryMinZ()");
         };
 
         me.setGeometryMaxZ = function(value) {
             me._geometry_dimension["zmax"] = value;
-            me._updateGeometry(me._geometry_dimension);
+            me._setGeometry(me._geometry_dimension);
             console.log("Core: setGeometryMaxZ()");
         };
 
         me.setResolution = function(width, height) {
             me._render_resolution = [width, height];
-            me._renderer.setSize(me.getResolution()[0], me.getResolution()[1]);
-            me._camera.aspect = me.getResolution()[0] / me.getResolution()[1];
+            
+            if(me._render_resolution[0] == '*' || me._render_resolution[1] == '*') {
+                me.onResize.start(me._onWindowResizeFuncIndex);
+            }
+
+            var width = me.getResolution()[0];
+            var height = me.getResolution()[1];
+
+            if(me._render_resolution[0] == '*') {
+                width = window.innerWidth;
+            }
+
+            if(me._render_resolution[1] == '*') {
+                height = window.innerHeight;
+            }
+
+            me._camera.aspect = width / height;
+            me._camera.updateProjectionMatrix();
+
+            me._renderer.setSize(width, height);
+
+
             console.log("Core: setResolution()");
         };
 
@@ -348,37 +389,25 @@
 
         me.setRowCol = function(row, col) {
             me._slicemap_row_col = [row, col];
-            me._materialSecondPass.uniforms.uSlicesOverX.value = me._slicemap_row_col[0];
-            me._materialSecondPass.uniforms.uSlicesOverY.value = me._slicemap_row_col[1];
+            me._secondPassSetUniformValue("uSlicesOverX", me._slicemap_row_col[0]);
+            me._secondPassSetUniformValue("uSlicesOverY", me._slicemap_row_col[1]);
             console.log("Core: setRowCol()");
         };
 
-        me.setMinGrayValue = function(value) {
+        me.setGrayMinValue = function(value) {
             me._gray_value[0] = value;
-            me._materialSecondPass.uniforms.uMinGrayVal.value = me._gray_value[0];
+            me._secondPassSetUniformValue("uMinGrayVal", me._gray_value[0]);
             console.log("Core: setMinGrayValue()");
         };
 
-        me.setMaxGrayValue = function(value) {
+        me.setGrayMaxValue = function(value) {
             me._gray_value[1] = value;
-            me._materialSecondPass.uniforms.uMaxGrayVal.value = me._gray_value[1];
+            me._secondPassSetUniformValue("uMaxGrayVal", me._gray_value[1]);
             console.log("Core: setMaxGrayValue()");
         };
 
-        me.setTransferFunction = function(colors, size) {
-            me._genTransferTexture(colors, size);
-
-        };
-
-        me.onPreDraw           = new RC.Delegate();
-        me.onPostDraw          = new RC.Delegate();
-        me.onResize            = new RC.Delegate();
-        me.onCameraChange      = new RC.Delegate();
-        me.onCameraChangeStart = new RC.Delegate();
-        me.onCameraChangeEnd   = new RC.Delegate();
-
         me.draw = function(fps) {
-            me.onPreDraw.Call(fps.toFixed(3));
+            me.onPreDraw.call(fps.toFixed(3));
 
             me._renderer.render( me._sceneFirstPass, me._camera, me._rtTexture, true );
 
@@ -387,7 +416,12 @@
 
             stats.update();
 
-            me.onPostDraw.Call(fps.toFixed(3));
+            me.onPostDraw.call(fps.toFixed(3));
+
+        };
+
+        me.getDOMContainer = function() {
+            return document.getElementById(me._dom_container_id);
 
         };
 
@@ -395,8 +429,8 @@
             return me._steps;
         };
 
-        me.getImages = function() {
-            return me._images;
+        me.getSlicemapsImages = function() {
+            return me._slicemaps_images;
         };
 
         me.getRowCol = function() {
@@ -407,7 +441,7 @@
             var from = me._slices_gap[0];
             var to = me._slices_gap[1];
             if(me._slices_gap[1] == '*') {
-                to = me.getRowCol()[0] * me.getRowCol()[1] * me.getImages().length;
+                to = me.getRowCol()[0] * me.getRowCol()[1] * me.getSlicemapsImages().length;
             }
 
             return [from, to];
@@ -455,10 +489,18 @@
             return me._geometry_dimension["zmax"];
         };
 
+        me.getGrayMinValue = function() {
+            return me._gray_value[0];
+        };
+
+        me.getGrayMaxValue = function() {
+            return me._gray_value[1];
+        };
+
         return me;
 
     };
 
     namespace.Core = Core;
 
-})(window.RC);
+})(window.VRC);

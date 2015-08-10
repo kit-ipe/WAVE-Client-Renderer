@@ -11,5 +11,5 @@
 
 (function(namespace) {
 
-	namespace.RC = {};
+	namespace.VRC = {};
 })(window);

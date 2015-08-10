@@ -27,16 +27,16 @@
         me.init = function(core) {
             me._core = core;
 
-            me._onPostDrawFuncIndex = me._core.onPostDraw.Add(function(fps) {
+            me._onPostDrawFuncIndex = me._core.onPostDraw.add(function(fps) {
                 me.do(fps);
             });
 
-            me._onCameraChangeStartFuncIndex = me._core.onCameraChangeStart.Add(function() {
+            me._onCameraChangeStartFuncIndex = me._core.onCameraChangeStart.add(function() {
                 me.pause(true);
 
             });
 
-            me._onCameraChangeEndFuncIndex = me._core.onCameraChangeEnd.Add(function() {
+            me._onCameraChangeEndFuncIndex = me._core.onCameraChangeEnd.add(function() {
                 me.pause(false);
             });
 
@@ -53,9 +53,9 @@
                 me._core.onCameraChangeEnd.Start(me._onCameraChangeStartFuncIndex);
 
             } else {
-                me._core.onPostDraw.Stop(me._onPostDrawFuncIndex);
-                me._core.onCameraChangeStart.Stop(me._onCameraChangeEndFuncIndex);
-                me._core.onCameraChangeEnd.Stop(me._onCameraChangeStartFuncIndex);
+                me._core.onPostDraw.stop(me._onPostDrawFuncIndex);
+                me._core.onCameraChangeStart.stop(me._onCameraChangeEndFuncIndex);
+                me._core.onCameraChangeEnd.stop(me._onCameraChangeStartFuncIndex);
                
             }
 
@@ -63,8 +63,8 @@
 
         me.pause = function(flag) {
             if(flag) {
-                me._core.onCameraChangeStart.Stop(me._onCameraChangeEndFuncIndex);
-                me._core.onPostDraw.Stop(me._onPostDrawFuncIndex);
+                me._core.onCameraChangeStart.stop(me._onCameraChangeEndFuncIndex);
+                me._core.onPostDraw.stop(me._onPostDrawFuncIndex);
              
 
             } else {
@@ -124,4 +124,4 @@
 
     namespace.AdaptationManager = AdaptationManager;
 
-})(window.RC);
+})(window.VRC);

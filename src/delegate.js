@@ -1,9 +1,9 @@
 /**
  * @classdesc
- * Delegate
+ * EventDispatcher
  * 
- * @class Delegate
- * @this {RC.Delegate}
+ * @class EventDispatcher
+ * @this {RC.EventDispatcher}
  * @author sogimu@nxt.ru Aleksandr Lizin aka sogimu
  * @version 0.1
  *
@@ -11,7 +11,7 @@
  */
 
 (function(namespace) {
-    var Delegate = function(O) {
+    var EventDispatcher = function(O) {
 
         var me = {};
         me.class = this;
@@ -19,40 +19,40 @@
         me._functions = [];
         me._context = window;
 
-        me.Add = function(func) {
+        me.add = function(func, is_start) {
             // gizmo.Filter(func, "Function");
-            me._functions.push({"is_work": true, "func": func});
+            me._functions.push({"is_start": is_start != undefined ? is_start : true, "func": func});
             return me._functions.length-1;
 
         };
 
-        me.Remove = function(index) {
+        me.remove = function(index) {
             delete( me._functions[index] );
         };
 
-        me.Get = function(index) {
+        me.get = function(index) {
             return me._functions[index];
         };
 
-        me.Stop = function(index) {
-            me._functions[index]["is_work"] = false;
+        me.stop = function(index) {
+            me._functions[index]["is_start"] = false;
         };
 
-        me.Start = function(index) {
-            me._functions[index]["is_work"] = true;
+        me.start = function(index) {
+            me._functions[index]["is_start"] = true;
         };
 
-        me.IsWork = function(index) {
-            return me._functions[index]["is_work"];
+        me.isStart = function(index) {
+            return me._functions[index]["is_start"];
         };
 
-        me.Call = function(value, context) {
+        me.call = function(value, context) {
             // var context = gizmo.isSet(context)? context : me._context;
             var context = context ? context : me._context;
 
             for(i in me._functions) {
                 var task = me._functions[i];
-                if(task["is_work"]) {
+                if(task["is_start"]) {
                     task["func"].call(context, value);
 
                 }
@@ -60,12 +60,12 @@
 
         };
 
-        me.IsEmpty = function() {
+        me.isEmpty = function() {
             return me._functions.length == 0;
 
         };
 
-        me.SetConfig = function(O) {
+        me.setConfig = function(O) {
             // gizmo.Filter(O, "Object");
             for(prop in O) {
                 switch(prop) {
@@ -82,13 +82,13 @@
         /**
         * Constructor
         *
-        * @method Delegate.Constructor
-        * @this {RC.Delegate}
-        * @Delegate {Object} O
-        * @Delegate {Object} O.self         Context for calling
+        * @method EventDispatcher.Constructor
+        * @this {RC.EventDispatcher}
+        * @EventDispatcher {Object} O
+        * @EventDispatcher {Object} O.self         Context for calling
         */
         me.Constructor = function(O) {
-            this.SetConfig(O);
+            this.setConfig(O);
             
         };
 
@@ -98,6 +98,6 @@
 
     };
     
-    namespace.Delegate = Delegate;
+    namespace.EventDispatcher = EventDispatcher;
 
-})(window.RC);
+})(window.VRC);

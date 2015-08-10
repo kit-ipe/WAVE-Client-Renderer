@@ -4,3 +4,5 @@ utils/slice_map_creator/data
 *.pyc
 *.png
 *.jpg
+*.tiff
+*.tif
