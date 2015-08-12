@@ -53,7 +53,7 @@
 
         };
 
-        me.setSlicemapsImages = function(images) {
+        me.setSlicemapsImages = function(images, imagesPaths) {
             var ctx = me._core._renderer.getContext()
             var maxTexSize = ctx.getParameter(ctx.MAX_TEXTURE_SIZE);
 
@@ -63,13 +63,14 @@
                 throw Error("Size of slice bigger than maximum possible on current GPU. Maximum size of texture: " + maxTexSize);                
 
             } else {
-                me._core.setSlicemapsImages(images);
+                me._core.setSlicemapsImages(images, imagesPaths);
                 me._needRedraw = true;
             }
 
         };
 
         me.uploadSlicemapsImages = function(imagesPaths, userOnLoadImage, userOnLoadImages, userOnError) {
+
             var downloadImages = function(imagesPaths, onLoadImage, onLoadImages, onError) {
                 var downloadedImages = [];
                 var downloadedImagesNumber = 0;
@@ -111,7 +112,7 @@
                 },
                 function(images) {
                     // downloaded all images
-                    me.setSlicemapsImages(images);
+                    me.setSlicemapsImages(images, imagesPaths);
                     // me.start();
 
                     if(userOnLoadImages != undefined) userOnLoadImages(images);
@@ -542,19 +543,25 @@
         me.getConfig = function() {
             var config = {
                 "steps": me.getSteps(),
-                "slices_gap": me.getSlicesGap(),
-                "slicemap_row_col": me.getRowCol(),
-                "gray_value": [me.getGrayMinValue(), me.getGrayMaxValue()],
-                "slicemaps_paths": [-1],
+                "gap_slices": me.getSlicesGap(),
+                "row_col": me.getRowCol(),
+                "gray_min": me.getGrayMinValue(),
+                "gray_max": me.getGrayMaxValue(),
+                "slicemaps_paths": me.getSlicemapsPaths(),
                 "opacity_factor": me.getOpacityFactor(),
                 "color_factor": me.getColorFactor(),
-                "absorption_mode_index": me.getAbsorptionMode(),
-                "render_resolution": me.getResolution(),
-                "render_clear_color": me.getClearColor(),
+                "absorption_mode": me.getAbsorptionMode(),
+                "resolution": me.getResolution(),
+                "backgound": me.getClearColor(),
                 "transfer_function_as_array": [-1],
                 "transfer_function_path": [-1],
                 "transfer_function_colors": me.getTransferFunctionColors(),
-                "geometry_dimension": me.getGeometryDimension(),
+                "x_min": me.getGeometryDimension()["xmin"],
+                "x_max": me.getGeometryDimension()["xmax"],
+                "y_min": me.getGeometryDimension()["ymin"],
+                "y_max": me.getGeometryDimension()["ymax"],
+                "z_min": me.getGeometryDimension()["zmin"],
+                "z_max": me.getGeometryDimension()["zmax"],
                 "dom_container_id": me.getDomContainerId(),
                 "camera_settings": {
                     "rotation": {

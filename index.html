@@ -6,8 +6,10 @@
  
 		<script src="./libs/three.min.js"></script>
 		<script src="./libs/OrbitControls.js"></script>
-
+<!-- 
 	 	<script src="./build/volumeRaycaster.min.js"></script>
+ -->	 	
+	 	<script src="./build/volumeRaycaster.js"></script>
 <!-- 
  		<script src="./build/volumeRaycaster.with-deps.min.js"></script>
  -->
@@ -23,11 +25,11 @@
 			config = {
 				"dom_container_id": "container",
 				"gap_slices": [0, 253],
-				"gray_min": 0.29,
+				"gray_min": 0.7,
 				"gray_max": 1.0,
 				"row_col": [16, 16],
 				"steps": 256,
-				// "resolution": ['*', '*'],
+				"resolution": [512, 512],
 				"absorption_mode": 1,
 				"opacity_factor": 35,
 				"color_factor": 3,
@@ -37,7 +39,7 @@
 			};
 
 			config1 = config;
-			config1["slicemaps_paths"] = ['data/bonsai.raw.png']
+			config1["slicemaps_paths"] = ['data/foot.raw.png']
 
 			rcl1 = new VRC.VolumeRaycaster(config1);
 
@@ -50,9 +52,9 @@
 
 			);
 
-			config2 = config;
-			config2["slicemaps_paths"] = ['data/foot.raw.png']
-			config2["resolution"] = [700, 700];
+			config2 = rcl1.getConfig();
+			// config2["slicemaps_paths"] = ['data/foot.raw.png']
+			// config2["resolution"] = [700, 700];
 
 			rcl2 = new VRC.VolumeRaycaster(config1);
 
@@ -64,23 +66,6 @@
 	            ]
 
 			);
-
-
-			config3 = config;
-			config3["slicemaps_paths"] = ['data/teapot.raw.png']
-			config3["resolution"] = [700, 700];
-
-			rcl3 = new VRC.VolumeRaycaster(config3);
-
-			rcl3.setTransferFunctionByColors(
-				[
-	                {"pos": 1.0, "color": "#FF0000"},
-	                {"pos": 0.5, "color": "#00FF00"},
-	                {"pos": 0.0,  "color": "#0000FF"},
-	            ]
-
-			);
-
 
 		</script>
 

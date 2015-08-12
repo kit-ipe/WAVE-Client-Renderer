@@ -19,6 +19,7 @@
         me._slicemap_row_col      = [16,   16];
         me._gray_value            = [0.0, 1.0];
         me._slicemaps_images      = [];
+        me._slicemaps_paths       = [];
         me._slicemaps_textures    = [];
         me._opacity_factor        = 1.0;
         me._color_factor          = 1.0;
@@ -257,7 +258,7 @@
         };
 
         me._setGeometry = function(geometryDimension) {
-            var geometry      = (new GeometryHelper()).createBoxGeometry(geometryDimension);
+            var geometry      = (new VRC.GeometryHelper()).createBoxGeometry(geometryDimension);
             var colorArray    = geometry.attributes.vertColor.array;
             var positionArray = geometry.attributes.position.array;
 
@@ -275,8 +276,9 @@
             me._geometry.doubleSided = true;
         };
 
-        me.setSlicemapsImages = function(images) {
+        me.setSlicemapsImages = function(images, imagesPaths) {
             me._slicemaps_images = images;
+            me._slicemaps_paths = imagesPaths != undefined ? imagesPaths : me._slicemaps_paths;
             me._setSlicemapsTextures(images);
             me._secondPassSetUniformValue("uSliceMaps", me._slicemaps_textures);
             console.log("Core: setSlicemapsImages()");
@@ -387,6 +389,10 @@
 
         me.getSlicemapsImages = function() {
             return me._slicemaps_images;
+        };
+
+        me.getSlicemapsPaths = function() {
+            return me._slicemaps_paths;
         };
 
         me.getRowCol = function() {
