@@ -9,7 +9,7 @@
  *
  * @requires NamespaceRC.js
  */
-
+ 
 (function(namespace) {
     var Shaders = function(O) {
 
@@ -164,7 +164,6 @@
             "    }",
 
             "    return mix(value1, value2, fract(volpos.z*uNumberOfSlices));",
-            "    // return value1;",
 
             "}",
 
@@ -175,19 +174,22 @@
             "    vec4 backColor = texture2D(uBackCoord,texC);",
 
             "    vec3 dir = backColor.rgb - frontColor.rgb;",
+            "    dir /= length(dir);",
+
             "    vec4 vpos = frontColor;",
 
+            // "    vec3 Step = dir/uSteps;",
             "    vec3 Step = dir/uSteps;",
 
             "    vec4 accum = vec4(0, 0, 0, 0);",
             "    vec4 sample = vec4(0.0, 0.0, 0.0, 0.0);",
-            "    vec4 color_value = vec4(0, 0, 0, 0);",
+            "    vec4 colorValue = vec4(0, 0, 0, 0);",
             "    float biggest_gray_value = 0.0;",
 
-            "    float opacityFactor = 8.0;//uOpacityVal;",
-            "    float lightFactor = 1.3;//uColorVal;",
+            "    float opacityFactor = uOpacityVal;",
+            "    float lightFactor = uColorVal;",
         
-            "    // const 4095 - only example of big number",
+            "    // const 4095 - just example of big number",
             "    // It because expression i > uSteps impossible",
             "    for(float i = 0.0; i < 4095.0; i+=1.0)",
             "    {",
@@ -199,64 +201,75 @@
             "        float gray_val = getVolumeValue(vpos.xyz);",
 
             "        if(gray_val < uMinGrayVal || gray_val > uMaxGrayVal) {",
-            "            color_value = vec4(0.0);",
+            "            colorValue = vec4(0.0);",
             "        } else {",
             "            if(biggest_gray_value < gray_val) {",
             "               biggest_gray_value = gray_val;",
             "            }",
-            "            vec2 tf_pos;",
-            "            tf_pos.x = (gray_val - uMinGrayVal) / (uMaxGrayVal - uMinGrayVal);",
-            "            tf_pos.y = 0.5;",
-
-            "            color_value = texture2D(uTransferFunction,tf_pos); " ,
-            "            // color_value = vec4(pos, pos, pos, 1.0);",
 
             "            if(uAbsorptionModeIndex == 0.0)",
                 "        {",
-                "            sample.a = color_value.a * opacityFactor;",
-                "            sample.rgb = color_value.rgb * uColorVal;",
+                "            vec2 tf_pos;",
+                "            tf_pos.x = (gray_val - uMinGrayVal) / (uMaxGrayVal - uMinGrayVal);",
+                "            tf_pos.y = 0.5;",
+
+                "            colorValue = texture2D(uTransferFunction,tf_pos); " ,
+                "            //colorValue = vec4(tf_pos.x, tf_pos.x, tf_pos.x, 1.0);",
+
+                "            sample.a = colorValue.a * opacityFactor;",
+                "            sample.rgb = colorValue.rgb * uColorVal;",
                 "            accum += sample;",
-                "            if(accum.a>=0.95)",
+
+                "            if(accum.a>=1.0)",
                 "               break;",
 
                 "        }",
 
                 "        if(uAbsorptionModeIndex == 1.0)",
                 "        {",
-                "            sample.a = color_value.a * opacityFactor * (1.0 / uSteps);",
-                "            sample.rgb = (1.0 - accum.a) * color_value.rgb * sample.a * lightFactor;",
+                "            vec2 tf_pos;",
+                "            tf_pos.x = (gray_val - uMinGrayVal) / (uMaxGrayVal - uMinGrayVal);",
+                "            tf_pos.y = 0.5;",
+
+                "            colorValue = texture2D(uTransferFunction,tf_pos); " ,
+                "            //colorValue = vec4(tf_pos.x, tf_pos.x, tf_pos.x, 1.0);",
+
+                "            sample.a = colorValue.a * opacityFactor * (1.0 / uSteps);",
+                "            sample.rgb = (1.0 - accum.a) * colorValue.rgb * sample.a * lightFactor;",
                 "            accum += sample;",
-                "            if(accum.a>=0.95)",
+
+                "            if(accum.a>=1.0)",
                 "               break;",
 
                 "        }",
+
+                "        if(uAbsorptionModeIndex == 2.0)",
+                "        {",
+                "            vec2 tf_pos;",
+                "            tf_pos.x = (biggest_gray_value - uMinGrayVal) / (uMaxGrayVal - uMinGrayVal);",
+                "            tf_pos.y = 0.5;",
+                
+                "            colorValue = texture2D(uTransferFunction,tf_pos); " ,
+                "            //colorValue = vec4(tf_pos.x, tf_pos.x, tf_pos.x, 1.0);",
+                "            sample.a = colorValue.a * opacityFactor;",
+                "            sample.rgb = colorValue.rgb * uColorVal;",
+
+                "            accum = sample;",
+
+                "        }",
+
             "        }",
 
             "        //advance the current position",
             "        vpos.xyz += Step;",
 
             "        //break if the position is greater than <1, 1, 1>",
-            "        if(vpos.x > 1.0 || vpos.y > 1.0 || vpos.z > 1.0)",
+            "        if(vpos.x > 1.0 || vpos.y > 1.0 || vpos.z > 1.0 || vpos.x < 0.0 || vpos.y < 0.0 || vpos.z < 0.0)",
             "        {",
             "            break;",
             "        }",
 
             "    }",
-
-            "    if(uAbsorptionModeIndex == 2.0)",
-            "    {",
-            "       if(biggest_gray_value == 0.0) {",
-            "           accum = vec4(0.0);",                              
-            "       } else {",
-            "            vec2 tf_pos;",
-            "            tf_pos.x = (biggest_gray_value - uMinGrayVal) / (uMaxGrayVal - uMinGrayVal);",
-            "            tf_pos.y = 0.5;",
-
-            "            accum = texture2D(uTransferFunction,tf_pos); " ,
-            "       }",
-                     
-            "    }",
-
 
             "    gl_FragColor = accum;",
 

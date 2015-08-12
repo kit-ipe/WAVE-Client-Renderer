@@ -53,95 +53,6 @@
 
         };
 
-        me.setConfig = function(config) {
-            if(config['gap_slices'] != undefined) {
-                me._core.setSlicesGap( config['gap_slices'][0], config['gap_slices'][1] );
-            }
-
-            if(config['steps'] != undefined) {
-                me._core.setSteps( config['steps'] );
-            }
-
-            if(config['row_col'] != undefined) {
-                me._core.setRowCol( config['row_col'][0], config['row_col'][1] );
-            }
-
-            if(config['gray_min'] != undefined) {
-                me._core.setGrayMinValue( config['gray_min'] );
-            }
-
-            if(config['gray_max'] != undefined) {
-                me._core.setGrayMaxValue( config['gray_max'] );
-            }
-
-            if(config['x_min'] != undefined) {
-                me._core.setGeometryMinX( config['x_min'] );
-            }
-
-            if(config['x_max'] != undefined) {
-                me._core.setGeometryMaxX( config['x_max'] );
-            }
-
-            if(config['y_min'] != undefined) {
-                me._core.setGeometryMinY( config['y_min'] );
-            }
-
-            if(config['y_max'] != undefined) {
-                me._core.setGeometryMaxY( config['y_max'] );
-            }
-
-            if(config['z_min'] != undefined) {
-                me._core.setGeometryMinZ( config['z_min'] );
-            }
-
-            if(config['z_max'] != undefined) {
-                me._core.setGeometryMaxZ( config['z_max'] );
-            }
-
-            if(config['opacity_factor'] != undefined) {
-                me._core.setOpacityFactor( config['opacity_factor'] );
-            }
-
-            if(config['color_factor'] != undefined) {
-                me._core.setColorFactor( config['color_factor'] );   
-            }
-            
-            if(config['backgound'] != undefined) {
-                me._core.setBackgoundColor( config['backgound'] );
-            }
-
-            if(config['auto_steps'] != undefined) {
-                me.setAutoStepsOn( config['auto_steps'] );
-            }
-
-            if(config['absorption_mode'] != undefined) {
-                me._core.setAbsorptionMode( config['absorption_mode'] );
-            }
-
-            if(config['resolution'] != undefined) {
-                me.setResolution( config['resolution'][0], config['resolution'][1] );
-            }
-
-            if(config['slicemaps_images'] != undefined) {
-                me.setSlicemapsImages( config['slicemaps_images'] );
-            }
-
-            if(config['slicemaps_paths'] != undefined) {
-                me.uploadSlicemapsImages(
-                    config['slicemaps_paths'],
-                    function(image) {
-                    },
-                    function(images) {
-                        me.start();
-                    }
-
-                );
-                
-            }
-
-            me._needRedraw = true;
-        };
-
         me.setSlicemapsImages = function(images) {
             var ctx = me._core._renderer.getContext()
             var maxTexSize = ctx.getParameter(ctx.MAX_TEXTURE_SIZE);
@@ -268,11 +179,11 @@
                 throw Error("Geometry size  should be in range [0.0 - 1.0] !");
             }
 
-            if(value > me._core.getGeometryMaxX()) {
+            if(value > me._core.getGeometryDimension()["xmax"]) {
                 throw Error("Min X should be lower than max X!");
             }
 
-            me._core.setGeometryMinX(value);
+            me._core.setGeometryDimension("xmin", value);
             me._needRedraw = true;
 
 
@@ -283,11 +194,11 @@
                 throw Error("Geometry size  should be in range [0.0 - 1.0] !");
             }
 
-            if(value < me._core.getGeometryMinX()) {
+            if(value < me._core.getGeometryDimension()["xmin"]) {
                 throw Error("Max X should be bigger than min X!");
             }
 
-            me._core.setGeometryMaxX(value);
+            me._core.setGeometryDimension("xmax", value);
             me._needRedraw = true;
 
 
@@ -298,11 +209,11 @@
                 throw Error("Geometry size  should be in range [0.0 - 1.0] !");
             }
 
-            if(value > me._core.getGeometryMaxY()) {
+            if(value > me._core.getGeometryDimension()["ymax"]) {
                 throw Error("Min Y should be lower than max Y!");
             }
 
-            me._core.setGeometryMinY(value);
+            me._core.setGeometryDimension("ymin", value);
             me._needRedraw = true;
 
         };
@@ -312,12 +223,12 @@
                 throw Error("Geometry size  should be in range [0.0 - 1.0] !");
             }
 
-            if(value < me._core.getGeometryMinY()) {
+            if(value < me._core.getGeometryDimension()["ymin"]) {
                 throw Error("Max Y should be bigger than min Y!");
 
             }
 
-            me._core.setGeometryMaxY(value);
+            me._core.setGeometryDimension("ymax", value);
             me._needRedraw = true;
 
         };
@@ -327,11 +238,11 @@
                 throw Error("Geometry size  should be in range [0.0 - 1.0] !");
             }
 
-            if(value > me._core.getGeometryMaxZ()) {
+            if(value > me._core.getGeometryDimension()["zmax"]) {
                 throw Error("Min Z should be lower than max Z!");
             }
 
-            me._core.setGeometryMinZ(value);
+            me._core.setGeometryDimension("zmin", value);
             me._needRedraw = true;
 
         };
@@ -341,11 +252,11 @@
                 throw Error("Geometry size  should be in range [0.0 - 1.0] !");
             }
 
-            if(value < me._core.getGeometryMinZ()) {
+            if(value < me._core.getGeometryDimension()["zmin"]) {
                 throw Error("Max Z should be bigger than min Z!");
             }
 
-            me._core.setGeometryMaxZ(value);
+            me._core.setGeometryDimension("zmax", value);
             me._needRedraw = true;
 
         };
@@ -459,8 +370,220 @@
             return me._core.getGrayMinValue();
         };
 
+        me.getSteps = function() {
+            return me._core.getSteps();
+        };
+
+        me.getSlicesGap = function() {
+            return me._core.getSlicesGap();
+        };
+
+        me.getRowCol = function() {
+            return me._core.getRowCol();
+        };
+
+        me.getGrayValue = function() {
+            return [me._core.getGrayMinValue(), me._core.getGrayMaxValue()]
+        };
+
+        me.getGeometryDimension = function() {
+            return me._core.getGeometryDimension();
+        };
+
+        me.getOpacityFactor = function() {
+            return me._core.getOpacityFactor();
+        };
+
+        me.getColorFactor = function() {
+            return me._core.getColorFactor();
+        };
+
+        me.getBackgound = function() {
+            return me._core.getBackgound();
+        };
+
+        me.getAbsorptionMode = function() {
+            return me._core.getAbsorptionMode();
+        };
+
+        me.getResolution = function() {
+            return me._core.getResolution();
+        };
+
+        me.getAbsorptionMode = function() {
+            return me._core.getAbsorptionMode();
+        };
+
+        me.getSlicemapsPaths = function() {
+            return me._core.getSlicemapsPaths();
+        };
+
+        me.getDomContainerId = function() {
+            return me._core.getDomContainerId();
+        };
+
+        me.getCameraSettings = function() {
+            return me._core.getCameraSettings();
+        };
+
+        me.getGeometrySettings = function() {
+            return me._core.getGeometrySettings();
+        };
+
+        me.getDomContainerId = function() {
+            return me._core.getDomContainerId();
+        };
+
+        me.getClearColor = function() {
+            return me._core.getClearColor();
+        };
+
+        me.getTransferFunctionColors = function() {
+            return me._core.getTransferFunctionColors();
+        };
+
+        me.getDomContainerId = function() {
+            return me._core.getDomContainerId();
+        };
+
         me.draw = function() {
             me._core.draw();
+        };
+
+        me.setConfig = function(config) {
+            if(config['gap_slices'] != undefined) {
+                me._core.setSlicesGap( config['gap_slices'][0], config['gap_slices'][1] );
+            }
+
+            if(config['steps'] != undefined) {
+                me._core.setSteps( config['steps'] );
+            }
+
+            if(config['row_col'] != undefined) {
+                me._core.setRowCol( config['row_col'][0], config['row_col'][1] );
+            }
+
+            if(config['gray_min'] != undefined) {
+                me._core.setGrayMinValue( config['gray_min'] );
+            }
+
+            if(config['gray_max'] != undefined) {
+                me._core.setGrayMaxValue( config['gray_max'] );
+            }
+
+            if(config['x_min'] != undefined) {
+                me._core.setGeometryDimension( "xmin", config['x_min'] );
+            }
+
+            if(config['x_max'] != undefined) {
+                me._core.setGeometryDimension( "xmax", config['x_max'] );
+            }
+
+            if(config['y_min'] != undefined) {
+                me._core.setGeometryDimension( "ymin", config['y_min'] );
+            }
+
+            if(config['y_max'] != undefined) {
+                me._core.setGeometryDimension( "ymax", config['y_max'] );
+            }
+
+            if(config['z_min'] != undefined) {
+                me._core.setGeometryDimension( "zmin", config['z_min'] );
+            }
+
+            if(config['z_max'] != undefined) {
+                me._core.setGeometryDimension( "zmax", config['z_max'] );
+            }
+
+            if(config['opacity_factor'] != undefined) {
+                me._core.setOpacityFactor( config['opacity_factor'] );
+            }
+
+            if(config['color_factor'] != undefined) {
+                me._core.setColorFactor( config['color_factor'] );   
+            }
+            
+            if(config['backgound'] != undefined) {
+                me._core.setBackgoundColor( config['backgound'] );
+            }
+
+            if(config['auto_steps'] != undefined) {
+                me.setAutoStepsOn( config['auto_steps'] );
+            }
+
+            if(config['absorption_mode'] != undefined) {
+                me._core.setAbsorptionMode( config['absorption_mode'] );
+            }
+
+            if(config['resolution'] != undefined) {
+                me.setResolution( config['resolution'][0], config['resolution'][1] );
+            }
+
+            if(config['slicemaps_images'] != undefined) {
+                me.setSlicemapsImages( config['slicemaps_images'] );
+            }
+
+            if(config['slicemaps_paths'] != undefined) {
+                me.uploadSlicemapsImages(
+                    config['slicemaps_paths'],
+                    function(image) {
+                    },
+                    function(images) {
+                        me.start();
+                    }
+
+                );
+                
+            }
+
+            me._needRedraw = true;
+        };
+
+        me.getConfig = function() {
+            var config = {
+                "steps": me.getSteps(),
+                "slices_gap": me.getSlicesGap(),
+                "slicemap_row_col": me.getRowCol(),
+                "gray_value": [me.getGrayMinValue(), me.getGrayMaxValue()],
+                "slicemaps_paths": [-1],
+                "opacity_factor": me.getOpacityFactor(),
+                "color_factor": me.getColorFactor(),
+                "absorption_mode_index": me.getAbsorptionMode(),
+                "render_resolution": me.getResolution(),
+                "render_clear_color": me.getClearColor(),
+                "transfer_function_as_array": [-1],
+                "transfer_function_path": [-1],
+                "transfer_function_colors": me.getTransferFunctionColors(),
+                "geometry_dimension": me.getGeometryDimension(),
+                "dom_container_id": me.getDomContainerId(),
+                "camera_settings": {
+                    "rotation": {
+                        x: 0.0,
+                        y: 0.0,
+                        z: 0.0
+                    },
+                    "position": {
+                        "x": 0,
+                        "y": 0,
+                        "z": 2
+                    },
+                },
+                "geometry_settings": {
+                    "rotation": {
+                        x: 0.0,
+                        y: 0.0,
+                        z: 0.0
+                    },
+                    "position": {
+                        "x": -0.5,
+                        "y": -0.5,
+                        "z": -0.5
+                    }
+                }
+            };
+
+            return config;
+
         };
 
         me.init();

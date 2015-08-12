@@ -3,21 +3,15 @@
 		<title>Lidar - WebGL Volume Rendering</title>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-
-		<script src="./libs/three.js"></script>
-		<script src="./libs/Detector.js"></script>
+ 
+		<script src="./libs/three.min.js"></script>
 		<script src="./libs/OrbitControls.js"></script>
-		<script src="./libs/stats.min.js"></script>
 
-		<script src="./src/raycasterNamespace.js"></script>
-		<script src="./src/delegate.js"></script>
-		<script src="./src/adaptaionManager.js"></script>
-		<script src="./src/geometryHelper.js"></script>
-		<script src="./src/shaders.js"></script>
-		<script src="./src/core.js"></script>
-		<script src="./src/volumeRaycaster.js"></script>
-
-	</head>
+	 	<script src="./build/volumeRaycaster.min.js"></script>
+<!-- 
+ 		<script src="./build/volumeRaycaster.with-deps.min.js"></script>
+ -->
+ 	</head>
 	<body>
 		<div id="container">
 		</div>
@@ -26,116 +20,67 @@
 
 		<script>
 
-			var images_paths = [
-			// 'slicemap0.png',
-			
-			// 'sara_2048x2048_14x14_bl_0.jpg',
-			// 'sara_2048x2048_14x14_bl_1.jpg',
-			// 'sara_2048x2048_14x14_bl_2.jpg',
-			// 'sara_2048x2048_14x14_bl_3.jpg',
-			// 'sara_2048x2048_14x14_bl_4.jpg',
-			// 'sara_2048x2048_14x14_bl_5.jpg',
-			// 'sara_2048x2048_14x14_bl_6.jpg',
-
-			// 'sara_8192x8192_19x19_bl_0.jpg',
-			// 'sara_8192x8192_19x19_bl_1.jpg',
-			// 'sara_8192x8192_19x19_bl_2.jpg',
-			// 'sara_8192x8192_19x19_bl_3.jpg',
-			
-
-			// 'patient17_clinc_sinc24.jpg',
-			// 'Jena_P16_km3-sinc12.jpg',
-			'data/bonsai.raw.png',
-
-
-			// 'lidar_4096x4096_8x8_n_0.jpg',
-			// 'lidar_4096x4096_8x8_n_1.jpg',
-			// 'lidar_2048x2048_16x16_n_0.jpg'
-			];
-			rcl0 = new VRC.VolumeRaycaster({
+			config = {
 				"dom_container_id": "container",
-				// "slicemaps_images": images,
-				"slicemaps_paths": images_paths,
-				"gap_slices": [0, 255],
-				"gray_min": 0.1,
+				"gap_slices": [0, 253],
+				"gray_min": 0.29,
 				"gray_max": 1.0,
 				"row_col": [16, 16],
-				"steps": 1024,
-				"resolution": [700, 700],
-				"absorption_mode": 0,
-				// "z_min": 0.4,
-				// "z_max": 0.6,
-				"auto_steps": false,
-			});
-
-			rcl0.setTransferFunctionByColors(
-				[
-	                {"pos": 1.0, "color": "#7F0000"},
-	                {"pos": 0.75, "color": "#FF9400"},
-	                {"pos": 0.5,  "color": "#7CFF79"},
-	                {"pos": 0.0, "color": "#000000"},
-	                {"pos": 1.0, "color": "#FFFFFF"},
-
-	            ]
-
-			);
-
-			rcl1 = new VRC.VolumeRaycaster({
-				"dom_container_id": "container",
-				// "slicemaps_images": images,
-				"slicemaps_paths": images_paths,
-				"gap_slices": [0, 255],
-				"gray_min": 0.1,
-				"gray_max": 1.0,
-				"row_col": [16, 16],
-				"steps": 1024,
-				"resolution": [700, 700],
+				"steps": 256,
+				// "resolution": ['*', '*'],
 				"absorption_mode": 1,
+				"opacity_factor": 35,
+				"color_factor": 3,
 				// "z_min": 0.4,
 				// "z_max": 0.6,
 				"auto_steps": false,
-			});
+			};
+
+			config1 = config;
+			config1["slicemaps_paths"] = ['data/bonsai.raw.png']
+
+			rcl1 = new VRC.VolumeRaycaster(config1);
 
 			rcl1.setTransferFunctionByColors(
 				[
-	                {"pos": 1.0, "color": "#7F0000"},
-	                {"pos": 0.75, "color": "#FF9400"},
-	                {"pos": 0.5,  "color": "#7CFF79"},
-	                {"pos": 0.0, "color": "#000000"},
-	                {"pos": 1.0, "color": "#FFFFFF"},
-
+	                {"pos": 1.0, "color": "#FF0000"},
+	                {"pos": 0.5, "color": "#00FF00"},
+	                {"pos": 0.0,  "color": "#0000FF"},
 	            ]
 
 			);
 
+			config2 = config;
+			config2["slicemaps_paths"] = ['data/foot.raw.png']
+			config2["resolution"] = [700, 700];
 
-			rcl2 = new VRC.VolumeRaycaster({
-				"dom_container_id": "container",
-				// "slicemaps_images": images,
-				"slicemaps_paths": images_paths,
-				"gap_slices": [0, 255],
-				"gray_min": 0.1,
-				"gray_max": 1.0,
-				"row_col": [16, 16],
-				"steps": 1024,
-				"resolution": [700, 700],
-				"absorption_mode": 2,
-				// "z_min": 0.4,
-				// "z_max": 0.6,
-				"auto_steps": false,
-			});
+			rcl2 = new VRC.VolumeRaycaster(config1);
 
 			rcl2.setTransferFunctionByColors(
 				[
-	                {"pos": 1.0, "color": "#7F0000"},
-	                {"pos": 0.75, "color": "#FF9400"},
-	                {"pos": 0.5,  "color": "#7CFF79"},
-	                {"pos": 0.0, "color": "#000000"},
-	                {"pos": 1.0, "color": "#FFFFFF"},
-
+	                {"pos": 1.0, "color": "#FF0000"},
+	                {"pos": 0.5, "color": "#00FF00"},
+	                {"pos": 0.0,  "color": "#0000FF"},
 	            ]
 
 			);
+
+
+			config3 = config;
+			config3["slicemaps_paths"] = ['data/teapot.raw.png']
+			config3["resolution"] = [700, 700];
+
+			rcl3 = new VRC.VolumeRaycaster(config3);
+
+			rcl3.setTransferFunctionByColors(
+				[
+	                {"pos": 1.0, "color": "#FF0000"},
+	                {"pos": 0.5, "color": "#00FF00"},
+	                {"pos": 0.0,  "color": "#0000FF"},
+	            ]
+
+			);
+
 
 		</script>
 

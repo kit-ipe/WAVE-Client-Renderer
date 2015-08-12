@@ -58,7 +58,7 @@
         me._geometry              = {};
         me._geometry_settings     = {
             "rotation": {
-                x: Math.PI,
+                x: 0.0,
                 y: 0.0,
                 z: 0.0
             },
@@ -153,7 +153,7 @@
 
             // var originalDimension = new GeometryDimension();
 
-            var geometryHelper = new GeometryHelper();
+            var geometryHelper = new VRC.GeometryHelper();
             me._geometry = geometryHelper.createBoxGeometry(me.getGeometryDimension());
 
             me._geometry.applyMatrix( new THREE.Matrix4().makeTranslation( me._geometry_settings["position"]["x"], me._geometry_settings["position"]["y"], me._geometry_settings["position"]["z"] ) );
@@ -167,12 +167,6 @@
                     
             me._sceneFirstPass.add( me._meshFirstPass );
             me._sceneSecondPass.add( me._meshSecondPass );
-
-            stats = new Stats();
-            // stats.setMode( 1 );
-            stats.domElement.style.position = 'absolute';
-            stats.domElement.style.top = '0px';
-            container.appendChild( stats.domElement );
 
             window.addEventListener( 'resize', function() {
                 me.onResize.call();
@@ -199,7 +193,7 @@
             me._onWindowResizeFuncIndex = me.onResize.add(function() {
                 me.setResolution('*', '*');
 
-            }, false);
+            }, true);
 
         };
 
@@ -318,38 +312,8 @@
             console.log("Core: setAbsorptionMode()");
         };
 
-        me.setGeometryMinX = function(value) {
-            me._geometry_dimension["xmin"] = value;
-            me._setGeometry(me._geometry_dimension);
-            console.log("Core: setGeometryMinX()");
-        };
-
-        me.setGeometryMaxX = function(value) {
-            me._geometry_dimension["xmax"] = value;
-            me._setGeometry(me._geometry_dimension);
-            console.log("Core: setGeometryMaxX()");
-        };
-
-        me.setGeometryMinY = function(value) {
-            me._geometry_dimension["ymin"] = value;
-            me._setGeometry(me._geometry_dimension);
-            console.log("Core: setGeometryMinY()");
-        };
-
-        me.setGeometryMaxY = function(value) {
-            me._geometry_dimension["ymax"] = value;
-            me._setGeometry(me._geometry_dimension);
-            console.log("Core: setGeometryMaxY()");
-        };
-
-        me.setGeometryMinZ = function(value) {
-            me._geometry_dimension["zmin"] = value;
-            me._setGeometry(me._geometry_dimension);
-            console.log("Core: setGeometryMinZ()");
-        };
-
-        me.setGeometryMaxZ = function(value) {
-            me._geometry_dimension["zmax"] = value;
+        me.setGeometryDimension = function(key, value) {
+            me._geometry_dimension[key] = value;
             me._setGeometry(me._geometry_dimension);
             console.log("Core: setGeometryMaxZ()");
         };
@@ -359,24 +323,18 @@
             
             if(me._render_resolution[0] == '*' || me._render_resolution[1] == '*') {
                 me.onResize.start(me._onWindowResizeFuncIndex);
+            } else {
+                me.onResize.stop(me._onWindowResizeFuncIndex);
+
             }
 
             var width = me.getResolution()[0];
             var height = me.getResolution()[1];
 
-            if(me._render_resolution[0] == '*') {
-                width = window.innerWidth;
-            }
-
-            if(me._render_resolution[1] == '*') {
-                height = window.innerHeight;
-            }
-
             me._camera.aspect = width / height;
             me._camera.updateProjectionMatrix();
 
             me._renderer.setSize(width, height);
-
 
             console.log("Core: setResolution()");
         };
@@ -414,8 +372,6 @@
             //Render the second pass and perform the volume rendering.
             me._renderer.render( me._sceneSecondPass, me._camera );
 
-            stats.update();
-
             me.onPostDraw.call(fps.toFixed(3));
 
         };
@@ -452,10 +408,10 @@
             var height = me._render_resolution[1];
 
             if(me._render_resolution[0] == '*') {
-                width = window.innerWidth;
-            }
+                width = window.outerWidth;
+            } 
             if(me._render_resolution[1] == '*') {
-                height = window.innerHeight;
+                height = window.outerHeight;
             }
 
             return [width, height];
@@ -465,36 +421,40 @@
             return me._geometry_dimension;
         };
 
-        me.getGeometryMinX = function() {
-            return me._geometry_dimension["xmin"];
-        };
-
-        me.getGeometryMaxX = function() {
-            return me._geometry_dimension["xmax"];
-        };
-
-        me.getGeometryMinY = function() {
-            return me._geometry_dimension["ymin"];
-        };
-
-        me.getGeometryMaxY = function() {
-            return me._geometry_dimension["ymax"];
-        };
-
-        me.getGeometryMinZ = function() {
-            return me._geometry_dimension["zmin"];
-        };
-
-        me.getGeometryMaxZ = function() {
-            return me._geometry_dimension["zmax"];
-        };
-
         me.getGrayMinValue = function() {
             return me._gray_value[0];
         };
 
         me.getGrayMaxValue = function() {
-            return me._gray_value[1];
+            return me._gray_value[1]; 
+        }; 
+
+        me.getClearColor = function() {
+            return me._render_clear_color;
+        };
+
+        me.getTransferFunctionColors = function() {
+            return me._transfer_function_colors;
+        };
+
+        me.getOpacityFactor = function() {
+            return me._opacity_factor;
+        };
+
+        me.getColorFactor = function() {  
+            return me._color_factor;
+        };
+
+        me.getAbsorptionMode = function() {
+            return me._absorption_mode_index;
+        };
+
+        me.getClearColor = function() {
+            return me._render_clear_color;
+        };
+
+        me.getDomContainerId = function() {
+            return me._dom_container_id;
         };
 
         return me;

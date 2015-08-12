@@ -5,18 +5,49 @@ module.exports = function(grunt) {
         pkg: grunt.file.readJSON('package.json'),
 
         concat: {   
-            dist: {
+            without_deps: {
                 src: [
-                'src/*.js',
+                './src/raycasterNamespace.js',
+                './src/dispatcher.js',
+                './src/adaptaionManager.js',
+                './src/geometryHelper.js',
+                './src/shaders.js',
+                './src/core.js',
+                './src/volumeRaycaster.js'
                 ],
                 dest: 'build/volumeRaycaster.js',
+            },
+
+            with_deps: {
+                src: [
+                './libs/three.min.js',
+                './libs/OrbitControls.js',
+                
+                './src/raycasterNamespace.js',
+                './src/dispatcher.js',
+                './src/adaptaionManager.js',
+                './src/geometryHelper.js',
+                './src/shaders.js',
+                './src/core.js',
+                './src/volumeRaycaster.js'
+                ],
+                dest: 'build/volumeRaycaster.with-deps.js',
             }
         },
 
         uglify: {
-            build: {
+            options: {
+                mangle: false
+            },
+
+            without_deps: {
                 src: 'build/volumeRaycaster.js',
                 dest: 'build/volumeRaycaster.min.js'
+            },
+
+            with_deps: {
+                src: 'build/volumeRaycaster.with-deps.js',
+                dest: 'build/volumeRaycaster.with-deps.min.js'
             }
         },
 

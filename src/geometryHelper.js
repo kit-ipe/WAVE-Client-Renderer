@@ -1,6 +1,20 @@
-var GeometryHelper = function() {
-    return {
-        createBoxGeometry: function(dimension) {
+/**
+ * @classdesc
+ * Core
+ * 
+ * @class Core
+ * @this {Core}
+ * @author sogimu@nxt.ru Aleksandr Lizin aka sogimu
+ * @version 0.1
+ *
+ */
+
+(function(namespace) {
+    var GeometryHelper = function() {
+
+        var me = {};
+
+        me.createBoxGeometry = function(dimension) {
             var vertexPos = [
                 //front face first
                 [dimension.xmin, dimension.ymin, dimension.zmax],
@@ -84,14 +98,10 @@ var GeometryHelper = function() {
 
             return geometry;
         }
+        return me;
+        
     }
-}
 
-var GeometryDimension = function() {
-    this.xmin = 0.005;
-    this.xmax = 0.5;
-    this.ymin = 0.005;
-    this.ymax = 0.995;
-    this.zmin = 0.005;
-    this.zmax = 0.995;
-}
+    namespace.GeometryHelper = GeometryHelper;
+
+})(window.VRC);

@@ -1,4 +1,4 @@
-sudo zypper in npm
+#sudo zypper in npm
 sudo npm install
 sudo npm install -g grunt-cli
 sudo npm install grunt-contrib-concat --save-dev
