@@ -38,13 +38,21 @@ class SliceMapCreator:
         self.slice_name_format = self.config.slice_name_format
         print("Slice name format: {0}".format(self.slice_name_format))
         
-        # Path for slicemaps
-        self.path_to_slicemaps = self.config.path_to_slicemaps
-        print("Path to slicemap: {0}".format(self.path_to_slicemaps))
+        # Path for slicemaps_dir
+        self.path_to_slicemaps_dir = self.config.path_to_slicemaps_dir
+        print("Path to slicemaps dir: {0}".format(self.path_to_slicemaps_dir))
 
         # Regex exp for name of slice
         self.slicemap_name_format = self.config.slicemap_name_format
         print("Slicemap name format: {0}".format(self.slicemap_name_format))
+
+        # Path to configs dir
+        self.path_to_configs_dir = self.config.path_to_configs_dir
+        print("Path to configs dir: {0}".format(self.path_to_configs_dir))
+
+        # Regex exp for name of config
+        self.config_name_format = self.config.config_name_format
+        print("Config name format: {0}".format(self.config_name_format))
 
         # Number of cols and rows
         self.row_col = self.config.row_col
@@ -136,6 +144,17 @@ class SliceMapCreator:
         self.slicemaps_number = int(math.ceil(float(self.number_of_slices) / float(self.slicemap_slices_number)))        
         print("Slicemaps number: {0}".format(self.slicemaps_number))
 
+        # Path for slicemaps
+        self.path_to_slicemaps = []
+
+        for slicemap_number in range(0, self.slicemaps_number):
+            self.path_to_slicemaps.append( os.path.join(self.path_to_slicemaps_dir, self.slicemap_name_format.format(slicemap_number, self.row_col[0], self.row_col[1], int(self.slicemap_size[0]), int(self.slicemap_size[1]), self.filter_name ) ) )
+        print("Path to slicemaps: {0}".format(self.path_to_slicemaps))
+
+        # Path to config
+        self.path_to_config = os.path.join( self.path_to_configs_dir, self.config_name_format.format(self.row_col[0], self.row_col[1], int(self.slicemap_size[0]), int(self.slicemap_size[1]), self.filter_name ) )
+        print("Path to config: {0}".format(self.path_to_config))
+
         print("****************************************************************************")
 
 
@@ -163,9 +182,8 @@ class SliceMapCreator:
 
             slice_image = Image.open(slice_path)
 
-            # area_of_slice = slice_image.crop( (self.area_of_slice[0][0], self.area_of_slice[0][1], self.area_of_slice[1][0], self.area_of_slice[1][1]) )
-            area_of_slice = slice_image
-            
+            area_of_slice = slice_image.crop( (self.area_of_slice[0][0], self.area_of_slice[0][1], self.area_of_slice[1][0], self.area_of_slice[1][1]) )
+
             area_of_slice = area_of_slice.resize((self.proposional_slicemap_slice_size[0], self.proposional_slicemap_slice_size[1]), self.filter)
 
             slice_col_pos = int(slice_local_order_id % self.row_col[0])
@@ -179,8 +197,10 @@ class SliceMapCreator:
             slicemaps_images[slicemap_id].paste(area_of_slice, (point0[0], point0[1], point1[0], point1[1]))
 
         for slicemap_number in range(0, self.slicemaps_number):
+            # import pdb
+            # pdb.set_trace()
             slicemaps_images[slicemap_number] = slicemaps_images[slicemap_number].resize((self.slicemap_size[0], self.slicemap_size[1] ), self.filter)
-            slicemaps_images[slicemap_number].save(os.path.join(self.path_to_slicemaps, self.slicemap_name_format.format(slicemap_number, self.row_col[0], self.row_col[1], int(self.slicemap_size[0]), int(self.slicemap_size[1]), self.filter_name ) ), format='PNG', progressive=True)
+            slicemaps_images[slicemap_number].save(self.path_to_slicemaps[slicemap_number], format='PNG', progressive=True)
 
         print("******************************************************************")
         print("Slicemap size:                   {0},{1} px".format(self.slicemap_size[0], self.slicemap_size[1]))
@@ -190,19 +210,29 @@ class SliceMapCreator:
         print("Proposional slicemap slice size: {0},{1} px".format(self.proposional_slicemap_slice_size[0], self.proposional_slicemap_slice_size[1]))
         print("Interpolation filter name:       {0}".format(self.filter_name))
         print("Number of rows and cols:         {0},{1}".format(self.row_col[0], self.row_col[1]))
-        print("Path to slicemaps:               {0}".format( os.path.join(self.path_to_slicemaps, self.slicemap_name_format.format('n', self.row_col[0], self.row_col[1], int(self.slicemap_size[0]), int(self.slicemap_size[1]), self.filter_name )) ))
+        print("Path to slicemaps:               {0}".format( os.path.join(self.path_to_slicemaps_dir, self.slicemap_name_format.format('n', self.row_col[0], self.row_col[1], int(self.slicemap_size[0]), int(self.slicemap_size[1]), self.filter_name )) ))
         print("Path to slices:                  {0}".format( self.path_to_slices ))
         print("Name of fisrt slice:             {0}".format( self.files_list[0] ))
         print("Name of fisrt slicemaps:         {0}".format( self.slicemap_name_format.format(0, self.row_col[0], self.row_col[1], int(self.slicemap_size[0]), int(self.slicemap_size[1]), self.filter_name ) ))
         print("Area_of_slice:                   {0},{1} px".format(self.area_of_slice[0], self.area_of_slice[1]) )
 
+        self.create_slicemap_config()
+
     def create_slicemap_config(self):
         data = {}
-        # data["area_of_slice"] = self.config.area_of_slice
-        data["filter"] = self.config.filter
-        data["path_to_slicemaps"] = self.config.path_to_slicemaps
-        data["path_to_slices"] = self.config.path_to_slices
-        data["row_col"] = self.config.row_col
-        data["slicemap_size"] = self.config.slicemap_size
-        data["slices_range"] = self.config.slices_range
-        return json.dumps(data)
+        data["filter"] = self.filter_name
+        data["slicemaps_paths"] = [self.slicemap_name_format.format(i, self.row_col[0], self.row_col[1], int(self.slicemap_size[0]), int(self.slicemap_size[1]), self.filter_name ) for i in range(0, self.slicemaps_number)]
+        data["row_col"] = self.row_col
+        data["slicemap_size"] = self.slicemap_size
+        data["gap_slices"] = self.slices_range
+        data["original_slice_size"] = self.original_slice_size
+        data["area_of_slice"] = [self.area_of_slice[0], self.area_of_slice[1]]
+        jsonString = json.dumps(data)
+
+        print("************ CONFIG BEGIN ************ ")
+        print(jsonString)
+        print("************ CONFIG END ************** ")
+
+        config_file = open(self.path_to_config, "w");
+        config_file.write( jsonString )
+        config_file.close()

@@ -544,6 +544,36 @@
             me._needRedraw = true;
         };
 
+        me.uploadConfig = function(path, onLoad, onError) {
+            var xmlhttp;
+
+            if (window.XMLHttpRequest) {
+                // code for IE7+, Firefox, Chrome, Opera, Safari
+                xmlhttp = new XMLHttpRequest();
+            } else {
+                // code for IE6, IE5
+                xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+            }
+
+            xmlhttp.onreadystatechange = function() {
+                if (xmlhttp.readyState == XMLHttpRequest.DONE ) {
+                   if(xmlhttp.status == 200){
+                      onLoad(JSON.parse(xmlhttp.responseText));
+                   }
+                   else if(xmlhttp.status == 400) {
+                      userOnError(xmlhttp);
+                   }
+                   else {
+                        userOnError(xmlhttp);
+                   }
+                }
+            }
+
+            xmlhttp.open("GET", path, true);
+            xmlhttp.send();
+
+        };
+
         me.getConfig = function() {
             var config = {
                 "steps": me.getSteps(),
