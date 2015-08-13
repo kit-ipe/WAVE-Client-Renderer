@@ -97,7 +97,7 @@
             "varying vec4 pos;",
 
             "uniform sampler2D uBackCoord;",
-            "uniform sampler2D uSliceMaps[10];",
+            "uniform sampler2D uSliceMaps[16];",
             "uniform sampler2D uTransferFunction;",
 
             "uniform float uNumberOfSlices;",
@@ -146,7 +146,7 @@
             "    float value1, value2;",
             "    bool value1Set = false, value2Set = false;",
 
-            "    for (int x = 0; x < 10; x++) {",
+            "    for (int x = 0; x < 16; x++) {",
             "        if(x == tex1Index) {",
             "            value1 = texture2D(uSliceMaps[x],texpos1).x;",
             "            value1Set = true;",
@@ -174,7 +174,7 @@
             "    vec4 backColor = texture2D(uBackCoord,texC);",
 
             "    vec3 dir = backColor.rgb - frontColor.rgb;",
-            "    dir /= length(dir);",
+            "    //dir /= length(dir);",
 
             "    vec4 vpos = frontColor;",
 

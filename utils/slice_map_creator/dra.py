@@ -66,12 +66,63 @@ def createParser ():
     # Создаем парсер для команды create
     create_parser = subparsers.add_parser ('create',
             add_help = False,
-            help = 'Run in mode "Create slicemap"',
+            help = 'Run command "Create slicemap"',
             description = '''Command for creating clicemap.''')
  
     # Создаем новую группу параметров
     create_group = create_parser.add_argument_group (title='Settings')
  
+    # Добавляем параметры
+    create_group.add_argument ('-sp', '--path-to-slices', type=path_parse, required=True,
+            help = 'Absolute path to images (slices).',
+            metavar = 'STR')
+
+    create_group.add_argument ('-snf', '--slice-name-format', type=str, default='^([\D,\d]+\d+\D+)$',
+            help = r'Format name of image (slices). Example: ^(slice_\d+)$',
+            metavar = 'STR')
+
+    create_group.add_argument ('-smp', '--path-to-slicemaps', type=path_parse, default='./',
+            help = 'Absolute path to slicemaps images. Example: /home/user/data/slices/',
+            metavar = 'STR')
+
+    create_group.add_argument ('-smnf', '--slicemap-name-format', type=str, default='slicemap{0}-{1}x{2}-{3}x{4}-{5}.png',
+            help = r'Format name of slicemap. Example: slicemap-{0}-{1}x{2}-{3}x{4}-{5}.png, where {0} - slicemap number, {1},{2} - row and col number in slicemap, {3},{4} - width and height of slicemap, {5} - type of filter.',
+            metavar = 'STR')
+
+    create_group.add_argument ('-sms', '--slicemap-size', type=resolution_parse, required=True,
+            help = 'Size of slicemap. Should be equal power of two. Example: 4096x4096',
+            metavar = 'STR')
+
+    create_group.add_argument ('-as', '--area-of-slice', type=area_of_slice_parse, default='0x0,*x*',
+            help = 'Area between left-top and right-bottom points on every slice for slicemap. Format: ^([0-9]+x[0-9]+,[0-9,*]+x[0-9,*]+)$. Example: 100x100,300x300',
+            metavar = 'STR')
+
+    create_group.add_argument ('-sr', '--slices-range', type=slice_range_parse, default='0x*',
+            help = 'Range of slices for slicemap. Format: ^([0-9]+x[0-9,*]+)$. Example: 100x*',
+            metavar = 'STR')
+
+    create_group.add_argument ('-rc', '--row-col', type=resolution_parse, required=True,
+            help = 'Number of rows and cols in slicemap. Format: ^([0-9]+x[0-9]+)$. Example: 16x16.',
+            metavar = 'STR')
+
+    create_group.add_argument ('-f', '--filter', type=str, default='bl', choices=['n', 'bl', 'bc', 'a'],
+            help = 'Name of filter for image. Possible values: "n" - NEAREST, "bl" - BILINEAR, "bc" - BICUBIC, "a" - ANTIALIAS. Example: n',
+            metavar = 'STR')
+
+    create_group.add_argument ('-v', '--verbose', action="store_true",
+            help = 'Verbose mode.  Causes slicemap_creator to print debugging messages about their progress.',)
+
+    create_group.add_argument ('--help', '-h', action='help', help='Help')
+
+    # Создаем парсер для команды create_config
+    create_parser = subparsers.add_parser ('create-config',
+            add_help = False,
+            help = 'Run command "create slicemap config"',
+            description = '''Command for creating clicemap config.''')
+    
+    # Создаем новую группу параметров
+    create_group = create_parser.add_argument_group (title='Settings')
+    
     # Добавляем параметры
     create_group.add_argument ('-ps', '--path-to-slices', type=path_parse, required=True,
             help = 'Absolute path to images (slices).',
@@ -110,14 +161,8 @@ def createParser ():
             metavar = 'STR')
 
     create_group.add_argument ('--help', '-h', action='help', help='Help')
- 
-    return parser
 
-def create_clicemap (namespace):
-    """
-    Выполнение команды create_clicemap
-    """
-    print("Create clicemap!")
+    return parser
 
 if __name__ == '__main__':
     parser = createParser()
@@ -126,11 +171,12 @@ if __name__ == '__main__':
     # print (namespace)
 
     smc = SliceMapCreator(namespace)
- 
-    if namespace.command == "create":
-        smc.create()
-        print("Meta information: ")
-        print(smc.getJsonConfig())
+
+    if namespace.command   == "create":
+        smc.create_slicemap()
+    
+    elif namespace.command == "create-config":
+        smc.create_slicemap_config()
+
     else:
         parser.print_help()
-        

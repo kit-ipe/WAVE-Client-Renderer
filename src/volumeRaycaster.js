@@ -44,7 +44,7 @@
                     me._needRedraw = false;
 
                 }
-
+                
                 // me._core._controls.update();
 
             };
@@ -452,8 +452,29 @@
         };
 
         me.setConfig = function(config) {
+            if(config['slicemaps_images'] != undefined) {
+                me.setSlicemapsImages( config['slicemaps_images'] );
+            }
+
+            if(config['slicemaps_paths'] != undefined) {
+                me.uploadSlicemapsImages(
+                    config['slicemaps_paths'],
+                    function(image) {
+                    },
+                    function(images) {
+                        if(config['gap_slices'] != undefined) {
+                            me.setSlicesGap( config['gap_slices'][0], config['gap_slices'][1] );
+                        }
+
+                        me.start();
+                    }
+
+                );
+                
+            }
+
             if(config['gap_slices'] != undefined) {
-                me._core.setSlicesGap( config['gap_slices'][0], config['gap_slices'][1] );
+                me.setSlicesGap( config['gap_slices'][0], config['gap_slices'][1] );
             }
 
             if(config['steps'] != undefined) {
@@ -518,23 +539,6 @@
 
             if(config['resolution'] != undefined) {
                 me.setResolution( config['resolution'][0], config['resolution'][1] );
-            }
-
-            if(config['slicemaps_images'] != undefined) {
-                me.setSlicemapsImages( config['slicemaps_images'] );
-            }
-
-            if(config['slicemaps_paths'] != undefined) {
-                me.uploadSlicemapsImages(
-                    config['slicemaps_paths'],
-                    function(image) {
-                    },
-                    function(images) {
-                        me.start();
-                    }
-
-                );
-                
             }
 
             me._needRedraw = true;

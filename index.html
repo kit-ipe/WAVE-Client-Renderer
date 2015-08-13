@@ -22,51 +22,142 @@
 
 		<script>
 
-			config = {
+			// config = {
+			// 	"dom_container_id": "container",
+			// 	"gap_slices": [0, 1023],
+			// 	"gray_min": 0.40,
+			// 	"gray_max": 1.0,
+			// 	"row_col": [32, 32],
+			// 	"steps": 256,
+			// 	"resolution": [512, 512],
+			// 	"absorption_mode": 1,
+			// 	"opacity_factor": 35,
+			// 	"color_factor": 3,
+			// 	// "z_min": 0.4,
+			// 	// "z_max": 0.6,
+			// 	"auto_steps": false,
+			// };
+
+			// config1 = config;
+			// config1["slicemaps_paths"] = [
+			// 'slicemap0.png',
+			// ]
+
+			// rcl1 = new VRC.VolumeRaycaster(config1);
+
+			// rcl1.setTransferFunctionByColors(
+			// 	[
+   //                  {"pos": 0.0, "color": "#00007F"},
+   //                  {"pos": 0.25, "color": "#0080FF"},
+   //                  {"pos": 0.5,  "color": "#7CFF79"},
+   //                  {"pos": 0.75, "color": "#FF9400"},
+   //                  {"pos": 1.0, "color": "#7F0000"},
+	  //           ]
+
+			// );
+
+			config1 = {
 				"dom_container_id": "container",
-				"gap_slices": [0, 253],
-				"gray_min": 0.7,
-				"gray_max": 1.0,
-				"row_col": [16, 16],
-				"steps": 256,
-				"resolution": [512, 512],
+				"gap_slices": [0, 256],
+				"gray_min": 0.403,
+				"gray_max": 0.6,
+				"row_col": [64, 64],
+				"steps": 1024,
+				"resolution": ['*', '*'],
 				"absorption_mode": 1,
 				"opacity_factor": 35,
 				"color_factor": 3,
-				// "z_min": 0.4,
-				// "z_max": 0.6,
+				"x_min": 0.0,
+				"x_max": 1.0,
 				"auto_steps": false,
 			};
 
-			config1 = config;
-			config1["slicemaps_paths"] = ['data/foot.raw.png']
-
-			rcl1 = new VRC.VolumeRaycaster(config1);
-
-			rcl1.setTransferFunctionByColors(
-				[
-	                {"pos": 1.0, "color": "#FF0000"},
-	                {"pos": 0.5, "color": "#00FF00"},
-	                {"pos": 0.0,  "color": "#0000FF"},
-	            ]
-
-			);
-
-			config2 = rcl1.getConfig();
-			// config2["slicemaps_paths"] = ['data/foot.raw.png']
-			// config2["resolution"] = [700, 700];
+			config1["slicemaps_paths"] = [
+			// 'slicemap0-9x9-4096x4096-BILINEAR.png',
+			// 'slicemap1-9x9-4096x4096-BILINEAR.png',
+			// 'slicemap2-9x9-4096x4096-BILINEAR.png',
+			// 'slicemap3-9x9-4096x4096-BILINEAR.png',
+			// 'slicemap4-9x9-4096x4096-BILINEAR.png',
+			// 'slicemap5-9x9-4096x4096-BILINEAR.png',
+			// 'slicemap6-9x9-4096x4096-BILINEAR.png',
+			// 'slicemap7-9x9-4096x4096-BILINEAR.png',
+			// 'slicemap8-9x9-4096x4096-BILINEAR.png',
+			// 'slicemap9-9x9-4096x4096-BILINEAR.png',
+			// 'slicemap10-9x9-4096x4096-BILINEAR.png',
+			// 'slicemap11-9x9-4096x4096-BILINEAR.png',
+			// 'slicemap12-9x9-4096x4096-BILINEAR.png',
+			// 'slicemap13-9x9-4096x4096-BILINEAR.png',
+			// 'slicemap14-9x9-4096x4096-BILINEAR.png',
+			// 'slicemap15-9x9-4096x4096-BILINEAR.png',
+			// 'slicemap16-9x9-4096x4096-BILINEAR.png',
+			'Jena_P16_km3-OverlaysNew_oldTransm-reflF.png'
+			// Jena_P16_km3-OverlaysNew_oldTransm-reflFrontal_fused.png
+			]
 
 			rcl2 = new VRC.VolumeRaycaster(config1);
 
 			rcl2.setTransferFunctionByColors(
 				[
-	                {"pos": 1.0, "color": "#FF0000"},
-	                {"pos": 0.5, "color": "#00FF00"},
-	                {"pos": 0.0,  "color": "#0000FF"},
+                    {"pos": 0.0, "color": "#00007F"},
+                    {"pos": 0.25, "color": "#0080FF"},
+                    {"pos": 0.5,  "color": "#7CFF79"},
+                    {"pos": 0.75, "color": "#FF9400"},
+                    {"pos": 1.0, "color": "#7F0000"},
 	            ]
 
 			);
 
+			config2 = {
+				"dom_container_id": "container",
+				"gap_slices": [0, 256],
+				"gray_min": 0.403,
+				"gray_max": 0.6,
+				"row_col": [64, 64],
+				"steps": 1024,
+				"resolution": ['*', '*'],
+				"absorption_mode": 1,
+				"opacity_factor": 35,
+				"color_factor": 3,
+				"x_min": 0.0,
+				"x_max": 1.0,
+				"auto_steps": false,
+			};
+
+			config2["slicemaps_paths"] = [
+			// 'slicemap0-9x9-4096x4096-BILINEAR.png',
+			// 'slicemap1-9x9-4096x4096-BILINEAR.png',
+			// 'slicemap2-9x9-4096x4096-BILINEAR.png',
+			// 'slicemap3-9x9-4096x4096-BILINEAR.png',
+			// 'slicemap4-9x9-4096x4096-BILINEAR.png',
+			// 'slicemap5-9x9-4096x4096-BILINEAR.png',
+			// 'slicemap6-9x9-4096x4096-BILINEAR.png',
+			// 'slicemap7-9x9-4096x4096-BILINEAR.png',
+			// 'slicemap8-9x9-4096x4096-BILINEAR.png',
+			// 'slicemap9-9x9-4096x4096-BILINEAR.png',
+			// 'slicemap10-9x9-4096x4096-BILINEAR.png',
+			// 'slicemap11-9x9-4096x4096-BILINEAR.png',
+			// 'slicemap12-9x9-4096x4096-BILINEAR.png',
+			// 'slicemap13-9x9-4096x4096-BILINEAR.png',
+			// 'slicemap14-9x9-4096x4096-BILINEAR.png',
+			// 'slicemap15-9x9-4096x4096-BILINEAR.png',
+			// 'slicemap16-9x9-4096x4096-BILINEAR.png',
+			'Jena_P16_km3-OverlaysNew_oldTransm-reflFrontal_fused.png'
+			// Jena_P16_km3-OverlaysNew_oldTransm-reflFrontal_fused.png
+			]
+
+			rcl3 = new VRC.VolumeRaycaster(config2);
+
+			rcl3.setTransferFunctionByColors(
+				[
+                    {"pos": 0.0, "color": "#00007F"},
+                    {"pos": 0.25, "color": "#0080FF"},
+                    {"pos": 0.5,  "color": "#7CFF79"},
+                    {"pos": 0.75, "color": "#FF9400"},
+                    {"pos": 1.0, "color": "#7F0000"},
+	            ]
+
+			);
+			
 		</script>
 
 	</body>
