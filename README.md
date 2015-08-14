@@ -8,7 +8,7 @@ JavaScrip framework for client side raycasting.
 - Configurability
 - Utility for creating sitemaps
 
-##Example:
+##Example of usage:
 
 ```html
 <div id="container"> </div>
@@ -36,16 +36,49 @@ vrc.setTransferFunctionByColors(
 );
 ```
 
-```bash
-sudo python3 -m http.server 1001
-```
-
 #### Result:
 ![Screenshot1](https://raw.githubusercontent.com/kit-ipe/tomo_raycaster2/master/docs/screenshot_mode1.png)
 
 ## Screenshots
 
-![Screenshot1](https://raw.githubusercontent.com/kit-ipe/tomo_raycaster2/master/docs/screenshot.png)    
+![Screenshot1](https://raw.githubusercontent.com/kit-ipe/tomo_raycaster2/master/docs/screenshot.png)
+
+## Workflow:
+### 1. Clone this repo
+```bash
+$ git clone https://github.com/kit-ipe/tomo_raycaster2.git
+```
+### 2. Go to the dir where you cloned repo
+```bash
+$ cd tomo_raycaster2
+```
+### 3. Install npm
+* Opensuse 13.2
+
+```bash
+$ sudo zypper addrepo http://download.opensuse.org/repositories/devel:/languages:/nodejs/openSUSE_13.2/ Node.js
+$ sudo zypper in npm
+```
+* Archlinux
+```bash
+$ sudo pacman -S npm
+```
+### 4. Install plugins for Grunt
+```bash
+$ ./install.sh
+```
+### 5. Generate minification version of tomo_raycaster2
+```bash
+$ grunt
+```
+### 6. Start python http server
+```bash
+$ ./start_server.sh
+
+```
+### 7. Point your browser to [localhost:10001](http://localhost:10001/examples).
+
+### 8. See more examples of usage [here](https://github.com/kit-ipe/tomo_raycaster2_examples.git)
 
 ## LICENSE
 
