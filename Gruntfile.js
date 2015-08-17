@@ -1,8 +1,20 @@
 module.exports = function(grunt) {
 
-    // 1. Всё конфигурирование тут
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
+
+        glsl_threejs: {
+            shaiders: {
+                options: {
+                    jsPackage: 'window.VRC.Core.prototype._shaders',
+                    lineEndings: '\n',
+                },
+                files: {
+                    'src/shaders/concat_shaders/shaders.gen.js': ['src/shaders/*.vert', 'src/shaders/*.frag'],
+                },
+
+            }
+        },
 
         concat: {   
             without_deps: {
@@ -11,8 +23,8 @@ module.exports = function(grunt) {
                 './src/dispatcher.js',
                 './src/adaptaionManager.js',
                 './src/geometryHelper.js',
-                './src/shaders.js',
                 './src/core.js',
+                './src/shaders/concat_shaders/shaders.js',
                 './src/volumeRaycaster.js'
                 ],
                 dest: 'build/volumeRaycaster.js',
@@ -27,8 +39,8 @@ module.exports = function(grunt) {
                 './src/dispatcher.js',
                 './src/adaptaionManager.js',
                 './src/geometryHelper.js',
-                './src/shaders.js',
                 './src/core.js',
+                './src/shaders/concat_shaders/shaders.js',
                 './src/volumeRaycaster.js'
                 ],
                 dest: 'build/volumeRaycaster.with-deps.js',
@@ -54,19 +66,26 @@ module.exports = function(grunt) {
         watch: {
             scripts: {
                 files: ['src/*.js'],
-                tasks: ['concat', 'uglify'],
+                tasks: ['concat'],
                 options: {
                     spawn: false,
                 },
-            } 
+            },
+            shaders: {
+                files: ['src/shaders/*.vert', 'src/shaders/*.frag'],
+                tasks: ['glsl_threejs', 'concat'],
+                options: {
+                    spawn: false,
+                },
+            }
+
         }
     });
 
-    // 3. Здесь мы сообщаем Grunt, что мы планируем использовать этот плагин:
+    grunt.loadNpmTasks('grunt-glsl-threejs');
     grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-contrib-uglify');
     grunt.loadNpmTasks('grunt-contrib-watch');
 
-    // 4. Мы сообщаем Grunt, что нужно делать, когда мы введём "grunt" в терминале.
-    grunt.registerTask('default', ['concat', 'uglify']);
+    grunt.registerTask('default', ['glsl_threejs', 'concat', 'uglify']);
 }

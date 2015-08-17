@@ -32,20 +32,27 @@
 
             });
 
+            var frames = 0;
+
             function animate() {
 
                 requestAnimationFrame( animate );
+                if(me._needRedraw) {
+                    frames = 10;
+                }
 
-                if(me._needRedraw && me._isStart) {
+                if(frames > 0 && me._isStart) {
                     var delta = me._clock.getDelta();
                     var fps = 1 / delta;
 
                     me._core.draw(fps);
-                    me._needRedraw = false;
+                    frames--;
 
+                    me._needRedraw = false;
                 }
                 
                 // me._core._controls.update();
+                // me._needRedraw = true;
 
             };
 
@@ -70,6 +77,7 @@
         };
 
         me.uploadSlicemapsImages = function(imagesPaths, userOnLoadImage, userOnLoadImages, userOnError) {
+            
 
             var downloadImages = function(imagesPaths, onLoadImage, onLoadImages, onError) {
                 var downloadedImages = [];
@@ -133,10 +141,12 @@
 
         me.start = function() {
             me._isStart = true;
+            console.log("VRC: start()");
         };
 
         me.stop = function() {
             me._isStart = false;
+            console.log("VRC: stop()");
         };
 
         me.setSteps = function(steps_number) {
@@ -262,18 +272,24 @@
 
         };
 
-        me.setResolution = function(width, height) {
+        me.setRendererSize = function(width, height) {
             var ctx = me._core._renderer.getContext()
             var maxRenderbufferSize = ctx.getParameter(ctx.MAX_RENDERBUFFER_SIZE);
             if(Math.max(width, height) > maxRenderbufferSize) {
                 console.warn("Size of canvas setted in " + maxRenderbufferSize + "x" + maxRenderbufferSize + ". Max render buffer size is " + maxRenderbufferSize + ".");
-                me._core.setResolution(maxRenderbufferSize, maxRenderbufferSize);
+                me._core.setRendererSize(maxRenderbufferSize, maxRenderbufferSize);
 
             } else {
-                me._core.setResolution(width, height);
+                me._core.setRendererSize(width, height);
 
             }
 
+            me._needRedraw = true;
+
+        };
+
+        me.setRendererCanvasSize = function(width, height) {
+            me._core.setRendererCanvasSize(width, height);
             me._needRedraw = true;
 
         };
@@ -407,9 +423,22 @@
             return me._core.getAbsorptionMode();
         };
 
-        me.getResolution = function() {
-            return me._core.getResolution();
+        me.getRenderSize = function() {
+            return me._core.getRenderSize();
         };
+
+        me.getRenderSizeInPixels  = function() {
+            return me._core.getRenderSizeInPixels();
+        };
+
+        me.getCanvasSize = function() {
+            return me._core.getCanvasSize();
+        };
+
+        me.getCanvasSizeInPixels = function() {
+            return me._core.getCanvasSizeInPixels();
+        };
+
 
         me.getAbsorptionMode = function() {
             return me._core.getAbsorptionMode();
@@ -524,6 +553,10 @@
             if(config['color_factor'] != undefined) {
                 me._core.setColorFactor( config['color_factor'] );   
             }
+
+            if(config['tf_colors'] != undefined) {
+                me._core.setTransferFunctionByColors( config['tf_colors'] );   
+            }
             
             if(config['backgound'] != undefined) {
                 me._core.setBackgoundColor( config['backgound'] );
@@ -537,8 +570,12 @@
                 me._core.setAbsorptionMode( config['absorption_mode'] );
             }
 
-            if(config['resolution'] != undefined) {
-                me.setResolution( config['resolution'][0], config['resolution'][1] );
+            if(config['renderer_size'] != undefined) {
+                me.setRendererSize( config['renderer_size'][0], config['renderer_size'][1] );
+            }
+
+            if(config['renderer_canvas_size'] != undefined) {
+                me.setRendererCanvasSize( config['renderer_canvas_size'][0], config['renderer_canvas_size'][1] );
             }
 
             me._needRedraw = true;
@@ -585,16 +622,17 @@
                 "opacity_factor": me.getOpacityFactor(),
                 "color_factor": me.getColorFactor(),
                 "absorption_mode": me.getAbsorptionMode(),
-                "resolution": me.getResolution(),
+                "renderer_size": me.getRenderSize(),
+                "renderer_canvas_size": me.getCanvasSize(),
                 "backgound": me.getClearColor(),
-                "transfer_function_as_array": [-1],
-                "transfer_function_path": [-1],
-                "transfer_function_colors": me.getTransferFunctionColors(),
+                "tf_as_array": [-1],
+                "tf_path": [-1],
+                "tf_colors": me.getTransferFunctionColors(),
                 "x_min": me.getGeometryDimension()["xmin"],
                 "x_max": me.getGeometryDimension()["xmax"],
                 "y_min": me.getGeometryDimension()["ymin"],
                 "y_max": me.getGeometryDimension()["ymax"],
-                "z_min": me.getGeometryDimension()["zmin"],
+                "z_min": me.getGeometryDimension()["zmin"], 
                 "z_max": me.getGeometryDimension()["zmax"],
                 "dom_container_id": me.getDomContainerId(),
                 "camera_settings": {
