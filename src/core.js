@@ -21,8 +21,8 @@
         this._slicemaps_images      = [];
         this._slicemaps_paths       = [];
         this._slicemaps_textures    = [];
-        this._opacity_factor        = 1.0;
-        this._color_factor          = 1.0;
+        this._opacity_factor        = 20.0;
+        this._color_factor          = 3.0;
         this._absorption_mode_index = 0.0;
         this._render_size           = ['*', '*'];
         this._canvas_size           = ['*', '*'];
@@ -96,6 +96,9 @@
         this._renderer = new THREE.WebGLRenderer();
         this._renderer.setSize( this.getRenderSizeInPixels()[0], this.getRenderSizeInPixels()[1] );
         this._renderer.setClearColor( this._render_clear_color );
+        this._renderer.autoClearColor = true;
+        this._renderer.autoClearDepth = true;
+        this._renderer.autoClearStencil = false;
         this._container.appendChild( this._renderer.domElement );
 
         this._camera = new THREE.PerspectiveCamera( 45, this.getRenderSizeInPixels()[0] / this.getRenderSizeInPixels()[1], 0.01, 11 );
@@ -121,7 +124,7 @@
                 vertColor: {type: 'c', value: [] }
             },
             side: THREE.FrontSide,
-            depthTest: false, transparent: false
+            transparent: false
         } );
         
         this._materialSecondPass = new THREE.ShaderMaterial( {
@@ -147,7 +150,7 @@
             },
             side: THREE.BackSide,
             // transparent: true,
-            depthTest: false, transparent: true
+            transparent: true
         });
 
         this._sceneFirstPass = new THREE.Scene();

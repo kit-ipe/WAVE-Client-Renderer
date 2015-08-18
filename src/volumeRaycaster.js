@@ -472,8 +472,8 @@
             return me._core.getTransferFunctionColors();
         };
 
-        me.getDomContainerId = function() {
-            return me._core.getDomContainerId();
+        me.isAutoStepsOn = function() {
+            return me._adaptationManager.isRun();
         };
 
         me.draw = function() {
@@ -635,30 +635,7 @@
                 "z_min": me.getGeometryDimension()["zmin"], 
                 "z_max": me.getGeometryDimension()["zmax"],
                 "dom_container_id": me.getDomContainerId(),
-                "camera_settings": {
-                    "rotation": {
-                        x: 0.0,
-                        y: 0.0,
-                        z: 0.0
-                    },
-                    "position": {
-                        "x": 0,
-                        "y": 0,
-                        "z": 2
-                    },
-                },
-                "geometry_settings": {
-                    "rotation": {
-                        x: 0.0,
-                        y: 0.0,
-                        z: 0.0
-                    },
-                    "position": {
-                        "x": -0.5,
-                        "y": -0.5,
-                        "z": -0.5
-                    }
-                }
+                "auto_steps": me.isAutoStepsOn(),
             };
 
             return config;

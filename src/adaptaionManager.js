@@ -18,8 +18,7 @@
 
         // me._possible_steps = [32, 64, 128, 256, 512, 1024];
         // me._possible_steps = [10, 20, 50, 80, 100, 150, 200];
-        me._possible_steps = [0,
- 10,
+        me._possible_steps = [10,
  20,
  30,
  40,
@@ -117,7 +116,108 @@
  960,
  970,
  980,
- 990]
+ 990,
+ 1000,
+ 1010,
+ 1020,
+ 1030,
+ 1040,
+ 1050,
+ 1060,
+ 1070,
+ 1080,
+ 1090,
+ 1100,
+ 1110,
+ 1120,
+ 1130,
+ 1140,
+ 1150,
+ 1160,
+ 1170,
+ 1180,
+ 1190,
+ 1200,
+ 1210,
+ 1220,
+ 1230,
+ 1240,
+ 1250,
+ 1260,
+ 1270,
+ 1280,
+ 1290,
+ 1300,
+ 1310,
+ 1320,
+ 1330,
+ 1340,
+ 1350,
+ 1360,
+ 1370,
+ 1380,
+ 1390,
+ 1400,
+ 1410,
+ 1420,
+ 1430,
+ 1440,
+ 1450,
+ 1460,
+ 1470,
+ 1480,
+ 1490,
+ 1500,
+ 1510,
+ 1520,
+ 1530,
+ 1540,
+ 1550,
+ 1560,
+ 1570,
+ 1580,
+ 1590,
+ 1600,
+ 1610,
+ 1620,
+ 1630,
+ 1640,
+ 1650,
+ 1660,
+ 1670,
+ 1680,
+ 1690,
+ 1700,
+ 1710,
+ 1720,
+ 1730,
+ 1740,
+ 1750,
+ 1760,
+ 1770,
+ 1780,
+ 1790,
+ 1800,
+ 1810,
+ 1820,
+ 1830,
+ 1840,
+ 1850,
+ 1860,
+ 1870,
+ 1880,
+ 1890,
+ 1900,
+ 1910,
+ 1920,
+ 1930,
+ 1940,
+ 1950,
+ 1960,
+ 1970,
+ 1980,
+ 1990];
+
         me._current_steps_index = 0;
 
         me._onPostDrawFuncIndex = -1;
@@ -218,17 +318,17 @@
         };
 
         me.isRun = function() {
-            var isRunOnPostDraw = me._core.onPostDraw.IsRun(me._onPostDrawFuncIndex)
-            var isRunOnCameraChangeStart = me._core.onCameraChangeStart.IsRun(me._onCameraChangeEndFuncIndex);
-            var isRunOnCameraChangeEnd = me._core.onCameraChangeEnd.IsRun(me._onCameraChangeStartFuncIndex);
+            var isRunOnPostDraw = me._core.onPostDraw.isStart(me._onPostDrawFuncIndex)
+            var isRunOnCameraChangeStart = me._core.onCameraChangeStart.isStart(me._onCameraChangeEndFuncIndex);
+            var isRunOnCameraChangeEnd = me._core.onCameraChangeEnd.isStart(me._onCameraChangeStartFuncIndex);
 
             return isRunOnPostDraw && isRunOnCameraChangeStart && isRunOnCameraChangeEnd;
         };
 
         me.isPause = function() {
-            var isRunOnPostDraw = me._core.onPostDraw.IsRun(me._onPostDrawFuncIndex)
-            var isRunOnCameraChangeStart = me._core.onCameraChangeStart.IsRun(me._onCameraChangeEndFuncIndex);
-            var isRunOnCameraChangeEnd = me._core.onCameraChangeEnd.IsRun(me._onCameraChangeStartFuncIndex);
+            var isRunOnPostDraw = me._core.onPostDraw.isStart(me._onPostDrawFuncIndex)
+            var isRunOnCameraChangeStart = me._core.onCameraChangeStart.isStart(me._onCameraChangeEndFuncIndex);
+            var isRunOnCameraChangeEnd = me._core.onCameraChangeEnd.isStart(me._onCameraChangeStartFuncIndex);
 
             return !isRunOnPostDraw && !isRunOnCameraChangeStart && isRunOnCameraChangeEnd;
         };

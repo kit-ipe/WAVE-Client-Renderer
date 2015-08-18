@@ -4,7 +4,7 @@ module.exports = function(grunt) {
         pkg: grunt.file.readJSON('package.json'),
 
         glsl_threejs: {
-            shaiders: {
+            shaders: {
                 options: {
                     jsPackage: 'window.VRC.Core.prototype._shaders',
                     lineEndings: '\n',
@@ -24,7 +24,7 @@ module.exports = function(grunt) {
                 './src/adaptaionManager.js',
                 './src/geometryHelper.js',
                 './src/core.js',
-                './src/shaders/concat_shaders/shaders.js',
+                './src/shaders/concat_shaders/shaders.gen.js',
                 './src/volumeRaycaster.js'
                 ],
                 dest: 'build/volumeRaycaster.js',
@@ -40,7 +40,7 @@ module.exports = function(grunt) {
                 './src/adaptaionManager.js',
                 './src/geometryHelper.js',
                 './src/core.js',
-                './src/shaders/concat_shaders/shaders.js',
+                './src/shaders/concat_shaders/shaders.gen.js',
                 './src/volumeRaycaster.js'
                 ],
                 dest: 'build/volumeRaycaster.with-deps.js',
@@ -65,20 +65,13 @@ module.exports = function(grunt) {
 
         watch: {
             scripts: {
-                files: ['src/*.js'],
-                tasks: ['concat'],
-                options: {
-                    spawn: false,
-                },
-            },
-            shaders: {
-                files: ['src/shaders/*.vert', 'src/shaders/*.frag'],
+                files: ['src/*.js', 'src/shaders/*.vert', 'src/shaders/*.frag'],
                 tasks: ['glsl_threejs', 'concat'],
                 options: {
                     spawn: false,
                 },
             }
-
+            
         }
     });
 

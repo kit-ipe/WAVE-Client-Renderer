@@ -1,0 +1,52 @@
+<html lang="en">
+	<head>
+		<title>Lidar - WebGL Volume Rendering</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+ 
+		<script src="../libs/three.min.js"></script>
+		<script src="../libs/OrbitControls.js"></script>
+		<script src="./libs/dat.gui.min.js"></script>
+		<script src="./libs/dat.gui.helper.js"></script>
+<!-- 
+	 	<script src="../build/volumeRaycaster.min.js"></script>
+ -->	 	
+
+	 	<script src="../build/volumeRaycaster.js"></script>
+
+<!-- 
+ 		<script src="../build/volumeRaycaster.with-deps.min.js"></script>
+ -->
+ 	</head>
+	<body>
+		<div id="container">
+		</div>
+
+		<img id="transferFunctionImg"/>
+
+		<script>
+			window.onload = function() {
+				var config = {
+					"dom_container_id": "container",
+					"slicemaps_paths": [
+						'../data/slicemaps/foot.raw.png',
+					],
+					"gap_slices": [0, 255],
+					"gray_min": 0.4,
+					"row_col": [16, 16],
+					"renderer_size": [512, 512],
+					// "renderer_canvas_size": ['*', '*'],
+					"absorption_mode": 1,
+					"auto_steps": true,
+				};
+
+				rcl2 = new VRC.VolumeRaycaster(config);
+
+				InitGUI(rcl2.getConfig());
+
+			};
+			
+		</script>
+
+	</body>
+</html>	
