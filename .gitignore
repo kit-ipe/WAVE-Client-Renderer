@@ -7,5 +7,4 @@ utils/slice_map_creator/data
 *.tiff
 *.tif
 node_modules
-build/*
 *.gen.js
