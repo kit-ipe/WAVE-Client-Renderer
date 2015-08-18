@@ -1,4 +1,4 @@
-				var InitGUI = function(config) {
+				var InitGUI = function(config, rcl2) {
 					guiControls = new function() {
 						this.number_slices = config["gap_slices"][1];
 						this.gray_min = config["gray_min"];
