@@ -8,3 +8,5 @@ utils/slice_map_creator/data
 *.tif
 node_modules
 *.gen.js
+/test/libs/threejs
+/test/libs/dat.gui
