@@ -13,7 +13,9 @@
   ],
   "keywords": [
     "raycasting",
-    "raytracing",
+    "3D",
+    "WebGL",
+    "Threejs",
     "tomodata",
     "tomographia"
   ],

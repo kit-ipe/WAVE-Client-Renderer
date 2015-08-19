@@ -20,6 +20,9 @@
 
         me._clock = new THREE.Clock();
 
+        me._onLoadSlicemap              = new VRC.EventDispatcher();
+        me._onLoadSlicemaps             = new VRC.EventDispatcher();
+
         me._core = new VRC.Core( config['dom_container_id'] );
         me._adaptationManager = new VRC.AdaptationManager();
 
@@ -27,7 +30,7 @@
             me._core.init();
             me._adaptationManager.init( me._core );
 
-            me.addOnCameraChangeCallback(function() {
+            me.addCallback("onCameraChange", function() {
                 me._needRedraw = true;
 
             });
@@ -116,12 +119,15 @@
             downloadImages(imagesPaths,
                 function(image) {
                     // downloaded one of the images
+                    me._onLoadSlicemap.call(image);
                     if(userOnLoadImage != undefined) userOnLoadImage(image);
                 },
                 function(images) {
                     // downloaded all images
                     me.setSlicemapsImages(images, imagesPaths);
                     // me.start();
+
+                    me._onLoadSlicemaps.call(images);
 
                     if(userOnLoadImages != undefined) userOnLoadImages(images);
 
@@ -161,8 +167,8 @@
 
         };
 
-        me.setSlicesGap = function(from, to) {
-            me._core.setSlicesGap(from, to);
+        me.setSlicesRange = function(from, to) {
+            me._core.setSlicesRange(from, to);
             me._needRedraw = true;
 
         };
@@ -346,35 +352,86 @@
 
         };
 
-        me.addOnResizeCallback = function(onResize) {
-            me._core.onResize.add(onResize);
+        me.addCallback = function(event_name, callback, needStart) {
+            switch(event_name) {
+                case "onPreDraw": return me._core.onPreDraw.add(callback, needStart);
+                case "onPostDraw": return me._core.onPostDraw.add(callback, needStart);
+                case "onResizeWindow": return me._core.onResizeWindow.add(callback, needStart);
+                case "onCameraChange": return me._core.onCameraChange.add(callback, needStart);
+                case "onCameraChangeStart": return me._core.onCameraChangeStart.add(callback, needStart);
+                case "onCameraChangeEnd": return me._core.onCameraChangeEnd.add(callback, needStart);
+                case "onChangeTransferFunction": return me._core.onChangeTransferFunction.add(callback, needStart);
+                case "onLoadSlicemap": return me._onLoadSlicemap.add(callback, needStart);
+                case "onLoadSlicemaps": return me._onLoadSlicemaps.add(callback, needStart);
+            }
             me._needRedraw = true;
 
         };
 
-        me.addOnCameraChangeCallback = function(onChange) {
-            me._core.onCameraChange.add(onChange);
-            me._needRedraw = true;
-        };
+        me.removeCallback = function(event_name, index) {
+            switch(event_name) {
+                case "onPreDraw": return me._core.onPreDraw.remove(index);
+                case "onPostDraw": return me._core.onPostDraw.remove(index);
+                case "onResizeWindow": return me._core.onResizeWindow.remove(index);
+                case "onCameraChange": return me._core.onCameraChange.remove(index);
+                case "onCameraChangeStart": return me._core.onCameraChangeStart.remove(index);
+                case "onCameraChangeEnd": return me._core.onCameraChangeEnd.remove(index);
+                case "onChangeTransferFunction": return me._core.onChangeTransferFunction.remove(index);
+                case "onLoadSlicemap": return me._onLoadSlicemap.remove(callback, needStart);
+                case "onLoadSlicemaps": return me._onLoadSlicemaps.remove(callback, needStart);
 
-        me.addOnCameraChangeStartCallback = function(onChangeStart) {
-            me._core.onCameraChangeStart.add(onChangeStart);
-            me._needRedraw = true;
-        };
-
-        me.addOnCameraChangeEndCallback = function(onChangeEnd) {
-            me._core.onCameraChangeEnd.add(onChangeEnd);
-            me._needRedraw = true;
-        };
-
-        me.addPreDraw = function(onPreDraw) {
-            me._core.onPreDraw.add(onPreDraw);
+            }
             me._needRedraw = true;
 
         };
 
-        me.addOnDraw = function(onDraw) {
-            me._core.onDraw.add(onDraw);
+        me.startCallback = function(event_name, index) {
+            switch(event_name) {
+                case "onPreDraw": return me._core.onPreDraw.start(index);
+                case "onPostDraw": return me._core.onPostDraw.start(index);
+                case "onResizeWindow": return me._core.onResizeWindow.start(index);
+                case "onCameraChange": return me._core.onCameraChange.start(index);
+                case "onCameraChangeStart": return me._core.onCameraChangeStart.start(index);
+                case "onCameraChangeEnd": return me._core.onCameraChangeEnd.start(index);
+                case "onChangeTransferFunction": return me._core.onChangeTransferFunction.start(index);
+                case "onLoadSlicemap": return me._onLoadSlicemap.start(callback, needStart);
+                case "onLoadSlicemaps": return me._onLoadSlicemaps.start(callback, needStart);
+
+            }
+            me._needRedraw = true;
+
+        };
+
+        me.stopCallback = function(event_name, index) {
+            switch(event_name) {
+                case "onPreDraw": return me._core.onPreDraw.stop(index);
+                case "onPostDraw": return me._core.onPostDraw.stop(index);
+                case "onResizeWindow": return me._core.onResizeWindow.stop(index);
+                case "onCameraChange": return me._core.onCameraChange.stop(index);
+                case "onCameraChangeStart": return me._core.onCameraChangeStart.stop(index);
+                case "onCameraChangeEnd": return me._core.onCameraChangeEnd.stop(index);
+                case "onChangeTransferFunction": return me._core.onChangeTransferFunction.stop(index);
+                case "onLoadSlicemap": return me._onLoadSlicemap.stop(callback, needStart);
+                case "onLoadSlicemaps": return me._onLoadSlicemaps.stop(callback, needStart);
+
+            }
+            me._needRedraw = true;
+
+        };
+
+        me.isStartCallback = function(event_name, index) {
+            switch(event_name) {
+                case "onPreDraw": return me._core.onPreDraw.isStart(index);
+                case "onPostDraw": return me._core.onPostDraw.isStart(index);
+                case "onResizeWindow": return me._core.onResizeWindow.isStart(index);
+                case "onCameraChange": return me._core.onCameraChange.isStart(index);
+                case "onCameraChangeStart": return me._core.onCameraChangeStart.isStart(index);
+                case "onCameraChangeEnd": return me._core.onCameraChangeEnd.isStart(index);
+                case "onChangeTransferFunction": return me._core.onChangeTransferFunction.isStart(index);
+                case "onLoadSlicemap": return me._onLoadSlicemap.isStart(callback, needStart);
+                case "onLoadSlicemaps": return me._onLoadSlicemaps.isStart(callback, needStart);
+
+            }
             me._needRedraw = true;
 
         };
@@ -391,8 +448,8 @@
             return me._core.getSteps();
         };
 
-        me.getSlicesGap = function() {
-            return me._core.getSlicesGap();
+        me.getSlicesRange = function() {
+            return me._core.getSlicesRange();
         };
 
         me.getRowCol = function() {
@@ -472,6 +529,10 @@
             return me._core.getTransferFunctionColors();
         };
 
+        me.getTransferFunctionAsImage = function() {
+            return me._core.getTransferFunctionAsImage();
+        };
+
         me.isAutoStepsOn = function() {
             return me._adaptationManager.isRun();
         };
@@ -480,7 +541,7 @@
             me._core.draw();
         };
 
-        me.setConfig = function(config) {
+        me.setConfig = function(config, onLoadImage, onLoadImages) {
             if(config['slicemaps_images'] != undefined) {
                 me.setSlicemapsImages( config['slicemaps_images'] );
             }
@@ -489,11 +550,14 @@
                 me.uploadSlicemapsImages(
                     config['slicemaps_paths'],
                     function(image) {
+                        if(onLoadImage != undefined) onLoadImage(image);
                     },
                     function(images) {
-                        if(config['gap_slices'] != undefined) {
-                            me.setSlicesGap( config['gap_slices'][0], config['gap_slices'][1] );
+                        if(config['slices_range'] != undefined) {
+                            me.setSlicesRange( config['slices_range'][0], config['slices_range'][1] );
                         }
+                        
+                        if(onLoadImages != undefined) onLoadImages(images);
 
                         me.start();
                     }
@@ -502,8 +566,8 @@
                 
             }
 
-            if(config['gap_slices'] != undefined) {
-                me.setSlicesGap( config['gap_slices'][0], config['gap_slices'][1] );
+            if(config['slices_range'] != undefined) {
+                me.setSlicesRange( config['slices_range'][0], config['slices_range'][1] );
             }
 
             if(config['steps'] != undefined) {
@@ -614,7 +678,7 @@
         me.getConfig = function() {
             var config = {
                 "steps": me.getSteps(),
-                "gap_slices": me.getSlicesGap(),
+                "slices_range": me.getSlicesRange(),
                 "row_col": me.getRowCol(),
                 "gray_min": me.getGrayMinValue(),
                 "gray_max": me.getGrayMaxValue(),
@@ -625,8 +689,7 @@
                 "renderer_size": me.getRenderSize(),
                 "renderer_canvas_size": me.getCanvasSize(),
                 "backgound": me.getClearColor(),
-                "tf_as_array": [-1],
-                "tf_path": [-1],
+                "tf_path": me.getTransferFunctionAsImage().src,
                 "tf_colors": me.getTransferFunctionColors(),
                 "x_min": me.getGeometryDimension()["xmin"],
                 "x_max": me.getGeometryDimension()["xmax"],

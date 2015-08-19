@@ -611,32 +611,33 @@
 
         // var me = {};
 
-        this._steps                 = 20;
-        this._slices_gap            = [0,    '*'];
-        this._slicemap_row_col      = [16,   16];
-        this._gray_value            = [0.0, 1.0];
-        this._slicemaps_images      = [];
-        this._slicemaps_paths       = [];
-        this._slicemaps_textures    = [];
-        this._opacity_factor        = 20.0;
-        this._color_factor          = 3.0;
-        this._absorption_mode_index = 0.0;
-        this._render_size           = ['*', '*'];
-        this._canvas_size           = ['*', '*'];
-        this._render_clear_color    = "#ffffff";
-        this._transfer_function     = [];
-        this._geometry_dimension    = {"xmin": 0.0, "xmax": 1.0, "ymin": 0.0, "ymax": 1.0, "zmin": 0.0, "zmax": 1.0};
+        this._steps                      = 20;
+        this._slices_gap                 = [0,    '*'];
+        this._slicemap_row_col           = [16,   16];
+        this._gray_value                 = [0.0, 1.0];
+        this._slicemaps_images           = [];
+        this._slicemaps_paths            = [];
+        this._slicemaps_textures         = [];
+        this._opacity_factor             = 20.0;
+        this._color_factor               = 3.0;
+        this._absorption_mode_index      = 0.0;
+        this._render_size                = ['*', '*'];
+        this._canvas_size                = ['*', '*'];
+        this._render_clear_color         = "#ffffff";
+        this._transfer_function_as_image = new Image();
+        this._geometry_dimension         = {"xmin": 0.0, "xmax": 1.0, "ymin": 0.0, "ymax": 1.0, "zmin": 0.0, "zmax": 1.0};
 
-        this._transfer_function_colors = [
-                        {"pos": 0.25, "color": "#ff0000"},
-                        {"pos": 0.5,  "color": "#00ff00"},
-                        {"pos": 0.75, "color": "#0000ff"}]
+        this._transfer_function_colors   = [
+            {"pos": 0.25, "color": "#892c2c"},
+            {"pos": 0.5, "color": "#00ff00"},
+            {"pos": 0.75, "color": "#0000ff"}
+        ]
 
-        this._dom_container_id      = domContainerId != undefined ? domContainerId : "container";
-        this._dom_container         = {};
-        this._renderer              = {};
-        this._camera                = {};
-        this._camera_settings       = {
+        this._dom_container_id           = domContainerId != undefined ? domContainerId : "container";
+        this._dom_container              = {};
+        this._renderer                   = {};
+        this._camera                     = {};
+        this._camera_settings            = {
             "rotation": {
                 x: 0.0,
                 y: 0.0,
@@ -649,10 +650,10 @@
             }
         };
 
-        this._rtTexture             = {};
+        this._rtTexture                  = {};
 
-        this._geometry              = {};
-        this._geometry_settings     = {
+        this._geometry                   = {};
+        this._geometry_settings          = {
             "rotation": {
                 x: 0.0,
                 y: 0.0,
@@ -665,21 +666,22 @@
             }
         };
 
-        this._materialFirstPass     = {};
-        this._materialSecondPass    = {};
+        this._materialFirstPass          = {};
+        this._materialSecondPass         = {};
 
-        this._sceneFirstPass        = {};
-        this._sceneSecondPass       = {};
+        this._sceneFirstPass             = {};
+        this._sceneSecondPass            = {};
 
-        this._meshFirstPass         = {};
-        this._meshSecondPass        = {};
+        this._meshFirstPass              = {};
+        this._meshSecondPass             = {};
 
-        this.onPreDraw              = new VRC.EventDispatcher();
-        this.onPostDraw             = new VRC.EventDispatcher();
-        this.onResize               = new VRC.EventDispatcher();
-        this.onCameraChange         = new VRC.EventDispatcher();
-        this.onCameraChangeStart    = new VRC.EventDispatcher();
-        this.onCameraChangeEnd      = new VRC.EventDispatcher();
+        this.onPreDraw                   = new VRC.EventDispatcher();
+        this.onPostDraw                  = new VRC.EventDispatcher();
+        this.onResizeWindow              = new VRC.EventDispatcher();
+        this.onCameraChange              = new VRC.EventDispatcher();
+        this.onCameraChangeStart         = new VRC.EventDispatcher();
+        this.onCameraChangeEnd           = new VRC.EventDispatcher();
+        this.onChangeTransferFunction    = new VRC.EventDispatcher();
 
         this._onWindowResizeFuncIndex_canvasSize = -1;
         this._onWindowResizeFuncIndex_renderSize = -1;
@@ -736,7 +738,7 @@
                 uTransferFunction:    { type: "t",  value: this._transfer_function },
 
                 uSteps:               { type: "f", value: this._steps },
-                uNumberOfSlices:      { type: "f", value: this.getSlicesGap()[1] },
+                uNumberOfSlices:      { type: "f", value: this.getSlicesRange()[1] },
                 uSlicesOverX:         { type: "f", value: this._slicemap_row_col[0] },
                 uSlicesOverY:         { type: "f", value: this._slicemap_row_col[1] },
                 uOpacityVal:          { type: "f", value: this._opacity_factor },
@@ -771,7 +773,7 @@
         this._sceneSecondPass.add( this._meshSecondPass );
 
         window.addEventListener( 'resize', function() {
-            me.onResize.call();
+            me.onResizeWindow.call();
 
         }, false );
 
@@ -790,12 +792,12 @@
 
         });
 
-        this._onWindowResizeFuncIndex_renderSize = this.onResize.add(function() {
+        this._onWindowResizeFuncIndex_renderSize = this.onResizeWindow.add(function() {
             me.setRendererSize('*', '*');
 
         }, false);
 
-        this._onWindowResizeFuncIndex_canvasSize = this.onResize.add(function() {
+        this._onWindowResizeFuncIndex_canvasSize = this.onResizeWindow.add(function() {
             me.setRendererCanvasSize('*', '*');
 
         }, false);
@@ -834,6 +836,7 @@
     };
 
     Core.prototype.setTransferFunctionByImage = function(image) {
+        this._transfer_function_as_image = image;
         var transferTexture =  new THREE.Texture(image);
         transferTexture.wrapS = transferTexture.wrapT =  THREE.ClampToEdgeWrapping;
         transferTexture.magFilter = THREE.LinearFilter;
@@ -844,6 +847,7 @@
         transferTexture.needsUpdate = true;
 
         this._secondPassSetUniformValue("uTransferFunction", transferTexture);
+        this.onChangeTransferFunction.call(image);
 
     };
 
@@ -865,14 +869,19 @@
 
         ctx.fillStyle = grd;
         ctx.fillRect(0,0,canvas.width ,canvas.height);
+        var image = new Image();
+        image.src = canvas.toDataURL();
+        image.style.width = 20 + " px";
+        image.style.height = 512 + " px";
 
-        var img = document.getElementById("transferFunctionImg");
-        img.src = canvas.toDataURL();
-        img.style.width = 20 + " px";
-        img.style.height = 512 + " px";
+        var transferTexture = this.setTransferFunctionByImage(image);
 
-        var transferTexture = this.setTransferFunctionByImage(canvas);
+        this.onChangeTransferFunction.call(image);
 
+    };
+
+    Core.prototype.getTransferFunctionAsImage = function() {
+        return this._transfer_function_as_image;
     };
 
     Core.prototype._setGeometry = function(geometryDimension) {
@@ -908,10 +917,10 @@
         console.log("Core: setSteps()");
     };
 
-    Core.prototype.setSlicesGap = function(from, to) {
+    Core.prototype.setSlicesRange = function(from, to) {
         this._slices_gap = [from, to];
-        this._secondPassSetUniformValue("uNumberOfSlices", this.getSlicesGap()[1])
-        console.log("Core: setSlicesGap()");
+        this._secondPassSetUniformValue("uNumberOfSlices", this.getSlicesRange()[1])
+        console.log("Core: setSlicesRange()");
     };
 
     Core.prototype.setOpacityFactor = function(opacity_factor) {
@@ -941,12 +950,12 @@
     Core.prototype.setRendererCanvasSize = function(width, height) {
         this._canvas_size = [width, height];
         
-        if( (this._canvas_size[0] == '*' || this._canvas_size[1] == '*') && !this.onResize.isStart(this._onWindowResizeFuncIndex_canvasSize) ) {
-            this.onResize.start(this._onWindowResizeFuncIndex_canvasSize);
+        if( (this._canvas_size[0] == '*' || this._canvas_size[1] == '*') && !this.onResizeWindow.isStart(this._onWindowResizeFuncIndex_canvasSize) ) {
+            this.onResizeWindow.start(this._onWindowResizeFuncIndex_canvasSize);
         }
 
-        if( (this._canvas_size[0] != '*' || this._canvas_size[1] != '*') && this.onResize.isStart(this._onWindowResizeFuncIndex_canvasSize) ) {
-            this.onResize.stop(this._onWindowResizeFuncIndex_canvasSize);
+        if( (this._canvas_size[0] != '*' || this._canvas_size[1] != '*') && this.onResizeWindow.isStart(this._onWindowResizeFuncIndex_canvasSize) ) {
+            this.onResizeWindow.stop(this._onWindowResizeFuncIndex_canvasSize);
 
         }
 
@@ -966,12 +975,12 @@
     Core.prototype.setRendererSize = function(width, height) {
         this._render_size = [width, height];
         
-        if( (this._render_size[0] == '*' || this._render_size[1] == '*') && !this.onResize.isStart(this._onWindowResizeFuncIndex_renderSize) ) {
-            this.onResize.start(this._onWindowResizeFuncIndex_renderSize);
+        if( (this._render_size[0] == '*' || this._render_size[1] == '*') && !this.onResizeWindow.isStart(this._onWindowResizeFuncIndex_renderSize) ) {
+            this.onResizeWindow.start(this._onWindowResizeFuncIndex_renderSize);
         }
 
-        if( (this._render_size[0] != '*' || this._render_size[1] != '*') && this.onResize.isStart(this._onWindowResizeFuncIndex_renderSize) ) {
-            this.onResize.stop(this._onWindowResizeFuncIndex_renderSize);
+        if( (this._render_size[0] != '*' || this._render_size[1] != '*') && this.onResizeWindow.isStart(this._onWindowResizeFuncIndex_renderSize) ) {
+            this.onResizeWindow.stop(this._onWindowResizeFuncIndex_renderSize);
 
         }
 
@@ -1089,7 +1098,7 @@
         return this._slicemap_row_col;
     };
 
-    Core.prototype.getSlicesGap  = function() {
+    Core.prototype.getSlicesRange  = function() {
         var from = this._slices_gap[0];
         var to = this._slices_gap[1];
         if(this._slices_gap[1] == '*') {
@@ -1393,6 +1402,9 @@ window.VRC.Core.prototype._shaders.secondPass = {
 
         me._clock = new THREE.Clock();
 
+        me._onLoadSlicemap              = new VRC.EventDispatcher();
+        me._onLoadSlicemaps             = new VRC.EventDispatcher();
+
         me._core = new VRC.Core( config['dom_container_id'] );
         me._adaptationManager = new VRC.AdaptationManager();
 
@@ -1400,7 +1412,7 @@ window.VRC.Core.prototype._shaders.secondPass = {
             me._core.init();
             me._adaptationManager.init( me._core );
 
-            me.addOnCameraChangeCallback(function() {
+            me.addCallback("onCameraChange", function() {
                 me._needRedraw = true;
 
             });
@@ -1489,12 +1501,15 @@ window.VRC.Core.prototype._shaders.secondPass = {
             downloadImages(imagesPaths,
                 function(image) {
                     // downloaded one of the images
+                    me._onLoadSlicemap.call(image);
                     if(userOnLoadImage != undefined) userOnLoadImage(image);
                 },
                 function(images) {
                     // downloaded all images
                     me.setSlicemapsImages(images, imagesPaths);
                     // me.start();
+
+                    me._onLoadSlicemaps.call(images);
 
                     if(userOnLoadImages != undefined) userOnLoadImages(images);
 
@@ -1534,8 +1549,8 @@ window.VRC.Core.prototype._shaders.secondPass = {
 
         };
 
-        me.setSlicesGap = function(from, to) {
-            me._core.setSlicesGap(from, to);
+        me.setSlicesRange = function(from, to) {
+            me._core.setSlicesRange(from, to);
             me._needRedraw = true;
 
         };
@@ -1719,35 +1734,86 @@ window.VRC.Core.prototype._shaders.secondPass = {
 
         };
 
-        me.addOnResizeCallback = function(onResize) {
-            me._core.onResize.add(onResize);
+        me.addCallback = function(event_name, callback, needStart) {
+            switch(event_name) {
+                case "onPreDraw": return me._core.onPreDraw.add(callback, needStart);
+                case "onPostDraw": return me._core.onPostDraw.add(callback, needStart);
+                case "onResizeWindow": return me._core.onResizeWindow.add(callback, needStart);
+                case "onCameraChange": return me._core.onCameraChange.add(callback, needStart);
+                case "onCameraChangeStart": return me._core.onCameraChangeStart.add(callback, needStart);
+                case "onCameraChangeEnd": return me._core.onCameraChangeEnd.add(callback, needStart);
+                case "onChangeTransferFunction": return me._core.onChangeTransferFunction.add(callback, needStart);
+                case "onLoadSlicemap": return me._onLoadSlicemap.add(callback, needStart);
+                case "onLoadSlicemaps": return me._onLoadSlicemaps.add(callback, needStart);
+            }
             me._needRedraw = true;
 
         };
 
-        me.addOnCameraChangeCallback = function(onChange) {
-            me._core.onCameraChange.add(onChange);
-            me._needRedraw = true;
-        };
+        me.removeCallback = function(event_name, index) {
+            switch(event_name) {
+                case "onPreDraw": return me._core.onPreDraw.remove(index);
+                case "onPostDraw": return me._core.onPostDraw.remove(index);
+                case "onResizeWindow": return me._core.onResizeWindow.remove(index);
+                case "onCameraChange": return me._core.onCameraChange.remove(index);
+                case "onCameraChangeStart": return me._core.onCameraChangeStart.remove(index);
+                case "onCameraChangeEnd": return me._core.onCameraChangeEnd.remove(index);
+                case "onChangeTransferFunction": return me._core.onChangeTransferFunction.remove(index);
+                case "onLoadSlicemap": return me._onLoadSlicemap.remove(callback, needStart);
+                case "onLoadSlicemaps": return me._onLoadSlicemaps.remove(callback, needStart);
 
-        me.addOnCameraChangeStartCallback = function(onChangeStart) {
-            me._core.onCameraChangeStart.add(onChangeStart);
-            me._needRedraw = true;
-        };
-
-        me.addOnCameraChangeEndCallback = function(onChangeEnd) {
-            me._core.onCameraChangeEnd.add(onChangeEnd);
-            me._needRedraw = true;
-        };
-
-        me.addPreDraw = function(onPreDraw) {
-            me._core.onPreDraw.add(onPreDraw);
+            }
             me._needRedraw = true;
 
         };
 
-        me.addOnDraw = function(onDraw) {
-            me._core.onDraw.add(onDraw);
+        me.startCallback = function(event_name, index) {
+            switch(event_name) {
+                case "onPreDraw": return me._core.onPreDraw.start(index);
+                case "onPostDraw": return me._core.onPostDraw.start(index);
+                case "onResizeWindow": return me._core.onResizeWindow.start(index);
+                case "onCameraChange": return me._core.onCameraChange.start(index);
+                case "onCameraChangeStart": return me._core.onCameraChangeStart.start(index);
+                case "onCameraChangeEnd": return me._core.onCameraChangeEnd.start(index);
+                case "onChangeTransferFunction": return me._core.onChangeTransferFunction.start(index);
+                case "onLoadSlicemap": return me._onLoadSlicemap.start(callback, needStart);
+                case "onLoadSlicemaps": return me._onLoadSlicemaps.start(callback, needStart);
+
+            }
+            me._needRedraw = true;
+
+        };
+
+        me.stopCallback = function(event_name, index) {
+            switch(event_name) {
+                case "onPreDraw": return me._core.onPreDraw.stop(index);
+                case "onPostDraw": return me._core.onPostDraw.stop(index);
+                case "onResizeWindow": return me._core.onResizeWindow.stop(index);
+                case "onCameraChange": return me._core.onCameraChange.stop(index);
+                case "onCameraChangeStart": return me._core.onCameraChangeStart.stop(index);
+                case "onCameraChangeEnd": return me._core.onCameraChangeEnd.stop(index);
+                case "onChangeTransferFunction": return me._core.onChangeTransferFunction.stop(index);
+                case "onLoadSlicemap": return me._onLoadSlicemap.stop(callback, needStart);
+                case "onLoadSlicemaps": return me._onLoadSlicemaps.stop(callback, needStart);
+
+            }
+            me._needRedraw = true;
+
+        };
+
+        me.isStartCallback = function(event_name, index) {
+            switch(event_name) {
+                case "onPreDraw": return me._core.onPreDraw.isStart(index);
+                case "onPostDraw": return me._core.onPostDraw.isStart(index);
+                case "onResizeWindow": return me._core.onResizeWindow.isStart(index);
+                case "onCameraChange": return me._core.onCameraChange.isStart(index);
+                case "onCameraChangeStart": return me._core.onCameraChangeStart.isStart(index);
+                case "onCameraChangeEnd": return me._core.onCameraChangeEnd.isStart(index);
+                case "onChangeTransferFunction": return me._core.onChangeTransferFunction.isStart(index);
+                case "onLoadSlicemap": return me._onLoadSlicemap.isStart(callback, needStart);
+                case "onLoadSlicemaps": return me._onLoadSlicemaps.isStart(callback, needStart);
+
+            }
             me._needRedraw = true;
 
         };
@@ -1764,8 +1830,8 @@ window.VRC.Core.prototype._shaders.secondPass = {
             return me._core.getSteps();
         };
 
-        me.getSlicesGap = function() {
-            return me._core.getSlicesGap();
+        me.getSlicesRange = function() {
+            return me._core.getSlicesRange();
         };
 
         me.getRowCol = function() {
@@ -1845,6 +1911,10 @@ window.VRC.Core.prototype._shaders.secondPass = {
             return me._core.getTransferFunctionColors();
         };
 
+        me.getTransferFunctionAsImage = function() {
+            return me._core.getTransferFunctionAsImage();
+        };
+
         me.isAutoStepsOn = function() {
             return me._adaptationManager.isRun();
         };
@@ -1853,7 +1923,7 @@ window.VRC.Core.prototype._shaders.secondPass = {
             me._core.draw();
         };
 
-        me.setConfig = function(config) {
+        me.setConfig = function(config, onLoadImage, onLoadImages) {
             if(config['slicemaps_images'] != undefined) {
                 me.setSlicemapsImages( config['slicemaps_images'] );
             }
@@ -1862,11 +1932,14 @@ window.VRC.Core.prototype._shaders.secondPass = {
                 me.uploadSlicemapsImages(
                     config['slicemaps_paths'],
                     function(image) {
+                        if(onLoadImage != undefined) onLoadImage(image);
                     },
                     function(images) {
-                        if(config['gap_slices'] != undefined) {
-                            me.setSlicesGap( config['gap_slices'][0], config['gap_slices'][1] );
+                        if(config['slices_range'] != undefined) {
+                            me.setSlicesRange( config['slices_range'][0], config['slices_range'][1] );
                         }
+                        
+                        if(onLoadImages != undefined) onLoadImages(images);
 
                         me.start();
                     }
@@ -1875,8 +1948,8 @@ window.VRC.Core.prototype._shaders.secondPass = {
                 
             }
 
-            if(config['gap_slices'] != undefined) {
-                me.setSlicesGap( config['gap_slices'][0], config['gap_slices'][1] );
+            if(config['slices_range'] != undefined) {
+                me.setSlicesRange( config['slices_range'][0], config['slices_range'][1] );
             }
 
             if(config['steps'] != undefined) {
@@ -1987,7 +2060,7 @@ window.VRC.Core.prototype._shaders.secondPass = {
         me.getConfig = function() {
             var config = {
                 "steps": me.getSteps(),
-                "gap_slices": me.getSlicesGap(),
+                "slices_range": me.getSlicesRange(),
                 "row_col": me.getRowCol(),
                 "gray_min": me.getGrayMinValue(),
                 "gray_max": me.getGrayMaxValue(),
@@ -1998,8 +2071,7 @@ window.VRC.Core.prototype._shaders.secondPass = {
                 "renderer_size": me.getRenderSize(),
                 "renderer_canvas_size": me.getCanvasSize(),
                 "backgound": me.getClearColor(),
-                "tf_as_array": [-1],
-                "tf_path": [-1],
+                "tf_path": me.getTransferFunctionAsImage().src,
                 "tf_colors": me.getTransferFunctionColors(),
                 "x_min": me.getGeometryDimension()["xmin"],
                 "x_max": me.getGeometryDimension()["xmax"],

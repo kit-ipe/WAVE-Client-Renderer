@@ -29,19 +29,38 @@
 			window.onload = function() {
 				var config = {
 					"dom_container_id": "container",
-					"slicemaps_paths": [
-						'../data/slicemaps/foot.raw.png',
-					],
-					"gap_slices": [0, 255],
+					"slices_range": [0, 255],
 					"gray_min": 0.4,
 					"row_col": [16, 16],
 					"renderer_size": [512, 512],
 					// "renderer_canvas_size": ['*', '*'],
 					"absorption_mode": 1,
-					"auto_steps": true,
+					"auto_steps": true
 				};
 
 				rcl2 = new VRC.VolumeRaycaster(config);
+
+				var img = document.getElementById("transferFunctionImg");
+				img.src = rcl2.getTransferFunctionAsImage().src;
+
+				tf_onchange_index = rcl2.addCallback("onChangeTransferFunction", function(image) {
+					var img = document.getElementById("transferFunctionImg");
+					img.src = image.src;
+
+				}, false);
+
+				rcl2.startCallback("onChangeTransferFunction", tf_onchange_index)
+
+				onload_slicemap = rcl2.addCallback("onLoadSlicemap", function(image) {
+					console.log(image.src);
+				}, true);
+
+				rcl2.setConfig({
+					"slicemaps_paths": [
+						'../data/slicemaps/foot.raw.png',
+					],
+
+				});
 
 				InitGUI(rcl2.getConfig(), rcl2);
 

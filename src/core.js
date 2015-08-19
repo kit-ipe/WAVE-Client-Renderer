@@ -14,32 +14,33 @@
 
         // var me = {};
 
-        this._steps                 = 20;
-        this._slices_gap            = [0,    '*'];
-        this._slicemap_row_col      = [16,   16];
-        this._gray_value            = [0.0, 1.0];
-        this._slicemaps_images      = [];
-        this._slicemaps_paths       = [];
-        this._slicemaps_textures    = [];
-        this._opacity_factor        = 20.0;
-        this._color_factor          = 3.0;
-        this._absorption_mode_index = 0.0;
-        this._render_size           = ['*', '*'];
-        this._canvas_size           = ['*', '*'];
-        this._render_clear_color    = "#ffffff";
-        this._transfer_function     = [];
-        this._geometry_dimension    = {"xmin": 0.0, "xmax": 1.0, "ymin": 0.0, "ymax": 1.0, "zmin": 0.0, "zmax": 1.0};
+        this._steps                      = 20;
+        this._slices_gap                 = [0,    '*'];
+        this._slicemap_row_col           = [16,   16];
+        this._gray_value                 = [0.0, 1.0];
+        this._slicemaps_images           = [];
+        this._slicemaps_paths            = [];
+        this._slicemaps_textures         = [];
+        this._opacity_factor             = 20.0;
+        this._color_factor               = 3.0;
+        this._absorption_mode_index      = 0.0;
+        this._render_size                = ['*', '*'];
+        this._canvas_size                = ['*', '*'];
+        this._render_clear_color         = "#ffffff";
+        this._transfer_function_as_image = new Image();
+        this._geometry_dimension         = {"xmin": 0.0, "xmax": 1.0, "ymin": 0.0, "ymax": 1.0, "zmin": 0.0, "zmax": 1.0};
 
-        this._transfer_function_colors = [
-                        {"pos": 0.25, "color": "#ff0000"},
-                        {"pos": 0.5,  "color": "#00ff00"},
-                        {"pos": 0.75, "color": "#0000ff"}]
+        this._transfer_function_colors   = [
+            {"pos": 0.25, "color": "#892c2c"},
+            {"pos": 0.5, "color": "#00ff00"},
+            {"pos": 0.75, "color": "#0000ff"}
+        ]
 
-        this._dom_container_id      = domContainerId != undefined ? domContainerId : "container";
-        this._dom_container         = {};
-        this._renderer              = {};
-        this._camera                = {};
-        this._camera_settings       = {
+        this._dom_container_id           = domContainerId != undefined ? domContainerId : "container";
+        this._dom_container              = {};
+        this._renderer                   = {};
+        this._camera                     = {};
+        this._camera_settings            = {
             "rotation": {
                 x: 0.0,
                 y: 0.0,
@@ -52,10 +53,10 @@
             }
         };
 
-        this._rtTexture             = {};
+        this._rtTexture                  = {};
 
-        this._geometry              = {};
-        this._geometry_settings     = {
+        this._geometry                   = {};
+        this._geometry_settings          = {
             "rotation": {
                 x: 0.0,
                 y: 0.0,
@@ -68,21 +69,22 @@
             }
         };
 
-        this._materialFirstPass     = {};
-        this._materialSecondPass    = {};
+        this._materialFirstPass          = {};
+        this._materialSecondPass         = {};
 
-        this._sceneFirstPass        = {};
-        this._sceneSecondPass       = {};
+        this._sceneFirstPass             = {};
+        this._sceneSecondPass            = {};
 
-        this._meshFirstPass         = {};
-        this._meshSecondPass        = {};
+        this._meshFirstPass              = {};
+        this._meshSecondPass             = {};
 
-        this.onPreDraw              = new VRC.EventDispatcher();
-        this.onPostDraw             = new VRC.EventDispatcher();
-        this.onResize               = new VRC.EventDispatcher();
-        this.onCameraChange         = new VRC.EventDispatcher();
-        this.onCameraChangeStart    = new VRC.EventDispatcher();
-        this.onCameraChangeEnd      = new VRC.EventDispatcher();
+        this.onPreDraw                   = new VRC.EventDispatcher();
+        this.onPostDraw                  = new VRC.EventDispatcher();
+        this.onResizeWindow              = new VRC.EventDispatcher();
+        this.onCameraChange              = new VRC.EventDispatcher();
+        this.onCameraChangeStart         = new VRC.EventDispatcher();
+        this.onCameraChangeEnd           = new VRC.EventDispatcher();
+        this.onChangeTransferFunction    = new VRC.EventDispatcher();
 
         this._onWindowResizeFuncIndex_canvasSize = -1;
         this._onWindowResizeFuncIndex_renderSize = -1;
@@ -139,7 +141,7 @@
                 uTransferFunction:    { type: "t",  value: this._transfer_function },
 
                 uSteps:               { type: "f", value: this._steps },
-                uNumberOfSlices:      { type: "f", value: this.getSlicesGap()[1] },
+                uNumberOfSlices:      { type: "f", value: this.getSlicesRange()[1] },
                 uSlicesOverX:         { type: "f", value: this._slicemap_row_col[0] },
                 uSlicesOverY:         { type: "f", value: this._slicemap_row_col[1] },
                 uOpacityVal:          { type: "f", value: this._opacity_factor },
@@ -174,7 +176,7 @@
         this._sceneSecondPass.add( this._meshSecondPass );
 
         window.addEventListener( 'resize', function() {
-            me.onResize.call();
+            me.onResizeWindow.call();
 
         }, false );
 
@@ -193,12 +195,12 @@
 
         });
 
-        this._onWindowResizeFuncIndex_renderSize = this.onResize.add(function() {
+        this._onWindowResizeFuncIndex_renderSize = this.onResizeWindow.add(function() {
             me.setRendererSize('*', '*');
 
         }, false);
 
-        this._onWindowResizeFuncIndex_canvasSize = this.onResize.add(function() {
+        this._onWindowResizeFuncIndex_canvasSize = this.onResizeWindow.add(function() {
             me.setRendererCanvasSize('*', '*');
 
         }, false);
@@ -237,6 +239,7 @@
     };
 
     Core.prototype.setTransferFunctionByImage = function(image) {
+        this._transfer_function_as_image = image;
         var transferTexture =  new THREE.Texture(image);
         transferTexture.wrapS = transferTexture.wrapT =  THREE.ClampToEdgeWrapping;
         transferTexture.magFilter = THREE.LinearFilter;
@@ -247,6 +250,7 @@
         transferTexture.needsUpdate = true;
 
         this._secondPassSetUniformValue("uTransferFunction", transferTexture);
+        this.onChangeTransferFunction.call(image);
 
     };
 
@@ -268,14 +272,19 @@
 
         ctx.fillStyle = grd;
         ctx.fillRect(0,0,canvas.width ,canvas.height);
+        var image = new Image();
+        image.src = canvas.toDataURL();
+        image.style.width = 20 + " px";
+        image.style.height = 512 + " px";
 
-        var img = document.getElementById("transferFunctionImg");
-        img.src = canvas.toDataURL();
-        img.style.width = 20 + " px";
-        img.style.height = 512 + " px";
+        var transferTexture = this.setTransferFunctionByImage(image);
 
-        var transferTexture = this.setTransferFunctionByImage(canvas);
+        this.onChangeTransferFunction.call(image);
 
+    };
+
+    Core.prototype.getTransferFunctionAsImage = function() {
+        return this._transfer_function_as_image;
     };
 
     Core.prototype._setGeometry = function(geometryDimension) {
@@ -311,10 +320,10 @@
         console.log("Core: setSteps()");
     };
 
-    Core.prototype.setSlicesGap = function(from, to) {
+    Core.prototype.setSlicesRange = function(from, to) {
         this._slices_gap = [from, to];
-        this._secondPassSetUniformValue("uNumberOfSlices", this.getSlicesGap()[1])
-        console.log("Core: setSlicesGap()");
+        this._secondPassSetUniformValue("uNumberOfSlices", this.getSlicesRange()[1])
+        console.log("Core: setSlicesRange()");
     };
 
     Core.prototype.setOpacityFactor = function(opacity_factor) {
@@ -344,12 +353,12 @@
     Core.prototype.setRendererCanvasSize = function(width, height) {
         this._canvas_size = [width, height];
         
-        if( (this._canvas_size[0] == '*' || this._canvas_size[1] == '*') && !this.onResize.isStart(this._onWindowResizeFuncIndex_canvasSize) ) {
-            this.onResize.start(this._onWindowResizeFuncIndex_canvasSize);
+        if( (this._canvas_size[0] == '*' || this._canvas_size[1] == '*') && !this.onResizeWindow.isStart(this._onWindowResizeFuncIndex_canvasSize) ) {
+            this.onResizeWindow.start(this._onWindowResizeFuncIndex_canvasSize);
         }
 
-        if( (this._canvas_size[0] != '*' || this._canvas_size[1] != '*') && this.onResize.isStart(this._onWindowResizeFuncIndex_canvasSize) ) {
-            this.onResize.stop(this._onWindowResizeFuncIndex_canvasSize);
+        if( (this._canvas_size[0] != '*' || this._canvas_size[1] != '*') && this.onResizeWindow.isStart(this._onWindowResizeFuncIndex_canvasSize) ) {
+            this.onResizeWindow.stop(this._onWindowResizeFuncIndex_canvasSize);
 
         }
 
@@ -369,12 +378,12 @@
     Core.prototype.setRendererSize = function(width, height) {
         this._render_size = [width, height];
         
-        if( (this._render_size[0] == '*' || this._render_size[1] == '*') && !this.onResize.isStart(this._onWindowResizeFuncIndex_renderSize) ) {
-            this.onResize.start(this._onWindowResizeFuncIndex_renderSize);
+        if( (this._render_size[0] == '*' || this._render_size[1] == '*') && !this.onResizeWindow.isStart(this._onWindowResizeFuncIndex_renderSize) ) {
+            this.onResizeWindow.start(this._onWindowResizeFuncIndex_renderSize);
         }
 
-        if( (this._render_size[0] != '*' || this._render_size[1] != '*') && this.onResize.isStart(this._onWindowResizeFuncIndex_renderSize) ) {
-            this.onResize.stop(this._onWindowResizeFuncIndex_renderSize);
+        if( (this._render_size[0] != '*' || this._render_size[1] != '*') && this.onResizeWindow.isStart(this._onWindowResizeFuncIndex_renderSize) ) {
+            this.onResizeWindow.stop(this._onWindowResizeFuncIndex_renderSize);
 
         }
 
@@ -492,7 +501,7 @@
         return this._slicemap_row_col;
     };
 
-    Core.prototype.getSlicesGap  = function() {
+    Core.prototype.getSlicesRange  = function() {
         var from = this._slices_gap[0];
         var to = this._slices_gap[1];
         if(this._slices_gap[1] == '*') {

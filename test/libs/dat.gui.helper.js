@@ -1,6 +1,6 @@
 				var InitGUI = function(config, rcl2) {
 					guiControls = new function() {
-						this.number_slices = config["gap_slices"][1];
+						this.number_slices = config["slices_range"][1];
 						this.gray_min = config["gray_min"];
 						this.gray_max = config["gray_max"];
 						this.row_col = config["row_col"][0] + "x" + config["row_col"][1];
