@@ -64,18 +64,23 @@
         };
 
         me.setSlicemapsImages = function(images, imagesPaths) {
-            var ctx = me._core._renderer.getContext()
-            var maxTexSize = ctx.getParameter(ctx.MAX_TEXTURE_SIZE);
+            // var ctx = me._core._renderer.getContext()
+            var maxTexSize = me._core.getMaxTextureSize();
+            var availableTexturesNumber = me._core.getAvailableTexturesNumber();
 
             var firstImage = images[0];
+            var imagesNumber = images.length;
 
-            if(Math.max(firstImage.width, firstImage.height) > maxTexSize) {
-                throw Error("Size of slice bigger than maximum possible on current GPU. Maximum size of texture: " + maxTexSize);                
+            if( imagesNumber > availableTexturesNumber ) {
+                throw Error("Number of slicemaps bigger then number of available texture units. Available texture units: " + availableTexturesNumber);
+            };
 
-            } else {
-                me._core.setSlicemapsImages(images, imagesPaths);
-                me._needRedraw = true;
-            }
+            if( (Math.max(firstImage.width, firstImage.height) > maxTexSize) || (imagesNumber > availableTexturesNumber) ) {
+                throw Error("Size of slice bigger than maximum possible on current GPU. Maximum size of texture: " + maxTexSize);
+            };
+
+            me._core.setSlicemapsImages(images, imagesPaths);
+            me._needRedraw = true;
 
         };
 

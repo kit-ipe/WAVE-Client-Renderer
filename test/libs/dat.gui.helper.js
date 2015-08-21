@@ -66,7 +66,7 @@
 
 					var number_slices_controller = gui.add(guiControls, 'number_slices', 1, 2048);
 					number_slices_controller.onFinishChange(function(value) {
-						rcl2.setSlicesGap(0, value);
+						rcl2.setSlicesRange(0, value);
 					});
 
 					var auto_steps_controller = gui.add(guiControls, 'auto_steps');

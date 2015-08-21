@@ -695,9 +695,7 @@
         this._renderer = new THREE.WebGLRenderer();
         this._renderer.setSize( this.getRenderSizeInPixels()[0], this.getRenderSizeInPixels()[1] );
         this._renderer.setClearColor( this._render_clear_color );
-        this._renderer.autoClearColor = true;
-        this._renderer.autoClearDepth = true;
-        this._renderer.autoClearStencil = false;
+
         this._container.appendChild( this._renderer.domElement );
 
         this._camera = new THREE.PerspectiveCamera( 45, this.getRenderSizeInPixels()[0] / this.getRenderSizeInPixels()[1], 0.01, 11 );
@@ -730,22 +728,22 @@
             vertexShader: this._shaders.secondPass.vertexShader,
             fragmentShader: this._shaders.secondPass.fragmentShader,
             attributes: {
-                vertColor: {type: 'c', value: [] }
+                vertColor:                       {type: 'c', value: [] }
             },
             uniforms: {
-                uBackCoord:           { type: "t",  value: this._rtTexture }, 
-                uSliceMaps:           { type: "tv", value: this._slicemaps_textures }, 
-                uTransferFunction:    { type: "t",  value: this._transfer_function },
+                uBackCoord:                      { type: "t",  value: this._rtTexture }, 
+                uSliceMaps:                      { type: "tv", value: this._slicemaps_textures }, 
+                uTransferFunction:               { type: "t",  value: this._transfer_function },
 
-                uSteps:               { type: "f", value: this._steps },
-                uNumberOfSlices:      { type: "f", value: this.getSlicesRange()[1] },
-                uSlicesOverX:         { type: "f", value: this._slicemap_row_col[0] },
-                uSlicesOverY:         { type: "f", value: this._slicemap_row_col[1] },
-                uOpacityVal:          { type: "f", value: this._opacity_factor },
-                uColorVal:            { type: "f", value: this._color_factor },
-                uAbsorptionModeIndex: { type: "f", value: this._absorption_mode_index },
-                uMinGrayVal:          { type: "f", value: this._gray_value[0] },
-                uMaxGrayVal:          { type: "f", value: this._gray_value[1] }
+                uSteps:                          { type: "f", value: this._steps },
+                uNumberOfSlices:                 { type: "f", value: this.getSlicesRange()[1] },
+                uSlicesOverX:                    { type: "f", value: this._slicemap_row_col[0] },
+                uSlicesOverY:                    { type: "f", value: this._slicemap_row_col[1] },
+                uOpacityVal:                     { type: "f", value: this._opacity_factor },
+                uColorVal:                       { type: "f", value: this._color_factor },
+                uAbsorptionModeIndex:            { type: "f", value: this._absorption_mode_index },
+                uMinGrayVal:                     { type: "f", value: this._gray_value[0] },
+                uMaxGrayVal:                     { type: "f", value: this._gray_value[1] },
             },
             side: THREE.BackSide,
             // transparent: true,
@@ -1052,10 +1050,10 @@
         var height = this.getRenderSize()[0];
 
         if(this._render_size[0] == '*') {
-            width = window.outerWidth;
+            width = this._renderer.domElement.width;
         } 
         if(this._render_size[1] == '*') {
-            height = window.outerHeight;
+            height = this._renderer.domElement.height;
         }
 
         return [width, height];
@@ -1148,6 +1146,17 @@
         return this._dom_container_id;
     };
 
+    Core.prototype.getAvailableTexturesNumber = function() {
+        var number_used_textures = 2;
+        var gl = this._renderer.getContext()
+        return gl.getParameter(gl.MAX_TEXTURE_IMAGE_UNITS) - number_used_textures;
+    };
+
+    Core.prototype.getMaxTextureSize = function() {
+        var gl = this._renderer.getContext()
+        return gl.getParameter(gl.MAX_TEXTURE_SIZE);
+    };
+
     Core.prototype._shaders = {
         // Here will be inserted shaders with help of grunt
 
@@ -1215,6 +1224,7 @@ window.VRC.Core.prototype._shaders.secondPass = {
 		"uSlicesOverX" : { type: "f", value: -1 },
 		"uSlicesOverY" : { type: "f", value: -1 },
 		"uSteps" : { type: "f", value: -1 },
+		"uAvailable_textures_number" : { type: "i", value: 0 },
 		}
 	]),
 	vertexShader: [
@@ -1249,59 +1259,66 @@ window.VRC.Core.prototype._shaders.secondPass = {
 		'varying vec4 frontColor; ',
 		'varying vec4 pos; ',
 		'uniform sampler2D uBackCoord; ',
-		'uniform sampler2D uSliceMaps[10]; ',
+		'uniform sampler2D uSliceMaps[6]; ',
 		'uniform sampler2D uTransferFunction; ',
 		'uniform float uNumberOfSlices; ',
 		'uniform float uMinGrayVal; ',
 		'uniform float uMaxGrayVal; ',
 		'uniform float uOpacityVal; ',
 		'uniform float uColorVal; ',
-		'uniform float uAbsorptionModeIndex; ',
+		'uniform float uAbsorptionModeIndex;',
 		'uniform float uSlicesOverX; ',
 		'uniform float uSlicesOverY; ',
 		'uniform float uSteps; ',
+		'// uniform int uAvailable_textures_number;',
 		'//Acts like a texture3D using Z slices and trilinear filtering. ',
-		'float getVolumeValue(vec3 volpos) ',
-		'{ ',
-		' float s1Original, s2Original, s1, s2; ',
-		' float dx1, dy1; ',
-		' float dx2, dy2; ',
-		' float value; ',
-		' vec2 texpos1,texpos2; ',
-		' float slicesPerSprite = uSlicesOverX * uSlicesOverY; ',
-		' s1Original = floor(volpos.z*uNumberOfSlices); ',
-		' s2Original = min(s1Original+1.0, uNumberOfSlices); ',
-		' int tex1Index = int(floor(s1Original / slicesPerSprite)); ',
-		' int tex2Index = int(floor(s2Original / slicesPerSprite)); ',
-		' s1 = mod(s1Original, slicesPerSprite); ',
-		' s2 = mod(s2Original, slicesPerSprite); ',
-		' dx1 = fract(s1/uSlicesOverX); ',
-		' dy1 = floor(s1/uSlicesOverY)/uSlicesOverY; ',
-		' dx2 = fract(s2/uSlicesOverX); ',
-		' dy2 = floor(s2/uSlicesOverY)/uSlicesOverY; ',
-		' texpos1.x = dx1+(volpos.x/uSlicesOverX); ',
-		' texpos1.y = dy1+(volpos.y/uSlicesOverY); ',
-		' texpos2.x = dx2+(volpos.x/uSlicesOverX); ',
-		' texpos2.y = dy2+(volpos.y/uSlicesOverY); ',
-		' float value1, value2; ',
-		' bool value1Set = false, value2Set = false; ',
-		' for (int x = 0; x < 10; x++) { ',
-		'     if(x == tex1Index) { ',
-		'         value1 = texture2D(uSliceMaps[x],texpos1).x; ',
-		'         value1Set = true; ',
-		'     } ',
-		'     if(x == tex2Index) { ',
-		'         value2 = texture2D(uSliceMaps[x],texpos2).x; ',
-		'         value2Set = true; ',
-		'     } ',
-		'     if(value1Set && value2Set) { ',
-		'         break; ',
-		'     } ',
-		' } ',
-		' return mix(value1, value2, fract(volpos.z*uNumberOfSlices)); ',
+		'float getVolumeValue(vec3 volpos)',
+		'{',
+		'    float s1Original, s2Original, s1, s2; ',
+		'    float dx1, dy1; ',
+		'    float dx2, dy2; ',
+		'    float value; ',
+		'    vec2 texpos1,texpos2; ',
+		'    float slicesPerSprite = uSlicesOverX * uSlicesOverY; ',
+		'    s1Original = floor(volpos.z*uNumberOfSlices); ',
+		'    s2Original = min(s1Original + 1.0, uNumberOfSlices);',
+		'    int tex1Index = int(floor(s1Original / slicesPerSprite));',
+		'    int tex2Index = int(floor(s2Original / slicesPerSprite));',
+		'    s1 = mod(s1Original, slicesPerSprite);',
+		'    s2 = mod(s2Original, slicesPerSprite);',
+		'    dx1 = fract(s1/uSlicesOverX);',
+		'    dy1 = floor(s1/uSlicesOverY)/uSlicesOverY;',
+		'    dx2 = fract(s2/uSlicesOverX);',
+		'    dy2 = floor(s2/uSlicesOverY)/uSlicesOverY;',
+		'    texpos1.x = dx1+(volpos.x/uSlicesOverX);',
+		'    texpos1.y = dy1+(volpos.y/uSlicesOverY);',
+		'    texpos2.x = dx2+(volpos.x/uSlicesOverX);',
+		'    texpos2.y = dy2+(volpos.y/uSlicesOverY);',
+		'    float value1 = 0.0, value2 = 0.0; ',
+		'    bool value1Set = false, value2Set = false;',
+		'    int numberOfSlicemaps = int( ceil(uNumberOfSlices / (uSlicesOverX * uSlicesOverY)) );',
+		'    for (int x = 0; x < 32; x++)',
+		'    {',
+		'        if(x == numberOfSlicemaps)',
+		'        {',
+		'            break;',
+		'        }',
+		'        if(x == tex1Index) { ',
+		'            value1 = texture2D(uSliceMaps[x],texpos1).x; ',
+		'            value1Set = true; ',
+		'        } ',
+		'        if(x == tex2Index) { ',
+		'            value2 = texture2D(uSliceMaps[x],texpos2).x; ',
+		'            value2Set = true; ',
+		'        } ',
+		'        if(value1Set && value2Set) { ',
+		'            break; ',
+		'        } ',
+		'    } ',
+		'    return mix(value1, value2, fract(volpos.z*uNumberOfSlices)); ',
 		'} ',
-		'void main(void) ',
-		'{ ',
+		'void main(void)',
+		'{',
 		' vec2 texC = ((pos.xy/pos.w) + 1.0) / 2.0; ',
 		' vec4 backColor = texture2D(uBackCoord,texC); ',
 		' vec3 dir = backColor.rgb - frontColor.rgb; ',
@@ -1446,18 +1463,23 @@ window.VRC.Core.prototype._shaders.secondPass = {
         };
 
         me.setSlicemapsImages = function(images, imagesPaths) {
-            var ctx = me._core._renderer.getContext()
-            var maxTexSize = ctx.getParameter(ctx.MAX_TEXTURE_SIZE);
+            // var ctx = me._core._renderer.getContext()
+            var maxTexSize = me._core.getMaxTextureSize();
+            var availableTexturesNumber = me._core.getAvailableTexturesNumber();
 
             var firstImage = images[0];
+            var imagesNumber = images.length;
 
-            if(Math.max(firstImage.width, firstImage.height) > maxTexSize) {
-                throw Error("Size of slice bigger than maximum possible on current GPU. Maximum size of texture: " + maxTexSize);                
+            if( imagesNumber > availableTexturesNumber ) {
+                throw Error("Number of slicemaps bigger then number of available texture units. Available texture units: " + availableTexturesNumber);
+            };
 
-            } else {
-                me._core.setSlicemapsImages(images, imagesPaths);
-                me._needRedraw = true;
-            }
+            if( (Math.max(firstImage.width, firstImage.height) > maxTexSize) || (imagesNumber > availableTexturesNumber) ) {
+                throw Error("Size of slice bigger than maximum possible on current GPU. Maximum size of texture: " + maxTexSize);
+            };
+
+            me._core.setSlicemapsImages(images, imagesPaths);
+            me._needRedraw = true;
 
         };
 

@@ -98,9 +98,7 @@
         this._renderer = new THREE.WebGLRenderer();
         this._renderer.setSize( this.getRenderSizeInPixels()[0], this.getRenderSizeInPixels()[1] );
         this._renderer.setClearColor( this._render_clear_color );
-        this._renderer.autoClearColor = true;
-        this._renderer.autoClearDepth = true;
-        this._renderer.autoClearStencil = false;
+
         this._container.appendChild( this._renderer.domElement );
 
         this._camera = new THREE.PerspectiveCamera( 45, this.getRenderSizeInPixels()[0] / this.getRenderSizeInPixels()[1], 0.01, 11 );
@@ -133,22 +131,22 @@
             vertexShader: this._shaders.secondPass.vertexShader,
             fragmentShader: this._shaders.secondPass.fragmentShader,
             attributes: {
-                vertColor: {type: 'c', value: [] }
+                vertColor:                       {type: 'c', value: [] }
             },
             uniforms: {
-                uBackCoord:           { type: "t",  value: this._rtTexture }, 
-                uSliceMaps:           { type: "tv", value: this._slicemaps_textures }, 
-                uTransferFunction:    { type: "t",  value: this._transfer_function },
+                uBackCoord:                      { type: "t",  value: this._rtTexture }, 
+                uSliceMaps:                      { type: "tv", value: this._slicemaps_textures }, 
+                uTransferFunction:               { type: "t",  value: this._transfer_function },
 
-                uSteps:               { type: "f", value: this._steps },
-                uNumberOfSlices:      { type: "f", value: this.getSlicesRange()[1] },
-                uSlicesOverX:         { type: "f", value: this._slicemap_row_col[0] },
-                uSlicesOverY:         { type: "f", value: this._slicemap_row_col[1] },
-                uOpacityVal:          { type: "f", value: this._opacity_factor },
-                uColorVal:            { type: "f", value: this._color_factor },
-                uAbsorptionModeIndex: { type: "f", value: this._absorption_mode_index },
-                uMinGrayVal:          { type: "f", value: this._gray_value[0] },
-                uMaxGrayVal:          { type: "f", value: this._gray_value[1] }
+                uSteps:                          { type: "f", value: this._steps },
+                uNumberOfSlices:                 { type: "f", value: this.getSlicesRange()[1] },
+                uSlicesOverX:                    { type: "f", value: this._slicemap_row_col[0] },
+                uSlicesOverY:                    { type: "f", value: this._slicemap_row_col[1] },
+                uOpacityVal:                     { type: "f", value: this._opacity_factor },
+                uColorVal:                       { type: "f", value: this._color_factor },
+                uAbsorptionModeIndex:            { type: "f", value: this._absorption_mode_index },
+                uMinGrayVal:                     { type: "f", value: this._gray_value[0] },
+                uMaxGrayVal:                     { type: "f", value: this._gray_value[1] },
             },
             side: THREE.BackSide,
             // transparent: true,
@@ -455,10 +453,10 @@
         var height = this.getRenderSize()[0];
 
         if(this._render_size[0] == '*') {
-            width = window.outerWidth;
+            width = this._renderer.domElement.width;
         } 
         if(this._render_size[1] == '*') {
-            height = window.outerHeight;
+            height = this._renderer.domElement.height;
         }
 
         return [width, height];
@@ -549,6 +547,17 @@
 
     Core.prototype.getDomContainerId = function() {
         return this._dom_container_id;
+    };
+
+    Core.prototype.getAvailableTexturesNumber = function() {
+        var number_used_textures = 2;
+        var gl = this._renderer.getContext()
+        return gl.getParameter(gl.MAX_TEXTURE_IMAGE_UNITS) - number_used_textures;
+    };
+
+    Core.prototype.getMaxTextureSize = function() {
+        var gl = this._renderer.getContext()
+        return gl.getParameter(gl.MAX_TEXTURE_SIZE);
     };
 
     Core.prototype._shaders = {

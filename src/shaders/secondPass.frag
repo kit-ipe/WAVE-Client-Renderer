@@ -12,7 +12,7 @@ varying vec4 frontColor;
 varying vec4 pos; 
 
 uniform sampler2D uBackCoord; 
-uniform sampler2D uSliceMaps[10]; 
+uniform sampler2D uSliceMaps[6]; 
 uniform sampler2D uTransferFunction; 
 
 uniform float uNumberOfSlices; 
@@ -20,70 +20,79 @@ uniform float uMinGrayVal;
 uniform float uMaxGrayVal; 
 uniform float uOpacityVal; 
 uniform float uColorVal; 
-uniform float uAbsorptionModeIndex; 
+uniform float uAbsorptionModeIndex;
 uniform float uSlicesOverX; 
 uniform float uSlicesOverY; 
 uniform float uSteps; 
+// uniform int uAvailable_textures_number;
 
 //Acts like a texture3D using Z slices and trilinear filtering. 
-float getVolumeValue(vec3 volpos) 
-{ 
- float s1Original, s2Original, s1, s2; 
- float dx1, dy1; 
- float dx2, dy2; 
- float value; 
+float getVolumeValue(vec3 volpos)
+{
+    float s1Original, s2Original, s1, s2; 
+    float dx1, dy1; 
+    float dx2, dy2; 
+    float value; 
 
- vec2 texpos1,texpos2; 
+    vec2 texpos1,texpos2; 
 
- float slicesPerSprite = uSlicesOverX * uSlicesOverY; 
+    float slicesPerSprite = uSlicesOverX * uSlicesOverY; 
 
- s1Original = floor(volpos.z*uNumberOfSlices); 
- s2Original = min(s1Original+1.0, uNumberOfSlices); 
+    s1Original = floor(volpos.z*uNumberOfSlices); 
+    s2Original = min(s1Original + 1.0, uNumberOfSlices);
 
- int tex1Index = int(floor(s1Original / slicesPerSprite)); 
- int tex2Index = int(floor(s2Original / slicesPerSprite)); 
+    int tex1Index = int(floor(s1Original / slicesPerSprite));
+    int tex2Index = int(floor(s2Original / slicesPerSprite));
 
- s1 = mod(s1Original, slicesPerSprite); 
- s2 = mod(s2Original, slicesPerSprite); 
+    s1 = mod(s1Original, slicesPerSprite);
+    s2 = mod(s2Original, slicesPerSprite);
 
- dx1 = fract(s1/uSlicesOverX); 
- dy1 = floor(s1/uSlicesOverY)/uSlicesOverY; 
+    dx1 = fract(s1/uSlicesOverX);
+    dy1 = floor(s1/uSlicesOverY)/uSlicesOverY;
 
- dx2 = fract(s2/uSlicesOverX); 
- dy2 = floor(s2/uSlicesOverY)/uSlicesOverY; 
+    dx2 = fract(s2/uSlicesOverX);
+    dy2 = floor(s2/uSlicesOverY)/uSlicesOverY;
 
- texpos1.x = dx1+(volpos.x/uSlicesOverX); 
- texpos1.y = dy1+(volpos.y/uSlicesOverY); 
+    texpos1.x = dx1+(volpos.x/uSlicesOverX);
+    texpos1.y = dy1+(volpos.y/uSlicesOverY);
 
- texpos2.x = dx2+(volpos.x/uSlicesOverX); 
- texpos2.y = dy2+(volpos.y/uSlicesOverY); 
+    texpos2.x = dx2+(volpos.x/uSlicesOverX);
+    texpos2.y = dy2+(volpos.y/uSlicesOverY);
 
- float value1, value2; 
- bool value1Set = false, value2Set = false; 
+    float value1 = 0.0, value2 = 0.0; 
+    bool value1Set = false, value2Set = false;
 
- for (int x = 0; x < 10; x++) { 
-     if(x == tex1Index) { 
-         value1 = texture2D(uSliceMaps[x],texpos1).x; 
-         value1Set = true; 
-     } 
+    int numberOfSlicemaps = int( ceil(uNumberOfSlices / (uSlicesOverX * uSlicesOverY)) );
 
-     if(x == tex2Index) { 
-         value2 = texture2D(uSliceMaps[x],texpos2).x; 
-         value2Set = true; 
-     } 
+    for (int x = 0; x < 32; x++)
+    {
+        if(x == numberOfSlicemaps)
+        {
+            break;
+        }
 
-     if(value1Set && value2Set) { 
-         break; 
-     } 
+        if(x == tex1Index) { 
+            value1 = texture2D(uSliceMaps[x],texpos1).x; 
+            value1Set = true; 
+        } 
 
- } 
+        if(x == tex2Index) { 
+            value2 = texture2D(uSliceMaps[x],texpos2).x; 
+            value2Set = true; 
+        } 
 
- return mix(value1, value2, fract(volpos.z*uNumberOfSlices)); 
+        if(value1Set && value2Set) { 
+            break; 
+        } 
+
+    } 
+
+    return mix(value1, value2, fract(volpos.z*uNumberOfSlices)); 
 
 } 
 
-void main(void) 
-{ 
+void main(void)
+{
  vec2 texC = ((pos.xy/pos.w) + 1.0) / 2.0; 
 
  vec4 backColor = texture2D(uBackCoord,texC); 

@@ -1,0 +1,1 @@
+{"slicemaps_paths": ["slicemap0-10x10-2048x2048-BILINEAR.png", "slicemap1-10x10-2048x2048-BILINEAR.png"], "row_col": [10, 10], "area_of_slice": [[0, 0], [256, 256]], "filter": "BILINEAR", "slicemap_size": [2048, 2048], "original_slice_size": [256, 256], "gap_slices": [0, 128]}
