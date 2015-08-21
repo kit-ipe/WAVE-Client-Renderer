@@ -224,8 +224,9 @@ class SliceMapCreator:
         data["slicemaps_paths"] = [self.slicemap_name_format.format(i, self.row_col[0], self.row_col[1], int(self.slicemap_size[0]), int(self.slicemap_size[1]), self.filter_name ) for i in range(0, self.slicemaps_number)]
         data["row_col"] = self.row_col
         data["slicemap_size"] = self.slicemap_size
-        data["gap_slices"] = self.slices_range
+        data["slices_range"] = self.slices_range
         data["original_slice_size"] = self.original_slice_size
+        data["volume_size"] = [self.area_of_slice[1][0] - self.area_of_slice[0][0], self.area_of_slice[1][1] - self.area_of_slice[0][1], self.slices_range[1] - self.slices_range[0]]
         data["area_of_slice"] = [self.area_of_slice[0], self.area_of_slice[1]]
         jsonString = json.dumps(data)
 

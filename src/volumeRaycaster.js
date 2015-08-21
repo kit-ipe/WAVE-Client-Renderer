@@ -196,105 +196,111 @@
 
         };
 
-        me.setGeometryMinX = function(value) {
-            // if(value > 1.0 || value < 0.0) {
-            //     throw Error("Geometry size  should be in range [0.0 - 1.0] !");
-            // }
+        me.setVolumeSize = function(width, height, depth) {
+            me._core.setVolumeSize(width, height, depth);
+            me._needRedraw = true;
+            
+        };
 
-            if(value > me._core.getGeometryDimension()["xmax"]) {
+        me.setGeometryMinX = function(value) {
+            if(value > 1.0 || value < 0.0) {
+                throw Error("Geometry size  should be in range [0.0 - 1.0] !");
+            }
+
+            if(value > me._core.getGeometryDimensions()["xmax"]) {
                 throw Error("Min X should be lower than max X!");
             }
 
-            var geometryDimension = me._core.getGeometryDimension();
+            var geometryDimension = me._core.getGeometryDimensions();
             geometryDimension["xmin"] = value;
 
-            me._core.setGeometryDimension(geometryDimension);
+            me._core.setGeometryDimensions(geometryDimension);
             me._needRedraw = true;
 
 
         };
 
         me.setGeometryMaxX = function(value) {
-            // if(value > 1.0 || value < 0.0) {
-            //     throw Error("Geometry size  should be in range [0.0 - 1.0] !");
-            // }
+            if(value > 1.0 || value < 0.0) {
+                throw Error("Geometry size  should be in range [0.0 - 1.0] !");
+            }
 
-            if(value < me._core.getGeometryDimension()["xmin"]) {
+            if(value < me._core.getGeometryDimensions()["xmin"]) {
                 throw Error("Max X should be bigger than min X!");
             }
 
-            var geometryDimension = me._core.getGeometryDimension();
+            var geometryDimension = me._core.getGeometryDimensions();
             geometryDimension["xmax"] = value;
 
-            me._core.setGeometryDimension(geometryDimension);
+            me._core.setGeometryDimensions(geometryDimension);
             me._needRedraw = true;
 
 
         };
 
         me.setGeometryMinY = function(value) {
-            // if(value > 1.0 || value < 0.0) {
-            //     throw Error("Geometry size  should be in range [0.0 - 1.0] !");
-            // }
+            if(value > 1.0 || value < 0.0) {
+                throw Error("Geometry size  should be in range [0.0 - 1.0] !");
+            }
 
-            if(value > me._core.getGeometryDimension()["ymax"]) {
+            if(value > me._core.getGeometryDimensions()["ymax"]) {
                 throw Error("Min Y should be lower than max Y!");
             }
 
-            var geometryDimension = me._core.getGeometryDimension();
+            var geometryDimension = me._core.getGeometryDimensions();
             geometryDimension["ymin"] = value;
 
-            me._core.setGeometryDimension(geometryDimension);
+            me._core.setGeometryDimensions(geometryDimension);
             me._needRedraw = true;
 
         };
 
         me.setGeometryMaxY = function(value) {
-            // if(value > 1.0 || value < 0.0) {
-            //     throw Error("Geometry size  should be in range [0.0 - 1.0] !");
-            // }
+            if(value > 1.0 || value < 0.0) {
+                throw Error("Geometry size  should be in range [0.0 - 1.0] !");
+            }
 
-            if(value < me._core.getGeometryDimension()["ymin"]) {
+            if(value < me._core.getGeometryDimensions()["ymin"]) {
                 throw Error("Max Y should be bigger than min Y!");
 
             }
 
-            var geometryDimension = me._core.getGeometryDimension();
+            var geometryDimension = me._core.getGeometryDimensions();
             geometryDimension["ymax"] = value;
 
-            me._core.setGeometryDimension(geometryDimension);
+            me._core.setGeometryDimensions(geometryDimension);
             me._needRedraw = true;
         };
 
         me.setGeometryMinZ = function(value) {
-            // if(value > 1.0 || value < 0.0) {
-            //     throw Error("Geometry size  should be in range [0.0 - 1.0] !");
-            // }
+            if(value > 1.0 || value < 0.0) {
+                throw Error("Geometry size  should be in range [0.0 - 1.0] !");
+            }
 
-            if(value > me._core.getGeometryDimension()["zmax"]) {
+            if(value > me._core.getGeometryDimensions()["zmax"]) {
                 throw Error("Min Z should be lower than max Z!");
             }
 
-            var geometryDimension = me._core.getGeometryDimension();
+            var geometryDimension = me._core.getGeometryDimensions();
             geometryDimension["zmin"] = value;
 
-            me._core.setGeometryDimension(geometryDimension);
+            me._core.setGeometryDimensions(geometryDimension);
             me._needRedraw = true;
         };
 
         me.setGeometryMaxZ = function(value) {
-            // if(value > 1.0 || value < 0.0) {
-            //     throw Error("Geometry size  should be in range [0.0 - 1.0] !");
-            // }
+            if(value > 1.0 || value < 0.0) {
+                throw Error("Geometry size  should be in range [0.0 - 1.0] !");
+            }
 
-            if(value < me._core.getGeometryDimension()["zmin"]) {
+            if(value < me._core.getGeometryDimensions()["zmin"]) {
                 throw Error("Max Z should be bigger than min Z!");
             }
 
-            var geometryDimension = me._core.getGeometryDimension();
+            var geometryDimension = me._core.getGeometryDimensions();
             geometryDimension["zmax"] = value;
 
-            me._core.setGeometryDimension(geometryDimension);
+            me._core.setGeometryDimensions(geometryDimension);
             me._needRedraw = true;
         };
 
@@ -480,8 +486,16 @@
             return [me._core.getGrayMinValue(), me._core.getGrayMaxValue()]
         };
 
-        me.getGeometryDimension = function() {
-            return me._core.getGeometryDimension();
+        me.getGeometryDimensions = function() {
+            return me._core.getGeometryDimensions();
+        };
+
+        me.getVolumeSize = function() {
+            return me._core.getVolumeSize();
+        };
+
+        me.getVolumeSizeNormalized = function() {
+            return me._core.getVolumeSizeNormalized();
         };
 
         me.getOpacityFactor = function() {
@@ -606,6 +620,10 @@
                 me._core.setGrayMaxValue( config['gray_max'] );
             }
 
+            if(config['volume_size'] != undefined) {
+                me.setVolumeSize( config['volume_size'][0], config['volume_size'][1], config['volume_size'][2] );
+            }
+
             if(config['x_min'] != undefined) {
                 me.setGeometryMinX( config['x_min'] );
             }
@@ -678,16 +696,17 @@
 
             xmlhttp.onreadystatechange = function() {
                 if (xmlhttp.readyState == XMLHttpRequest.DONE ) {
-                   if(xmlhttp.status == 200){
-                      onLoad(JSON.parse(xmlhttp.responseText));
-                   }
-                   else if(xmlhttp.status == 400) {
-                      userOnError(xmlhttp);
-                   }
-                   else {
-                        userOnError(xmlhttp);
-                   }
+                    if(xmlhttp.status == 200){
+                        var config = JSON.parse(xmlhttp.responseText);
+                        me.setConfig( config );
+                        if(onLoad != undefined) onLoad();
+                    } else if(xmlhttp.status == 400) {
+                        if(userOnError != undefined) userOnError(xmlhttp);
+                    } else {
+                        if(userOnError != undefined) userOnError(xmlhttp);
+                    }
                 }
+
             }
 
             xmlhttp.open("GET", path, true);
@@ -711,12 +730,12 @@
                 "backgound": me.getClearColor(),
                 "tf_path": me.getTransferFunctionAsImage().src,
                 "tf_colors": me.getTransferFunctionColors(),
-                "x_min": me.getGeometryDimension()["xmin"],
-                "x_max": me.getGeometryDimension()["xmax"],
-                "y_min": me.getGeometryDimension()["ymin"],
-                "y_max": me.getGeometryDimension()["ymax"],
-                "z_min": me.getGeometryDimension()["zmin"], 
-                "z_max": me.getGeometryDimension()["zmax"],
+                "x_min": me.getGeometryDimensions()["xmin"],
+                "x_max": me.getGeometryDimensions()["xmax"],
+                "y_min": me.getGeometryDimensions()["ymin"],
+                "y_max": me.getGeometryDimensions()["ymax"],
+                "z_min": me.getGeometryDimensions()["zmin"], 
+                "z_max": me.getGeometryDimensions()["zmax"],
                 "dom_container_id": me.getDomContainerId(),
                 "auto_steps": me.isAutoStepsOn(),
             };

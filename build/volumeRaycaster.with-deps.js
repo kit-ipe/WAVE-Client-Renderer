@@ -504,117 +504,117 @@
 
         var me = {};
 
-        me.createBoxGeometry = function(dimension) {
+        me.createBoxGeometry = function(geometryDimension, volumeSize) {
             var vertexPositions = [
                 //front face first
-                [dimension.xmin, dimension.ymin, dimension.zmax],
-                [dimension.xmax, dimension.ymin, dimension.zmax],
-                [dimension.xmax, dimension.ymax, dimension.zmax],
+                [geometryDimension.xmin * volumeSize[0], geometryDimension.ymin * volumeSize[1], geometryDimension.zmax * volumeSize[2]],
+                [geometryDimension.xmax * volumeSize[0], geometryDimension.ymin * volumeSize[1], geometryDimension.zmax * volumeSize[2]],
+                [geometryDimension.xmax * volumeSize[0], geometryDimension.ymax * volumeSize[1], geometryDimension.zmax * volumeSize[2]],
                 //front face second
-                [dimension.xmin, dimension.ymin, dimension.zmax],
-                [dimension.xmax, dimension.ymax, dimension.zmax],
-                [dimension.xmin, dimension.ymax, dimension.zmax],
+                [geometryDimension.xmin * volumeSize[0], geometryDimension.ymin * volumeSize[1], geometryDimension.zmax * volumeSize[2]],
+                [geometryDimension.xmax * volumeSize[0], geometryDimension.ymax * volumeSize[1], geometryDimension.zmax * volumeSize[2]],
+                [geometryDimension.xmin * volumeSize[0], geometryDimension.ymax * volumeSize[1], geometryDimension.zmax * volumeSize[2]],
 
                 // back face first
-                [dimension.xmin, dimension.ymin, dimension.zmin],
-                [dimension.xmin, dimension.ymax, dimension.zmin],
-                [dimension.xmax, dimension.ymax, dimension.zmin],
+                [geometryDimension.xmin * volumeSize[0], geometryDimension.ymin * volumeSize[1], geometryDimension.zmin * volumeSize[2]],
+                [geometryDimension.xmin * volumeSize[0], geometryDimension.ymax * volumeSize[1], geometryDimension.zmin * volumeSize[2]],
+                [geometryDimension.xmax * volumeSize[0], geometryDimension.ymax * volumeSize[1], geometryDimension.zmin * volumeSize[2]],
                 // back face second
-                [dimension.xmin, dimension.ymin, dimension.zmin],
-                [dimension.xmax, dimension.ymax, dimension.zmin],
-                [dimension.xmax, dimension.ymin, dimension.zmin],
+                [geometryDimension.xmin * volumeSize[0], geometryDimension.ymin * volumeSize[1], geometryDimension.zmin * volumeSize[2]],
+                [geometryDimension.xmax * volumeSize[0], geometryDimension.ymax * volumeSize[1], geometryDimension.zmin * volumeSize[2]],
+                [geometryDimension.xmax * volumeSize[0], geometryDimension.ymin * volumeSize[1], geometryDimension.zmin * volumeSize[2]],
 
                 // top face first
-                [dimension.xmin, dimension.ymax, dimension.zmin],
-                [dimension.xmin, dimension.ymax, dimension.zmax],
-                [dimension.xmax, dimension.ymax, dimension.zmax],
+                [geometryDimension.xmin * volumeSize[0], geometryDimension.ymax * volumeSize[1], geometryDimension.zmin * volumeSize[2]],
+                [geometryDimension.xmin * volumeSize[0], geometryDimension.ymax * volumeSize[1], geometryDimension.zmax * volumeSize[2]],
+                [geometryDimension.xmax * volumeSize[0], geometryDimension.ymax * volumeSize[1], geometryDimension.zmax * volumeSize[2]],
                 // top face second
-                [dimension.xmin, dimension.ymax, dimension.zmin],
-                [dimension.xmax, dimension.ymax, dimension.zmax],
-                [dimension.xmax, dimension.ymax, dimension.zmin],
+                [geometryDimension.xmin * volumeSize[0], geometryDimension.ymax * volumeSize[1], geometryDimension.zmin * volumeSize[2]],
+                [geometryDimension.xmax * volumeSize[0], geometryDimension.ymax * volumeSize[1], geometryDimension.zmax * volumeSize[2]],
+                [geometryDimension.xmax * volumeSize[0], geometryDimension.ymax * volumeSize[1], geometryDimension.zmin * volumeSize[2]],
 
                 // bottom face first
-                [dimension.xmin, dimension.ymin, dimension.zmin],
-                [dimension.xmax, dimension.ymin, dimension.zmin],
-                [dimension.xmax, dimension.ymin, dimension.zmax],
+                [geometryDimension.xmin * volumeSize[0], geometryDimension.ymin * volumeSize[1], geometryDimension.zmin * volumeSize[2]],
+                [geometryDimension.xmax * volumeSize[0], geometryDimension.ymin * volumeSize[1], geometryDimension.zmin * volumeSize[2]],
+                [geometryDimension.xmax * volumeSize[0], geometryDimension.ymin * volumeSize[1], geometryDimension.zmax * volumeSize[2]],
                 // bottom face second
-                [dimension.xmin, dimension.ymin, dimension.zmin],
-                [dimension.xmax, dimension.ymin, dimension.zmax],
-                [dimension.xmin, dimension.ymin, dimension.zmax],
+                [geometryDimension.xmin * volumeSize[0], geometryDimension.ymin * volumeSize[1], geometryDimension.zmin * volumeSize[2]],
+                [geometryDimension.xmax * volumeSize[0], geometryDimension.ymin * volumeSize[1], geometryDimension.zmax * volumeSize[2]],
+                [geometryDimension.xmin * volumeSize[0], geometryDimension.ymin * volumeSize[1], geometryDimension.zmax * volumeSize[2]],
 
                 // right face first
-                [dimension.xmax, dimension.ymin, dimension.zmin],
-                [dimension.xmax, dimension.ymax, dimension.zmin],
-                [dimension.xmax, dimension.ymax, dimension.zmax],
+                [geometryDimension.xmax * volumeSize[0], geometryDimension.ymin * volumeSize[1], geometryDimension.zmin * volumeSize[2]],
+                [geometryDimension.xmax * volumeSize[0], geometryDimension.ymax * volumeSize[1], geometryDimension.zmin * volumeSize[2]],
+                [geometryDimension.xmax * volumeSize[0], geometryDimension.ymax * volumeSize[1], geometryDimension.zmax * volumeSize[2]],
                 // right face second
-                [dimension.xmax, dimension.ymin, dimension.zmin],
-                [dimension.xmax, dimension.ymax, dimension.zmax],
-                [dimension.xmax, dimension.ymin, dimension.zmax],
+                [geometryDimension.xmax * volumeSize[0], geometryDimension.ymin * volumeSize[1], geometryDimension.zmin * volumeSize[2]],
+                [geometryDimension.xmax * volumeSize[0], geometryDimension.ymax * volumeSize[1], geometryDimension.zmax * volumeSize[2]],
+                [geometryDimension.xmax * volumeSize[0], geometryDimension.ymin * volumeSize[1], geometryDimension.zmax * volumeSize[2]],
 
                 // left face first
-                [dimension.xmin, dimension.ymin, dimension.zmin],
-                [dimension.xmin, dimension.ymin, dimension.zmax],
-                [dimension.xmin, dimension.ymax, dimension.zmax],
+                [geometryDimension.xmin * volumeSize[0], geometryDimension.ymin * volumeSize[1], geometryDimension.zmin * volumeSize[2]],
+                [geometryDimension.xmin * volumeSize[0], geometryDimension.ymin * volumeSize[1], geometryDimension.zmax * volumeSize[2]],
+                [geometryDimension.xmin * volumeSize[0], geometryDimension.ymax * volumeSize[1], geometryDimension.zmax * volumeSize[2]],
                 // left face second
-                [dimension.xmin, dimension.ymin, dimension.zmin],
-                [dimension.xmin, dimension.ymax, dimension.zmax],
-                [dimension.xmin, dimension.ymax, dimension.zmin]
+                [geometryDimension.xmin * volumeSize[0], geometryDimension.ymin * volumeSize[1], geometryDimension.zmin * volumeSize[2]],
+                [geometryDimension.xmin * volumeSize[0], geometryDimension.ymax * volumeSize[1], geometryDimension.zmax * volumeSize[2]],
+                [geometryDimension.xmin * volumeSize[0], geometryDimension.ymax * volumeSize[1], geometryDimension.zmin * volumeSize[2]]
             ];
 
             var vertexColors = [
                 //front face first
-                [0.0, 0.0, 1.0],
-                [1.0, 0.0, 1.0],
-                [1.0, 1.0, 1.0],
+                [geometryDimension.xmin, geometryDimension.ymin, geometryDimension.zmax],
+                [geometryDimension.xmax, geometryDimension.ymin, geometryDimension.zmax],
+                [geometryDimension.xmax, geometryDimension.ymax, geometryDimension.zmax],
                 //front face second
-                [0.0, 0.0, 1.0],
-                [1.0, 1.0, 1.0],
-                [0.0, 1.0, 1.0],
+                [geometryDimension.xmin, geometryDimension.ymin, geometryDimension.zmax],
+                [geometryDimension.xmax, geometryDimension.ymax, geometryDimension.zmax],
+                [geometryDimension.xmin, geometryDimension.ymax, geometryDimension.zmax],
 
                 // back face first
-                [0.0, 0.0, 0.0],
-                [0.0, 1.0, 0.0],
-                [1.0, 1.0, 0.0],
+                [geometryDimension.xmin, geometryDimension.ymin, geometryDimension.zmin],
+                [geometryDimension.xmin, geometryDimension.ymax, geometryDimension.zmin],
+                [geometryDimension.xmax, geometryDimension.ymax, geometryDimension.zmin],
                 // back face second
-                [0.0, 0.0, 0.0],
-                [1.0, 1.0, 0.0],
-                [1.0, 0.0, 0.0],
+                [geometryDimension.xmin, geometryDimension.ymin, geometryDimension.zmin],
+                [geometryDimension.xmax, geometryDimension.ymax, geometryDimension.zmin],
+                [geometryDimension.xmax, geometryDimension.ymin, geometryDimension.zmin],
 
                 // top face first
-                [0.0, 1.0, 0.0],
-                [0.0, 1.0, 1.0],
-                [1.0, 1.0, 1.0],
+                [geometryDimension.xmin, geometryDimension.ymax, geometryDimension.zmin],
+                [geometryDimension.xmin, geometryDimension.ymax, geometryDimension.zmax],
+                [geometryDimension.xmax, geometryDimension.ymax, geometryDimension.zmax],
                 // top face second
-                [0.0, 1.0, 0.0],
-                [1.0, 1.0, 1.0],
-                [1.0, 1.0, 0.0],
+                [geometryDimension.xmin, geometryDimension.ymax, geometryDimension.zmin],
+                [geometryDimension.xmax, geometryDimension.ymax, geometryDimension.zmax],
+                [geometryDimension.xmax, geometryDimension.ymax, geometryDimension.zmin],
 
                 // bottom face first
-                [0.0, 0.0, 0.0],
-                [1.0, 0.0, 0.0],
-                [1.0, 0.0, 1.0],
+                [geometryDimension.xmin, geometryDimension.ymin, geometryDimension.zmin],
+                [geometryDimension.xmax, geometryDimension.ymin, geometryDimension.zmin],
+                [geometryDimension.xmax, geometryDimension.ymin, geometryDimension.zmax],
                 // bottom face second
-                [0.0, 0.0, 0.0],
-                [1.0, 0.0, 1.0],
-                [0.0, 0.0, 1.0],
+                [geometryDimension.xmin, geometryDimension.ymin, geometryDimension.zmin],
+                [geometryDimension.xmax, geometryDimension.ymin, geometryDimension.zmax],
+                [geometryDimension.xmin, geometryDimension.ymin, geometryDimension.zmax],
 
                 // right face first
-                [1.0, 0.0, 0.0],
-                [1.0, 1.0, 0.0],
-                [1.0, 1.0, 1.0],
+                [geometryDimension.xmax, geometryDimension.ymin, geometryDimension.zmin],
+                [geometryDimension.xmax, geometryDimension.ymax, geometryDimension.zmin],
+                [geometryDimension.xmax, geometryDimension.ymax, geometryDimension.zmax],
                 // right face second
-                [1.0, 0.0, 0.0],
-                [1.0, 1.0, 1.0],
-                [1.0, 0.0, 1.0],
+                [geometryDimension.xmax, geometryDimension.ymin, geometryDimension.zmin],
+                [geometryDimension.xmax, geometryDimension.ymax, geometryDimension.zmax],
+                [geometryDimension.xmax, geometryDimension.ymin, geometryDimension.zmax],
 
                 // left face first
-                [0.0, 0.0, 0.0],
-                [0.0, 0.0, 1.0],
-                [0.0, 1.0, 1.0],
+                [geometryDimension.xmin, geometryDimension.ymin, geometryDimension.zmin],
+                [geometryDimension.xmin, geometryDimension.ymin, geometryDimension.zmax],
+                [geometryDimension.xmin, geometryDimension.ymax, geometryDimension.zmax],
                 // left face second
-                [0.0, 0.0, 0.0],
-                [0.0, 1.0, 1.0],
-                [0.0, 1.0, 0.0]
+                [geometryDimension.xmin, geometryDimension.ymin, geometryDimension.zmin],
+                [geometryDimension.xmin, geometryDimension.ymax, geometryDimension.zmax],
+                [geometryDimension.xmin, geometryDimension.ymax, geometryDimension.zmin]
             ];
 
             var positions = [];
@@ -683,12 +683,13 @@
         this._slicemaps_textures         = [];
         this._opacity_factor             = 20.0;
         this._color_factor               = 3.0;
-        this._absorption_mode_index      = 0.0;
+        this._absorption_mode_index      = 1.0;
         this._render_size                = ['*', '*'];
         this._canvas_size                = ['*', '*'];
         this._render_clear_color         = "#ffffff";
         this._transfer_function_as_image = new Image();
-        this._geometry_dimension         = {"xmin": 0.0, "xmax": 1024.0, "ymin": 0.0, "ymax": 1024.0, "zmin": 0.0, "zmax": 1024.0};
+        this._volume_sizes                = [1024.0, 1024.0, 1024.0];
+        this._geometry_dimensions         = {"xmin": 0.0, "xmax": 1.0, "ymin": 0.0, "ymax": 1.0, "zmin": 0.0, "zmax": 1.0};
 
         this._transfer_function_colors   = [
             {"pos": 0.25, "color": "#892c2c"},
@@ -721,11 +722,6 @@
                 x: 0.0,
                 y: 0.0,
                 z: 0.0
-            },
-            "position": {
-                "x": -0.5,
-                "y": -0.5,
-                "z": -0.5
             }
         };
 
@@ -816,18 +812,7 @@
         this._sceneFirstPass = new THREE.Scene();
         this._sceneSecondPass = new THREE.Scene();
 
-        // var originalDimension = new GeometryDimension();
-
-        var geometryHelper = new VRC.GeometryHelper();
-        this._geometry = geometryHelper.createBoxGeometry(this.getNormalizedGeometryDimension());
-
-        this.setGeometryDimension( this.getGeometryDimension() );
-
-        // this._geometry.applyMatrix( new THREE.Matrix4().makeTranslation( this._geometry_settings["position"]["x"], this._geometry_settings["position"]["y"], this._geometry_settings["position"]["z"] ) );
-        // this._geometry.applyMatrix( new THREE.Matrix4().makeRotationX( this._geometry_settings["rotation"]["x"] ));
-        // this._geometry.applyMatrix( new THREE.Matrix4().makeRotationY( this._geometry_settings["rotation"]["y"] ));
-        // this._geometry.applyMatrix( new THREE.Matrix4().makeRotationZ( this._geometry_settings["rotation"]["z"] ));
-        // this._geometry.doubleSided = true;
+        this._initGeometry( this.getGeometryDimensions(), this.getVolumeSizeNormalized() );
         
         this._meshFirstPass = new THREE.Mesh( this._geometry, this._materialFirstPass );
         this._meshSecondPass = new THREE.Mesh( this._geometry, this._materialSecondPass );
@@ -947,8 +932,21 @@
         return this._transfer_function_as_image;
     };
 
-    Core.prototype._setGeometry = function(geometryDimension) {
-        var geometry      = (new VRC.GeometryHelper()).createBoxGeometry(geometryDimension);
+    Core.prototype._initGeometry = function(geometryDimensions, volumeSizes) {
+        var geometryHelper = new VRC.GeometryHelper();
+        this._geometry = geometryHelper.createBoxGeometry(geometryDimensions, volumeSizes);
+
+        this._geometry.applyMatrix( new THREE.Matrix4().makeTranslation( -volumeSizes[0] / 2, -volumeSizes[1] / 2, -volumeSizes[2] / 2 ) );
+        this._geometry.applyMatrix( new THREE.Matrix4().makeRotationX( this._geometry_settings["rotation"]["x"] ));
+        this._geometry.applyMatrix( new THREE.Matrix4().makeRotationY( this._geometry_settings["rotation"]["y"] ));
+        this._geometry.applyMatrix( new THREE.Matrix4().makeRotationZ( this._geometry_settings["rotation"]["z"] ));
+        this._geometry.doubleSided = true;
+
+    };
+
+    Core.prototype._setGeometry = function(geometryDimensions, volumeSizes) {
+        var geometryHelper = new VRC.GeometryHelper();
+        var geometry      = geometryHelper.createBoxGeometry(geometryDimensions, volumeSizes);
         var colorArray    = geometry.attributes.vertColor.array;
         var positionArray = geometry.attributes.position.array;
 
@@ -958,7 +956,7 @@
         this._geometry.attributes.position.array = positionArray;
         this._geometry.attributes.position.needsUpdate = true;
 
-        this._geometry.applyMatrix( new THREE.Matrix4().makeTranslation( -geometryDimension["xmax"] / 2, -geometryDimension["ymax"] / 2, -geometryDimension["zmax"] / 2 ) );
+        this._geometry.applyMatrix( new THREE.Matrix4().makeTranslation( -volumeSizes[0] / 2, -volumeSizes[1] / 2, -volumeSizes[2] / 2 ) );
         this._geometry.applyMatrix( new THREE.Matrix4().makeRotationX( this._geometry_settings["rotation"]["x"] ));
         this._geometry.applyMatrix( new THREE.Matrix4().makeRotationY( this._geometry_settings["rotation"]["y"] ));
         this._geometry.applyMatrix( new THREE.Matrix4().makeRotationZ( this._geometry_settings["rotation"]["z"] ));
@@ -1004,17 +1002,20 @@
         console.log("Core: setAbsorptionMode()");
     };
 
-    Core.prototype.setGeometryDimension = function(geometryDimension) {
-        this._geometry_dimension = geometryDimension;
+    Core.prototype.setVolumeSize = function(width, height, depth) {
+        this._volume_sizes = [width, height, depth];
 
-        var maxDimension = Math.max(this._geometry_dimension["xmax"], this._geometry_dimension["ymax"], this._geometry_dimension["zmax"]);
-        var normalizedGeometryDimensions = {
-            "xmin": this._geometry_dimension["xmin"] / maxDimension, "xmax": this._geometry_dimension["xmax"] / maxDimension, 
-            "ymin": this._geometry_dimension["ymin"] / maxDimension, "ymax": this._geometry_dimension["ymax"] / maxDimension, 
-            "zmin": this._geometry_dimension["zmin"] / maxDimension, "zmax": this._geometry_dimension["zmax"] / maxDimension
-        };
+        var maxSize = Math.max(this.getVolumeSize()[0], this.getVolumeSize()[1], this.getVolumeSize()[2]);
+        var normalizedVolumeSizes = [this.getVolumeSize()[0] / maxSize,  this.getVolumeSize()[1] / maxSize, this.getVolumeSize()[2] / maxSize];
 
-        this._setGeometry(normalizedGeometryDimensions);
+        this._setGeometry(this.getGeometryDimensions(), normalizedVolumeSizes);
+
+    };
+
+    Core.prototype.setGeometryDimensions = function(geometryDimension) {
+        this._geometry_dimensions = geometryDimension;
+
+        this._setGeometry(this._geometry_dimensions, this.getVolumeSizeNormalized());
 
         console.log("Core: setGeometryDimension()");
     };
@@ -1180,21 +1181,21 @@
         return [from, to];
     };
 
-    Core.prototype.getGeometryDimension = function() {
-        return this._geometry_dimension;
+    Core.prototype.getVolumeSize = function() {
+        return this._volume_sizes;
 
     };
 
-    Core.prototype.getNormalizedGeometryDimension = function() {
-        var maxDimension = Math.max(this._geometry_dimension["xmax"], this._geometry_dimension["ymax"], this._geometry_dimension["zmax"]);
+    Core.prototype.getVolumeSizeNormalized = function() {
+        var maxSize = Math.max(this.getVolumeSize()[0], this.getVolumeSize()[1], this.getVolumeSize()[2]);
+        var normalizedVolumeSizes = [this.getVolumeSize()[0] / maxSize,  this.getVolumeSize()[1] / maxSize, this.getVolumeSize()[2] / maxSize];
 
-        var normalizedGeometryDimensions = {
-            "xmin": this._geometry_dimension["xmin"] / maxDimension, "xmax": this._geometry_dimension["xmax"] / maxDimension, 
-            "ymin": this._geometry_dimension["ymin"] / maxDimension, "ymax": this._geometry_dimension["ymax"] / maxDimension, 
-            "zmin": this._geometry_dimension["zmin"] / maxDimension, "zmax": this._geometry_dimension["zmax"] / maxDimension
-        };
+        return normalizedVolumeSizes;
+    };
 
-        return normalizedGeometryDimensions;
+    Core.prototype.getGeometryDimensions = function() {
+        return this._geometry_dimensions;
+
     };
 
     Core.prototype.getGrayMinValue = function() {
@@ -1346,7 +1347,7 @@ window.VRC.Core.prototype._shaders.secondPass = {
 		'varying vec4 frontColor; ',
 		'varying vec4 pos; ',
 		'uniform sampler2D uBackCoord; ',
-		'uniform sampler2D uSliceMaps[6]; ',
+		'uniform sampler2D uSliceMaps[32]; ',
 		'uniform sampler2D uTransferFunction; ',
 		'uniform float uNumberOfSlices; ',
 		'uniform float uMinGrayVal; ',
@@ -1682,105 +1683,111 @@ window.VRC.Core.prototype._shaders.secondPass = {
 
         };
 
-        me.setGeometryMinX = function(value) {
-            // if(value > 1.0 || value < 0.0) {
-            //     throw Error("Geometry size  should be in range [0.0 - 1.0] !");
-            // }
+        me.setVolumeSize = function(width, height, depth) {
+            me._core.setVolumeSize(width, height, depth);
+            me._needRedraw = true;
+            
+        };
 
-            if(value > me._core.getGeometryDimension()["xmax"]) {
+        me.setGeometryMinX = function(value) {
+            if(value > 1.0 || value < 0.0) {
+                throw Error("Geometry size  should be in range [0.0 - 1.0] !");
+            }
+
+            if(value > me._core.getGeometryDimensions()["xmax"]) {
                 throw Error("Min X should be lower than max X!");
             }
 
-            var geometryDimension = me._core.getGeometryDimension();
+            var geometryDimension = me._core.getGeometryDimensions();
             geometryDimension["xmin"] = value;
 
-            me._core.setGeometryDimension(geometryDimension);
+            me._core.setGeometryDimensions(geometryDimension);
             me._needRedraw = true;
 
 
         };
 
         me.setGeometryMaxX = function(value) {
-            // if(value > 1.0 || value < 0.0) {
-            //     throw Error("Geometry size  should be in range [0.0 - 1.0] !");
-            // }
+            if(value > 1.0 || value < 0.0) {
+                throw Error("Geometry size  should be in range [0.0 - 1.0] !");
+            }
 
-            if(value < me._core.getGeometryDimension()["xmin"]) {
+            if(value < me._core.getGeometryDimensions()["xmin"]) {
                 throw Error("Max X should be bigger than min X!");
             }
 
-            var geometryDimension = me._core.getGeometryDimension();
+            var geometryDimension = me._core.getGeometryDimensions();
             geometryDimension["xmax"] = value;
 
-            me._core.setGeometryDimension(geometryDimension);
+            me._core.setGeometryDimensions(geometryDimension);
             me._needRedraw = true;
 
 
         };
 
         me.setGeometryMinY = function(value) {
-            // if(value > 1.0 || value < 0.0) {
-            //     throw Error("Geometry size  should be in range [0.0 - 1.0] !");
-            // }
+            if(value > 1.0 || value < 0.0) {
+                throw Error("Geometry size  should be in range [0.0 - 1.0] !");
+            }
 
-            if(value > me._core.getGeometryDimension()["ymax"]) {
+            if(value > me._core.getGeometryDimensions()["ymax"]) {
                 throw Error("Min Y should be lower than max Y!");
             }
 
-            var geometryDimension = me._core.getGeometryDimension();
+            var geometryDimension = me._core.getGeometryDimensions();
             geometryDimension["ymin"] = value;
 
-            me._core.setGeometryDimension(geometryDimension);
+            me._core.setGeometryDimensions(geometryDimension);
             me._needRedraw = true;
 
         };
 
         me.setGeometryMaxY = function(value) {
-            // if(value > 1.0 || value < 0.0) {
-            //     throw Error("Geometry size  should be in range [0.0 - 1.0] !");
-            // }
+            if(value > 1.0 || value < 0.0) {
+                throw Error("Geometry size  should be in range [0.0 - 1.0] !");
+            }
 
-            if(value < me._core.getGeometryDimension()["ymin"]) {
+            if(value < me._core.getGeometryDimensions()["ymin"]) {
                 throw Error("Max Y should be bigger than min Y!");
 
             }
 
-            var geometryDimension = me._core.getGeometryDimension();
+            var geometryDimension = me._core.getGeometryDimensions();
             geometryDimension["ymax"] = value;
 
-            me._core.setGeometryDimension(geometryDimension);
+            me._core.setGeometryDimensions(geometryDimension);
             me._needRedraw = true;
         };
 
         me.setGeometryMinZ = function(value) {
-            // if(value > 1.0 || value < 0.0) {
-            //     throw Error("Geometry size  should be in range [0.0 - 1.0] !");
-            // }
+            if(value > 1.0 || value < 0.0) {
+                throw Error("Geometry size  should be in range [0.0 - 1.0] !");
+            }
 
-            if(value > me._core.getGeometryDimension()["zmax"]) {
+            if(value > me._core.getGeometryDimensions()["zmax"]) {
                 throw Error("Min Z should be lower than max Z!");
             }
 
-            var geometryDimension = me._core.getGeometryDimension();
+            var geometryDimension = me._core.getGeometryDimensions();
             geometryDimension["zmin"] = value;
 
-            me._core.setGeometryDimension(geometryDimension);
+            me._core.setGeometryDimensions(geometryDimension);
             me._needRedraw = true;
         };
 
         me.setGeometryMaxZ = function(value) {
-            // if(value > 1.0 || value < 0.0) {
-            //     throw Error("Geometry size  should be in range [0.0 - 1.0] !");
-            // }
+            if(value > 1.0 || value < 0.0) {
+                throw Error("Geometry size  should be in range [0.0 - 1.0] !");
+            }
 
-            if(value < me._core.getGeometryDimension()["zmin"]) {
+            if(value < me._core.getGeometryDimensions()["zmin"]) {
                 throw Error("Max Z should be bigger than min Z!");
             }
 
-            var geometryDimension = me._core.getGeometryDimension();
+            var geometryDimension = me._core.getGeometryDimensions();
             geometryDimension["zmax"] = value;
 
-            me._core.setGeometryDimension(geometryDimension);
+            me._core.setGeometryDimensions(geometryDimension);
             me._needRedraw = true;
         };
 
@@ -1966,8 +1973,16 @@ window.VRC.Core.prototype._shaders.secondPass = {
             return [me._core.getGrayMinValue(), me._core.getGrayMaxValue()]
         };
 
-        me.getGeometryDimension = function() {
-            return me._core.getGeometryDimension();
+        me.getGeometryDimensions = function() {
+            return me._core.getGeometryDimensions();
+        };
+
+        me.getVolumeSize = function() {
+            return me._core.getVolumeSize();
+        };
+
+        me.getVolumeSizeNormalized = function() {
+            return me._core.getVolumeSizeNormalized();
         };
 
         me.getOpacityFactor = function() {
@@ -2092,6 +2107,10 @@ window.VRC.Core.prototype._shaders.secondPass = {
                 me._core.setGrayMaxValue( config['gray_max'] );
             }
 
+            if(config['volume_size'] != undefined) {
+                me.setVolumeSize( config['volume_size'][0], config['volume_size'][1], config['volume_size'][2] );
+            }
+
             if(config['x_min'] != undefined) {
                 me.setGeometryMinX( config['x_min'] );
             }
@@ -2164,16 +2183,17 @@ window.VRC.Core.prototype._shaders.secondPass = {
 
             xmlhttp.onreadystatechange = function() {
                 if (xmlhttp.readyState == XMLHttpRequest.DONE ) {
-                   if(xmlhttp.status == 200){
-                      onLoad(JSON.parse(xmlhttp.responseText));
-                   }
-                   else if(xmlhttp.status == 400) {
-                      userOnError(xmlhttp);
-                   }
-                   else {
-                        userOnError(xmlhttp);
-                   }
+                    if(xmlhttp.status == 200){
+                        var config = JSON.parse(xmlhttp.responseText);
+                        me.setConfig( config );
+                        if(onLoad != undefined) onLoad();
+                    } else if(xmlhttp.status == 400) {
+                        if(userOnError != undefined) userOnError(xmlhttp);
+                    } else {
+                        if(userOnError != undefined) userOnError(xmlhttp);
+                    }
                 }
+
             }
 
             xmlhttp.open("GET", path, true);
@@ -2197,12 +2217,12 @@ window.VRC.Core.prototype._shaders.secondPass = {
                 "backgound": me.getClearColor(),
                 "tf_path": me.getTransferFunctionAsImage().src,
                 "tf_colors": me.getTransferFunctionColors(),
-                "x_min": me.getGeometryDimension()["xmin"],
-                "x_max": me.getGeometryDimension()["xmax"],
-                "y_min": me.getGeometryDimension()["ymin"],
-                "y_max": me.getGeometryDimension()["ymax"],
-                "z_min": me.getGeometryDimension()["zmin"], 
-                "z_max": me.getGeometryDimension()["zmax"],
+                "x_min": me.getGeometryDimensions()["xmin"],
+                "x_max": me.getGeometryDimensions()["xmax"],
+                "y_min": me.getGeometryDimensions()["ymin"],
+                "y_max": me.getGeometryDimensions()["ymax"],
+                "z_min": me.getGeometryDimensions()["zmin"], 
+                "z_max": me.getGeometryDimensions()["zmax"],
                 "dom_container_id": me.getDomContainerId(),
                 "auto_steps": me.isAutoStepsOn(),
             };

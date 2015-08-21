@@ -6,6 +6,7 @@ utils/slice_map_creator/data
 *.jpg
 *.tiff
 *.tif
+*.json
 node_modules
 *.gen.js
 /test/libs/threejs

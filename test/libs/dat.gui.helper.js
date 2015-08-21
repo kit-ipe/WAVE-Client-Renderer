@@ -29,32 +29,32 @@
 
 					var gui = new dat.GUI();
 
-					var x_min_controller = gui.add(guiControls, 'x_min', 0, 4096);
+					var x_min_controller = gui.add(guiControls, 'x_min', 0, 1, 0.1);
 					x_min_controller.onChange(function(value) {
 						rcl2.setGeometryMinX(value);
 					});
 
-					var x_max_controller = gui.add(guiControls, 'x_max', 0, 4096);
+					var x_max_controller = gui.add(guiControls, 'x_max', 0, 1, 0.1);
 					x_max_controller.onChange(function(value) {
 						rcl2.setGeometryMaxX(value);
 					});
 
-					var y_min_controller = gui.add(guiControls, 'y_min', 0, 4096);
+					var y_min_controller = gui.add(guiControls, 'y_min', 0, 1, 0.1);
 					y_min_controller.onChange(function(value) {
 						rcl2.setGeometryMinY(value);
 					});
 
-					var y_max_controller = gui.add(guiControls, 'y_max', 0, 4096);
+					var y_max_controller = gui.add(guiControls, 'y_max', 0, 1, 0.1);
 					y_max_controller.onChange(function(value) {
 						rcl2.setGeometryMaxY(value);
 					});
 
-					var z_min_controller = gui.add(guiControls, 'z_min', 0, 4096);
+					var z_min_controller = gui.add(guiControls, 'z_min', 0, 1, 0.1);
 					z_min_controller.onChange(function(value) {
 						rcl2.setGeometryMinZ(value);
 					});
 
-					var z_max_controller = gui.add(guiControls, 'z_max', 0, 4096);
+					var z_max_controller = gui.add(guiControls, 'z_max', 0, 1, 0.1);
 					z_max_controller.onChange(function(value) {
 						rcl2.setGeometryMaxZ(value);
 					});
@@ -64,7 +64,7 @@
 						rcl2.setSteps(value);
 					});
 
-					var number_slices_controller = gui.add(guiControls, 'number_slices', 1, 2048);
+					var number_slices_controller = gui.add(guiControls, 'number_slices', 1, 2048, 1);
 					number_slices_controller.onFinishChange(function(value) {
 						rcl2.setSlicesRange(0, value);
 					});
@@ -79,27 +79,27 @@
 						rcl2.setAbsorptionMode(value);
 					});
 
-					var color_factor_controller = gui.add(guiControls, 'color_factor', 0, 20);
+					var color_factor_controller = gui.add(guiControls, 'color_factor', 0, 20, 0.1);
 					color_factor_controller.onChange(function(value) {
 						rcl2.setColorFactor(value);
 					});
 
-					var opacity_factor_controller = gui.add(guiControls, 'opacity_factor', 0, 300);
+					var opacity_factor_controller = gui.add(guiControls, 'opacity_factor', 0, 50, 0.1);
 					opacity_factor_controller.onChange(function(value) {
 						rcl2.setOpacityFactor(value);
 					});
 
-					var gray_min_controller = gui.add(guiControls, 'gray_min', 0, 1);
+					var gray_min_controller = gui.add(guiControls, 'gray_min', 0, 1, 0.1);
 					gray_min_controller.onChange(function(value) {
 						rcl2.setGrayMinValue(value);
 					});
 
-					var gray_max_controller = gui.add(guiControls, 'gray_max', 0, 1);
+					var gray_max_controller = gui.add(guiControls, 'gray_max', 0, 1, 0.1);
 					gray_max_controller.onChange(function(value) {
 						rcl2.setGrayMaxValue(value);
 					});
 
-					var renderer_size_controller = gui.add(guiControls, 'renderer_size', 1, 2048);
+					var renderer_size_controller = gui.add(guiControls, 'renderer_size', 1, 2048, 1);
 					renderer_size_controller.onFinishChange(function(value) {
 						rcl2.setRendererSize(value, value);
 					});
@@ -116,7 +116,7 @@
 
 					var step1Folder = gui.addFolder('Step 1');
 					var controllerColor1 = step1Folder.addColor(guiControls, 'color1');
-					var controllerStepPos1 = step1Folder.add(guiControls, 'stepPos1', 0.0, 1.0, 0.01);
+					var controllerStepPos1 = step1Folder.add(guiControls, 'stepPos1', 0.0, 1.0, 0.1);
 					controllerColor1.onChange(function(value) {
 						rcl2.setTransferFunctionByColors([
 					        {"pos": guiControls["stepPos1"], "color": guiControls["color1"]},
@@ -135,7 +135,7 @@
 					
 					var step2Folder = gui.addFolder('Step 2');
 					var controllerColor2 = step2Folder.addColor(guiControls, 'color2');
-					var controllerStepPos2 = step2Folder.add(guiControls, 'stepPos2', 0.0, 1.0, 0.01);
+					var controllerStepPos2 = step2Folder.add(guiControls, 'stepPos2', 0.0, 1.0, 0.1);
 					controllerColor2.onChange(function(value) {
 						rcl2.setTransferFunctionByColors([
 					        {"pos": guiControls["stepPos1"], "color": guiControls["color1"]},
@@ -155,7 +155,7 @@
 
 					var step3Folder = gui.addFolder('Step 3');
 					var controllerColor3 = step3Folder.addColor(guiControls, 'color3');
-					var controllerStepPos3 = step3Folder.add(guiControls, 'stepPos3', 0.0, 1.0, 0.01);
+					var controllerStepPos3 = step3Folder.add(guiControls, 'stepPos3', 0.0, 1.0, 0.1);
 					controllerColor3.onChange(function(value) {
 						rcl2.setTransferFunctionByColors([
 					        {"pos": guiControls["stepPos1"], "color": guiControls["color1"]},

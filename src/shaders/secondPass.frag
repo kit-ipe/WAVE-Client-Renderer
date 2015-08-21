@@ -12,7 +12,7 @@ varying vec4 frontColor;
 varying vec4 pos; 
 
 uniform sampler2D uBackCoord; 
-uniform sampler2D uSliceMaps[6]; 
+uniform sampler2D uSliceMaps[32]; 
 uniform sampler2D uTransferFunction; 
 
 uniform float uNumberOfSlices; 

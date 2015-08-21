@@ -23,12 +23,13 @@
         this._slicemaps_textures         = [];
         this._opacity_factor             = 20.0;
         this._color_factor               = 3.0;
-        this._absorption_mode_index      = 0.0;
+        this._absorption_mode_index      = 1.0;
         this._render_size                = ['*', '*'];
         this._canvas_size                = ['*', '*'];
         this._render_clear_color         = "#ffffff";
         this._transfer_function_as_image = new Image();
-        this._geometry_dimension         = {"xmin": 0.0, "xmax": 1024.0, "ymin": 0.0, "ymax": 1024.0, "zmin": 0.0, "zmax": 1024.0};
+        this._volume_sizes                = [1024.0, 1024.0, 1024.0];
+        this._geometry_dimensions         = {"xmin": 0.0, "xmax": 1.0, "ymin": 0.0, "ymax": 1.0, "zmin": 0.0, "zmax": 1.0};
 
         this._transfer_function_colors   = [
             {"pos": 0.25, "color": "#892c2c"},
@@ -61,11 +62,6 @@
                 x: 0.0,
                 y: 0.0,
                 z: 0.0
-            },
-            "position": {
-                "x": -0.5,
-                "y": -0.5,
-                "z": -0.5
             }
         };
 
@@ -156,18 +152,7 @@
         this._sceneFirstPass = new THREE.Scene();
         this._sceneSecondPass = new THREE.Scene();
 
-        // var originalDimension = new GeometryDimension();
-
-        var geometryHelper = new VRC.GeometryHelper();
-        this._geometry = geometryHelper.createBoxGeometry(this.getNormalizedGeometryDimension());
-
-        this.setGeometryDimension( this.getGeometryDimension() );
-
-        // this._geometry.applyMatrix( new THREE.Matrix4().makeTranslation( this._geometry_settings["position"]["x"], this._geometry_settings["position"]["y"], this._geometry_settings["position"]["z"] ) );
-        // this._geometry.applyMatrix( new THREE.Matrix4().makeRotationX( this._geometry_settings["rotation"]["x"] ));
-        // this._geometry.applyMatrix( new THREE.Matrix4().makeRotationY( this._geometry_settings["rotation"]["y"] ));
-        // this._geometry.applyMatrix( new THREE.Matrix4().makeRotationZ( this._geometry_settings["rotation"]["z"] ));
-        // this._geometry.doubleSided = true;
+        this._initGeometry( this.getGeometryDimensions(), this.getVolumeSizeNormalized() );
         
         this._meshFirstPass = new THREE.Mesh( this._geometry, this._materialFirstPass );
         this._meshSecondPass = new THREE.Mesh( this._geometry, this._materialSecondPass );
@@ -287,8 +272,21 @@
         return this._transfer_function_as_image;
     };
 
-    Core.prototype._setGeometry = function(geometryDimension) {
-        var geometry      = (new VRC.GeometryHelper()).createBoxGeometry(geometryDimension);
+    Core.prototype._initGeometry = function(geometryDimensions, volumeSizes) {
+        var geometryHelper = new VRC.GeometryHelper();
+        this._geometry = geometryHelper.createBoxGeometry(geometryDimensions, volumeSizes);
+
+        this._geometry.applyMatrix( new THREE.Matrix4().makeTranslation( -volumeSizes[0] / 2, -volumeSizes[1] / 2, -volumeSizes[2] / 2 ) );
+        this._geometry.applyMatrix( new THREE.Matrix4().makeRotationX( this._geometry_settings["rotation"]["x"] ));
+        this._geometry.applyMatrix( new THREE.Matrix4().makeRotationY( this._geometry_settings["rotation"]["y"] ));
+        this._geometry.applyMatrix( new THREE.Matrix4().makeRotationZ( this._geometry_settings["rotation"]["z"] ));
+        this._geometry.doubleSided = true;
+
+    };
+
+    Core.prototype._setGeometry = function(geometryDimensions, volumeSizes) {
+        var geometryHelper = new VRC.GeometryHelper();
+        var geometry      = geometryHelper.createBoxGeometry(geometryDimensions, volumeSizes);
         var colorArray    = geometry.attributes.vertColor.array;
         var positionArray = geometry.attributes.position.array;
 
@@ -298,7 +296,7 @@
         this._geometry.attributes.position.array = positionArray;
         this._geometry.attributes.position.needsUpdate = true;
 
-        this._geometry.applyMatrix( new THREE.Matrix4().makeTranslation( -geometryDimension["xmax"] / 2, -geometryDimension["ymax"] / 2, -geometryDimension["zmax"] / 2 ) );
+        this._geometry.applyMatrix( new THREE.Matrix4().makeTranslation( -volumeSizes[0] / 2, -volumeSizes[1] / 2, -volumeSizes[2] / 2 ) );
         this._geometry.applyMatrix( new THREE.Matrix4().makeRotationX( this._geometry_settings["rotation"]["x"] ));
         this._geometry.applyMatrix( new THREE.Matrix4().makeRotationY( this._geometry_settings["rotation"]["y"] ));
         this._geometry.applyMatrix( new THREE.Matrix4().makeRotationZ( this._geometry_settings["rotation"]["z"] ));
@@ -344,17 +342,20 @@
         console.log("Core: setAbsorptionMode()");
     };
 
-    Core.prototype.setGeometryDimension = function(geometryDimension) {
-        this._geometry_dimension = geometryDimension;
+    Core.prototype.setVolumeSize = function(width, height, depth) {
+        this._volume_sizes = [width, height, depth];
 
-        var maxDimension = Math.max(this._geometry_dimension["xmax"], this._geometry_dimension["ymax"], this._geometry_dimension["zmax"]);
-        var normalizedGeometryDimensions = {
-            "xmin": this._geometry_dimension["xmin"] / maxDimension, "xmax": this._geometry_dimension["xmax"] / maxDimension, 
-            "ymin": this._geometry_dimension["ymin"] / maxDimension, "ymax": this._geometry_dimension["ymax"] / maxDimension, 
-            "zmin": this._geometry_dimension["zmin"] / maxDimension, "zmax": this._geometry_dimension["zmax"] / maxDimension
-        };
+        var maxSize = Math.max(this.getVolumeSize()[0], this.getVolumeSize()[1], this.getVolumeSize()[2]);
+        var normalizedVolumeSizes = [this.getVolumeSize()[0] / maxSize,  this.getVolumeSize()[1] / maxSize, this.getVolumeSize()[2] / maxSize];
 
-        this._setGeometry(normalizedGeometryDimensions);
+        this._setGeometry(this.getGeometryDimensions(), normalizedVolumeSizes);
+
+    };
+
+    Core.prototype.setGeometryDimensions = function(geometryDimension) {
+        this._geometry_dimensions = geometryDimension;
+
+        this._setGeometry(this._geometry_dimensions, this.getVolumeSizeNormalized());
 
         console.log("Core: setGeometryDimension()");
     };
@@ -520,21 +521,21 @@
         return [from, to];
     };
 
-    Core.prototype.getGeometryDimension = function() {
-        return this._geometry_dimension;
+    Core.prototype.getVolumeSize = function() {
+        return this._volume_sizes;
 
     };
 
-    Core.prototype.getNormalizedGeometryDimension = function() {
-        var maxDimension = Math.max(this._geometry_dimension["xmax"], this._geometry_dimension["ymax"], this._geometry_dimension["zmax"]);
+    Core.prototype.getVolumeSizeNormalized = function() {
+        var maxSize = Math.max(this.getVolumeSize()[0], this.getVolumeSize()[1], this.getVolumeSize()[2]);
+        var normalizedVolumeSizes = [this.getVolumeSize()[0] / maxSize,  this.getVolumeSize()[1] / maxSize, this.getVolumeSize()[2] / maxSize];
 
-        var normalizedGeometryDimensions = {
-            "xmin": this._geometry_dimension["xmin"] / maxDimension, "xmax": this._geometry_dimension["xmax"] / maxDimension, 
-            "ymin": this._geometry_dimension["ymin"] / maxDimension, "ymax": this._geometry_dimension["ymax"] / maxDimension, 
-            "zmin": this._geometry_dimension["zmin"] / maxDimension, "zmax": this._geometry_dimension["zmax"] / maxDimension
-        };
+        return normalizedVolumeSizes;
+    };
 
-        return normalizedGeometryDimensions;
+    Core.prototype.getGeometryDimensions = function() {
+        return this._geometry_dimensions;
+
     };
 
     Core.prototype.getGrayMinValue = function() {
