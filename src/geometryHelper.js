@@ -15,7 +15,7 @@
         var me = {};
 
         me.createBoxGeometry = function(dimension) {
-            var vertexPos = [
+            var vertexPositions = [
                 //front face first
                 [dimension.xmin, dimension.ymin, dimension.zmax],
                 [dimension.xmax, dimension.ymin, dimension.zmax],
@@ -71,22 +71,82 @@
                 [dimension.xmin, dimension.ymax, dimension.zmin]
             ];
 
+            var vertexColors = [
+                //front face first
+                [0.0, 0.0, 1.0],
+                [1.0, 0.0, 1.0],
+                [1.0, 1.0, 1.0],
+                //front face second
+                [0.0, 0.0, 1.0],
+                [1.0, 1.0, 1.0],
+                [0.0, 1.0, 1.0],
+
+                // back face first
+                [0.0, 0.0, 0.0],
+                [0.0, 1.0, 0.0],
+                [1.0, 1.0, 0.0],
+                // back face second
+                [0.0, 0.0, 0.0],
+                [1.0, 1.0, 0.0],
+                [1.0, 0.0, 0.0],
+
+                // top face first
+                [0.0, 1.0, 0.0],
+                [0.0, 1.0, 1.0],
+                [1.0, 1.0, 1.0],
+                // top face second
+                [0.0, 1.0, 0.0],
+                [1.0, 1.0, 1.0],
+                [1.0, 1.0, 0.0],
+
+                // bottom face first
+                [0.0, 0.0, 0.0],
+                [1.0, 0.0, 0.0],
+                [1.0, 0.0, 1.0],
+                // bottom face second
+                [0.0, 0.0, 0.0],
+                [1.0, 0.0, 1.0],
+                [0.0, 0.0, 1.0],
+
+                // right face first
+                [1.0, 0.0, 0.0],
+                [1.0, 1.0, 0.0],
+                [1.0, 1.0, 1.0],
+                // right face second
+                [1.0, 0.0, 0.0],
+                [1.0, 1.0, 1.0],
+                [1.0, 0.0, 1.0],
+
+                // left face first
+                [0.0, 0.0, 0.0],
+                [0.0, 0.0, 1.0],
+                [0.0, 1.0, 1.0],
+                // left face second
+                [0.0, 0.0, 0.0],
+                [0.0, 1.0, 1.0],
+                [0.0, 1.0, 0.0]
+            ];
+
             var positions = [];
             var colors = [];
 
-            for(var i = 0; i < vertexPos.length; i++) {
-                var backCounter = vertexPos.length - 1 - i,
-                    x = vertexPos[backCounter][0],
-                    y = vertexPos[backCounter][1],
-                    z = vertexPos[backCounter][2];
+            for(var i = 0; i < vertexPositions.length; i++) {
+                var backCounter = vertexPositions.length - 1 - i;
+                var x = vertexPositions[backCounter][0];
+                var y = vertexPositions[backCounter][1];
+                var z = vertexPositions[backCounter][2];
+
+                var r = vertexColors[backCounter][0];
+                var g = vertexColors[backCounter][1];
+                var b = vertexColors[backCounter][2];
 
                 positions.push(x);
                 positions.push(y);
-                positions.push(z);// * volumeDimension.getZStretchFactor());
+                positions.push(z);
 
-                colors.push(x);
-                colors.push(y);
-                colors.push(z);
+                colors.push(r);
+                colors.push(g);
+                colors.push(b);
                 colors.push(1.0);
             }
 
@@ -98,9 +158,12 @@
 
             return geometry;
         }
+
         return me;
         
-    }
+    };
+
+
 
     namespace.GeometryHelper = GeometryHelper;
 

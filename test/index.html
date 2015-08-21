@@ -31,11 +31,18 @@
 
 					var config = {
 						"dom_container_id": "container",
-						"slices_range": [0, 101],
+						"slices_range": [0, 200],
 						"gray_min": 0.4,
 						"row_col": [10, 10],
 						"steps": 50,
 						"renderer_size": [512, 512],
+						"x_min": 0,
+						"x_max": 256,
+						"y_min": 0,
+						"y_max": 256,
+						"z_min": 0,
+						"z_max": 128,
+
 						// "renderer_canvas_size": ['*', '*'],
 						"absorption_mode": 1,
 						"auto_steps": false
@@ -62,6 +69,7 @@
 						"slicemaps_paths": [
 							// '../data/slicemaps/foot.raw.png',
 							'slicemap0-10x10-2048x2048-BILINEAR.png',
+							'slicemap1-10x10-2048x2048-BILINEAR.png',
 						],
 
 					});

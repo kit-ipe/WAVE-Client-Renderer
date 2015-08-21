@@ -29,32 +29,32 @@
 
 					var gui = new dat.GUI();
 
-					var x_min_controller = gui.add(guiControls, 'x_min', 0, 1);
+					var x_min_controller = gui.add(guiControls, 'x_min', 0, 4096);
 					x_min_controller.onChange(function(value) {
 						rcl2.setGeometryMinX(value);
 					});
 
-					var x_max_controller = gui.add(guiControls, 'x_max', 0, 1);
+					var x_max_controller = gui.add(guiControls, 'x_max', 0, 4096);
 					x_max_controller.onChange(function(value) {
 						rcl2.setGeometryMaxX(value);
 					});
 
-					var y_min_controller = gui.add(guiControls, 'y_min', 0, 1);
+					var y_min_controller = gui.add(guiControls, 'y_min', 0, 4096);
 					y_min_controller.onChange(function(value) {
 						rcl2.setGeometryMinY(value);
 					});
 
-					var y_max_controller = gui.add(guiControls, 'y_max', 0, 1);
+					var y_max_controller = gui.add(guiControls, 'y_max', 0, 4096);
 					y_max_controller.onChange(function(value) {
 						rcl2.setGeometryMaxY(value);
 					});
 
-					var z_min_controller = gui.add(guiControls, 'z_min', 0, 1);
+					var z_min_controller = gui.add(guiControls, 'z_min', 0, 4096);
 					z_min_controller.onChange(function(value) {
 						rcl2.setGeometryMinZ(value);
 					});
 
-					var z_max_controller = gui.add(guiControls, 'z_max', 0, 1);
+					var z_max_controller = gui.add(guiControls, 'z_max', 0, 4096);
 					z_max_controller.onChange(function(value) {
 						rcl2.setGeometryMaxZ(value);
 					});

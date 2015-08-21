@@ -28,7 +28,7 @@
         this._canvas_size                = ['*', '*'];
         this._render_clear_color         = "#ffffff";
         this._transfer_function_as_image = new Image();
-        this._geometry_dimension         = {"xmin": 0.0, "xmax": 1.0, "ymin": 0.0, "ymax": 1.0, "zmin": 0.0, "zmax": 1.0};
+        this._geometry_dimension         = {"xmin": 0.0, "xmax": 1024.0, "ymin": 0.0, "ymax": 1024.0, "zmin": 0.0, "zmax": 1024.0};
 
         this._transfer_function_colors   = [
             {"pos": 0.25, "color": "#892c2c"},
@@ -47,7 +47,7 @@
                 z: 0.0
             },
             "position": {
-                "x": 0,
+                "x": 0, 
                 "y": 0,
                 "z": 2
             }
@@ -159,13 +159,15 @@
         // var originalDimension = new GeometryDimension();
 
         var geometryHelper = new VRC.GeometryHelper();
-        this._geometry = geometryHelper.createBoxGeometry(this.getGeometryDimension());
+        this._geometry = geometryHelper.createBoxGeometry(this.getNormalizedGeometryDimension());
 
-        this._geometry.applyMatrix( new THREE.Matrix4().makeTranslation( this._geometry_settings["position"]["x"], this._geometry_settings["position"]["y"], this._geometry_settings["position"]["z"] ) );
-        this._geometry.applyMatrix( new THREE.Matrix4().makeRotationX( this._geometry_settings["rotation"]["x"] ));
-        this._geometry.applyMatrix( new THREE.Matrix4().makeRotationY( this._geometry_settings["rotation"]["y"] ));
-        this._geometry.applyMatrix( new THREE.Matrix4().makeRotationZ( this._geometry_settings["rotation"]["z"] ));
-        this._geometry.doubleSided = true;
+        this.setGeometryDimension( this.getGeometryDimension() );
+
+        // this._geometry.applyMatrix( new THREE.Matrix4().makeTranslation( this._geometry_settings["position"]["x"], this._geometry_settings["position"]["y"], this._geometry_settings["position"]["z"] ) );
+        // this._geometry.applyMatrix( new THREE.Matrix4().makeRotationX( this._geometry_settings["rotation"]["x"] ));
+        // this._geometry.applyMatrix( new THREE.Matrix4().makeRotationY( this._geometry_settings["rotation"]["y"] ));
+        // this._geometry.applyMatrix( new THREE.Matrix4().makeRotationZ( this._geometry_settings["rotation"]["z"] ));
+        // this._geometry.doubleSided = true;
         
         this._meshFirstPass = new THREE.Mesh( this._geometry, this._materialFirstPass );
         this._meshSecondPass = new THREE.Mesh( this._geometry, this._materialSecondPass );
@@ -296,7 +298,7 @@
         this._geometry.attributes.position.array = positionArray;
         this._geometry.attributes.position.needsUpdate = true;
 
-        this._geometry.applyMatrix( new THREE.Matrix4().makeTranslation( this._geometry_settings["position"]["x"], this._geometry_settings["position"]["y"], this._geometry_settings["position"]["z"] ) );
+        this._geometry.applyMatrix( new THREE.Matrix4().makeTranslation( -geometryDimension["xmax"] / 2, -geometryDimension["ymax"] / 2, -geometryDimension["zmax"] / 2 ) );
         this._geometry.applyMatrix( new THREE.Matrix4().makeRotationX( this._geometry_settings["rotation"]["x"] ));
         this._geometry.applyMatrix( new THREE.Matrix4().makeRotationY( this._geometry_settings["rotation"]["y"] ));
         this._geometry.applyMatrix( new THREE.Matrix4().makeRotationZ( this._geometry_settings["rotation"]["z"] ));
@@ -342,10 +344,19 @@
         console.log("Core: setAbsorptionMode()");
     };
 
-    Core.prototype.setGeometryDimension = function(key, value) {
-        this._geometry_dimension[key] = value;
-        this._setGeometry(this._geometry_dimension);
-        console.log("Core: setGeometryMaxZ()");
+    Core.prototype.setGeometryDimension = function(geometryDimension) {
+        this._geometry_dimension = geometryDimension;
+
+        var maxDimension = Math.max(this._geometry_dimension["xmax"], this._geometry_dimension["ymax"], this._geometry_dimension["zmax"]);
+        var normalizedGeometryDimensions = {
+            "xmin": this._geometry_dimension["xmin"] / maxDimension, "xmax": this._geometry_dimension["xmax"] / maxDimension, 
+            "ymin": this._geometry_dimension["ymin"] / maxDimension, "ymax": this._geometry_dimension["ymax"] / maxDimension, 
+            "zmin": this._geometry_dimension["zmin"] / maxDimension, "zmax": this._geometry_dimension["zmax"] / maxDimension
+        };
+
+        this._setGeometry(normalizedGeometryDimensions);
+
+        console.log("Core: setGeometryDimension()");
     };
 
     Core.prototype.setRendererCanvasSize = function(width, height) {
@@ -511,6 +522,19 @@
 
     Core.prototype.getGeometryDimension = function() {
         return this._geometry_dimension;
+
+    };
+
+    Core.prototype.getNormalizedGeometryDimension = function() {
+        var maxDimension = Math.max(this._geometry_dimension["xmax"], this._geometry_dimension["ymax"], this._geometry_dimension["zmax"]);
+
+        var normalizedGeometryDimensions = {
+            "xmin": this._geometry_dimension["xmin"] / maxDimension, "xmax": this._geometry_dimension["xmax"] / maxDimension, 
+            "ymin": this._geometry_dimension["ymin"] / maxDimension, "ymax": this._geometry_dimension["ymax"] / maxDimension, 
+            "zmin": this._geometry_dimension["zmin"] / maxDimension, "zmax": this._geometry_dimension["zmax"] / maxDimension
+        };
+
+        return normalizedGeometryDimensions;
     };
 
     Core.prototype.getGrayMinValue = function() {

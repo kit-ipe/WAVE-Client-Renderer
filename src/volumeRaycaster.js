@@ -197,90 +197,105 @@
         };
 
         me.setGeometryMinX = function(value) {
-            if(value > 1.0 || value < 0.0) {
-                throw Error("Geometry size  should be in range [0.0 - 1.0] !");
-            }
+            // if(value > 1.0 || value < 0.0) {
+            //     throw Error("Geometry size  should be in range [0.0 - 1.0] !");
+            // }
 
             if(value > me._core.getGeometryDimension()["xmax"]) {
                 throw Error("Min X should be lower than max X!");
             }
 
-            me._core.setGeometryDimension("xmin", value);
+            var geometryDimension = me._core.getGeometryDimension();
+            geometryDimension["xmin"] = value;
+
+            me._core.setGeometryDimension(geometryDimension);
             me._needRedraw = true;
 
 
         };
 
         me.setGeometryMaxX = function(value) {
-            if(value > 1.0 || value < 0.0) {
-                throw Error("Geometry size  should be in range [0.0 - 1.0] !");
-            }
+            // if(value > 1.0 || value < 0.0) {
+            //     throw Error("Geometry size  should be in range [0.0 - 1.0] !");
+            // }
 
             if(value < me._core.getGeometryDimension()["xmin"]) {
                 throw Error("Max X should be bigger than min X!");
             }
 
-            me._core.setGeometryDimension("xmax", value);
+            var geometryDimension = me._core.getGeometryDimension();
+            geometryDimension["xmax"] = value;
+
+            me._core.setGeometryDimension(geometryDimension);
             me._needRedraw = true;
 
 
         };
 
         me.setGeometryMinY = function(value) {
-            if(value > 1.0 || value < 0.0) {
-                throw Error("Geometry size  should be in range [0.0 - 1.0] !");
-            }
+            // if(value > 1.0 || value < 0.0) {
+            //     throw Error("Geometry size  should be in range [0.0 - 1.0] !");
+            // }
 
             if(value > me._core.getGeometryDimension()["ymax"]) {
                 throw Error("Min Y should be lower than max Y!");
             }
 
-            me._core.setGeometryDimension("ymin", value);
+            var geometryDimension = me._core.getGeometryDimension();
+            geometryDimension["ymin"] = value;
+
+            me._core.setGeometryDimension(geometryDimension);
             me._needRedraw = true;
 
         };
 
         me.setGeometryMaxY = function(value) {
-            if(value > 1.0 || value < 0.0) {
-                throw Error("Geometry size  should be in range [0.0 - 1.0] !");
-            }
+            // if(value > 1.0 || value < 0.0) {
+            //     throw Error("Geometry size  should be in range [0.0 - 1.0] !");
+            // }
 
             if(value < me._core.getGeometryDimension()["ymin"]) {
                 throw Error("Max Y should be bigger than min Y!");
 
             }
 
-            me._core.setGeometryDimension("ymax", value);
-            me._needRedraw = true;
+            var geometryDimension = me._core.getGeometryDimension();
+            geometryDimension["ymax"] = value;
 
+            me._core.setGeometryDimension(geometryDimension);
+            me._needRedraw = true;
         };
 
         me.setGeometryMinZ = function(value) {
-            if(value > 1.0 || value < 0.0) {
-                throw Error("Geometry size  should be in range [0.0 - 1.0] !");
-            }
+            // if(value > 1.0 || value < 0.0) {
+            //     throw Error("Geometry size  should be in range [0.0 - 1.0] !");
+            // }
 
             if(value > me._core.getGeometryDimension()["zmax"]) {
                 throw Error("Min Z should be lower than max Z!");
             }
 
-            me._core.setGeometryDimension("zmin", value);
-            me._needRedraw = true;
+            var geometryDimension = me._core.getGeometryDimension();
+            geometryDimension["zmin"] = value;
 
+            me._core.setGeometryDimension(geometryDimension);
+            me._needRedraw = true;
         };
 
         me.setGeometryMaxZ = function(value) {
-            if(value > 1.0 || value < 0.0) {
-                throw Error("Geometry size  should be in range [0.0 - 1.0] !");
-            }
+            // if(value > 1.0 || value < 0.0) {
+            //     throw Error("Geometry size  should be in range [0.0 - 1.0] !");
+            // }
 
             if(value < me._core.getGeometryDimension()["zmin"]) {
                 throw Error("Max Z should be bigger than min Z!");
             }
 
-            me._core.setGeometryDimension("zmax", value);
-            me._needRedraw = true;
+            var geometryDimension = me._core.getGeometryDimension();
+            geometryDimension["zmax"] = value;
 
+            me._core.setGeometryDimension(geometryDimension);
+            me._needRedraw = true;
         };
 
         me.setRendererSize = function(width, height) {
@@ -592,27 +607,27 @@
             }
 
             if(config['x_min'] != undefined) {
-                me._core.setGeometryDimension( "xmin", config['x_min'] );
+                me.setGeometryMinX( config['x_min'] );
             }
 
             if(config['x_max'] != undefined) {
-                me._core.setGeometryDimension( "xmax", config['x_max'] );
+                me.setGeometryMaxX( config['x_max'] );
             }
 
             if(config['y_min'] != undefined) {
-                me._core.setGeometryDimension( "ymin", config['y_min'] );
+                me.setGeometryMinY( config['y_min'] );
             }
 
             if(config['y_max'] != undefined) {
-                me._core.setGeometryDimension( "ymax", config['y_max'] );
+                me.setGeometryMaxY( config['y_max'] );
             }
 
             if(config['z_min'] != undefined) {
-                me._core.setGeometryDimension( "zmin", config['z_min'] );
+                me.setGeometryMinZ( config['z_min'] );
             }
 
             if(config['z_max'] != undefined) {
-                me._core.setGeometryDimension( "zmax", config['z_max'] );
+                me.setGeometryMaxZ( config['z_max'] );
             }
 
             if(config['opacity_factor'] != undefined) {
