@@ -12,8 +12,8 @@ varying vec4 frontColor;
 varying vec4 pos; 
 
 uniform sampler2D uBackCoord; 
-uniform sampler2D uSliceMaps[32]; 
-uniform sampler2D uTransferFunction; 
+uniform sampler2D uTransferFunction;
+uniform sampler2D uSliceMaps[gl_MaxTextureImageUnits-2];
 
 uniform float uNumberOfSlices; 
 uniform float uMinGrayVal; 
@@ -64,7 +64,7 @@ float getVolumeValue(vec3 volpos)
 
     int numberOfSlicemaps = int( ceil(uNumberOfSlices / (uSlicesOverX * uSlicesOverY)) );
 
-    for (int x = 0; x < 32; x++)
+    for (int x = 0; x < gl_MaxTextureImageUnits-2; x++)
     {
         if(x == numberOfSlicemaps)
         {
