@@ -866,7 +866,6 @@
         var textures = [];
 
         for(var i=0; i<images.length; i++) {
-            console.log("THREE.Texture(");
             var texture = new THREE.Texture( images[i] );
             texture.wrapS = texture.wrapT = THREE.ClampToEdgeWrapping;
             texture.magFilter = THREE.LinearFilter;
