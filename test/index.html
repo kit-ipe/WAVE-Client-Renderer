@@ -37,9 +37,19 @@
 
 					rcl2 = new VRC.VolumeRaycaster(config);
 
-					rcl2.uploadConfig("slicemap-config-16x16-8192x8192-BILINEAR.json");
+					rcl2.uploadConfig("visualization_config.json");
 
-					InitGUI(rcl2.getConfig(), rcl2);
+					rcl2.addCallback("onLoadSlicemaps", function() {
+						InitGUI( rcl2, rcl2.getConfig() );
+												
+						rcl2.addCallback("onPostDraw", function() {
+							console.log("wefwef");
+							UpdateGUI( rcl2.getConfig() );
+
+						});
+
+					});
+
 
 					// alert( rcl2._core.getMaxTextureSize() );
 					// alert( rcl2._core.getAvailableTexturesNumber() );

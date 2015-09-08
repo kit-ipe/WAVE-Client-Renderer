@@ -366,6 +366,12 @@
 
         };
 
+        me.applyThresholding = function(threshold_name) {
+            me._core.applyThresholding( threshold_name );
+            me._needRedraw = true;
+
+        };
+
         me.setTransferFunctionByColors = function(colors) {
             me._core.setTransferFunctionByColors(colors);
             me._needRedraw = true;
@@ -618,6 +624,10 @@
 
             if(config['gray_max'] != undefined) {
                 me._core.setGrayMaxValue( config['gray_max'] );
+            }
+
+            if(config['threshold_indexes'] != undefined) {
+                me._core.setThresholdIndexes( config['threshold_indexes']["otsu"], config['threshold_indexes']["isodate"], config['threshold_indexes']["yen"], config['threshold_indexes']["li"] );
             }
 
             if(config['volume_size'] != undefined) {

@@ -688,8 +688,12 @@
         this._canvas_size                = ['*', '*'];
         this._render_clear_color         = "#ffffff";
         this._transfer_function_as_image = new Image();
-        this._volume_sizes                = [1024.0, 1024.0, 1024.0];
-        this._geometry_dimensions         = {"xmin": 0.0, "xmax": 1.0, "ymin": 0.0, "ymax": 1.0, "zmin": 0.0, "zmax": 1.0};
+        this._volume_sizes               = [1024.0, 1024.0, 1024.0];
+        this._geometry_dimensions        = {"xmin": 0.0, "xmax": 1.0, "ymin": 0.0, "ymax": 1.0, "zmin": 0.0, "zmax": 1.0};
+        this._threshold_otsu_index       = 0;
+        this._threshold_isodata_index    = 0;
+        this._threshold_yen_index        = 0;
+        this._threshold_li_index         = 0;
 
         this._transfer_function_colors   = [
             {"pos": 0.25, "color": "#892c2c"},
@@ -1086,6 +1090,38 @@
         this._gray_value[0] = value;
         this._secondPassSetUniformValue("uMinGrayVal", this._gray_value[0]);
         console.log("Core: setMinGrayValue()");
+    };
+
+    Core.prototype.applyThresholding = function(threshold_name) {
+        switch( threshold_name ) {
+            case "otsu": {
+                this.setGrayMinValue( this._threshold_otsu_index );
+            }; break;
+
+            case "isodate": {
+                this.setGrayMinValue( this._threshold_isodata_index );
+            }; break;
+
+            case "yen": {
+                this.setGrayMinValue( this._threshold_yen_index );
+            }; break;
+
+            case "li": {
+                this.setGrayMinValue( this._threshold_li_index );
+            }; break;
+
+        }
+        console.log("Core: applyThresholding()");
+
+    };
+
+    Core.prototype.setThresholdIndexes = function(otsu, isodata, yen, li) {
+        this._threshold_otsu_index       = otsu;
+        this._threshold_isodata_index    = isodata;
+        this._threshold_yen_index        = yen;
+        this._threshold_li_index         = li;
+
+        console.log("Core: setThresholdIndexes()");
     };
 
     Core.prototype.setGrayMaxValue = function(value) {
@@ -1852,6 +1888,12 @@ window.VRC.Core.prototype._shaders.secondPass = {
 
         };
 
+        me.applyThresholding = function(threshold_name) {
+            me._core.applyThresholding( threshold_name );
+            me._needRedraw = true;
+
+        };
+
         me.setTransferFunctionByColors = function(colors) {
             me._core.setTransferFunctionByColors(colors);
             me._needRedraw = true;
@@ -2104,6 +2146,10 @@ window.VRC.Core.prototype._shaders.secondPass = {
 
             if(config['gray_max'] != undefined) {
                 me._core.setGrayMaxValue( config['gray_max'] );
+            }
+
+            if(config['threshold_indexes'] != undefined) {
+                me._core.setThresholdIndexes( config['threshold_indexes']["otsu"], config['threshold_indexes']["isodate"], config['threshold_indexes']["yen"], config['threshold_indexes']["li"] );
             }
 
             if(config['volume_size'] != undefined) {
