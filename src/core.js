@@ -438,7 +438,7 @@
                 this.setGrayMinValue( this._threshold_otsu_index );
             }; break;
 
-            case "isodate": {
+            case "isodata": {
                 this.setGrayMinValue( this._threshold_isodata_index );
             }; break;
 
