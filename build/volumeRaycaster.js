@@ -140,6 +140,16 @@
                 me.do(fps);
             });
 
+            me._onCameraChangeStartFuncIndex = me._core.onCameraChangeStart.add(function() {
+                // me.pause(true);
+
+            });
+
+            me._onCameraChangeEndFuncIndex = me._core.onCameraChangeEnd.add(function() {
+                // me.pause(false);
+            });
+
+
         };
 
         me.run = function(flag) {
