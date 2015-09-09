@@ -13,7 +13,7 @@ varying vec4 pos;
 
 uniform sampler2D uBackCoord; 
 uniform sampler2D uTransferFunction;
-uniform sampler2D uSliceMaps[gl_MaxTextureImageUnits-2];
+uniform sampler2D uSliceMaps[<%= maxTexturesNumber %>];
 
 uniform float uNumberOfSlices; 
 uniform float uMinGrayVal; 
@@ -31,63 +31,76 @@ float getVolumeValue(vec3 volpos)
 {
     float s1Original, s2Original, s1, s2; 
     float dx1, dy1; 
-    float dx2, dy2; 
-    float value; 
+    // float dx2, dy2; 
+    // float value; 
 
     vec2 texpos1,texpos2; 
 
     float slicesPerSprite = uSlicesOverX * uSlicesOverY; 
 
     s1Original = floor(volpos.z*uNumberOfSlices); 
-    s2Original = min(s1Original + 1.0, uNumberOfSlices);
+    // s2Original = min(s1Original + 1.0, uNumberOfSlices);
 
     int tex1Index = int(floor(s1Original / slicesPerSprite));
-    int tex2Index = int(floor(s2Original / slicesPerSprite));
+    // int tex2Index = int(floor(s2Original / slicesPerSprite));
 
     s1 = mod(s1Original, slicesPerSprite);
-    s2 = mod(s2Original, slicesPerSprite);
+    // s2 = mod(s2Original, slicesPerSprite);
 
     dx1 = fract(s1/uSlicesOverX);
     dy1 = floor(s1/uSlicesOverY)/uSlicesOverY;
 
-    dx2 = fract(s2/uSlicesOverX);
-    dy2 = floor(s2/uSlicesOverY)/uSlicesOverY;
+    // dx2 = fract(s2/uSlicesOverX);
+    // dy2 = floor(s2/uSlicesOverY)/uSlicesOverY;
 
     texpos1.x = dx1+(volpos.x/uSlicesOverX);
     texpos1.y = dy1+(volpos.y/uSlicesOverY);
 
-    texpos2.x = dx2+(volpos.x/uSlicesOverX);
-    texpos2.y = dy2+(volpos.y/uSlicesOverY);
+    // texpos2.x = dx2+(volpos.x/uSlicesOverX);
+    // texpos2.y = dy2+(volpos.y/uSlicesOverY);
 
     float value1 = 0.0, value2 = 0.0; 
-    bool value1Set = false, value2Set = false;
+    // bool value1Set = false, value2Set = false;
 
-    int numberOfSlicemaps = int( ceil(uNumberOfSlices / (uSlicesOverX * uSlicesOverY)) );
+    // int numberOfSlicemaps = int( ceil(uNumberOfSlices / (uSlicesOverX * uSlicesOverY)) );
 
-    for (int x = 0; x < gl_MaxTextureImageUnits-2; x++)
-    {
-        if(x == numberOfSlicemaps)
+    <% for(var i=0; i < maxTexturesNumber; i++) { %>
+        if( tex1Index == <%=i%> )
         {
-            break;
+            value1 = texture2D(uSliceMaps[<%=i%>],texpos1).x;
         }
 
-        if(x == tex1Index) { 
-            value1 = texture2D(uSliceMaps[x],texpos1).x; 
-            value1Set = true; 
-        } 
+        <% if( i < maxTexturesNumber-1 ) { %>
+            else
+        <% } %>
+    <% } %>
 
-        if(x == tex2Index) { 
-            value2 = texture2D(uSliceMaps[x],texpos2).x; 
-            value2Set = true; 
-        } 
+    return value1;
 
-        if(value1Set && value2Set) { 
-            break; 
-        } 
+    // for (int x = 0; x < gl_MaxTextureImageUnits-2; x++)
+    // {
+    //     if(x == numberOfSlicemaps)
+    //     {
+    //         break;
+    //     }
 
-    } 
+    //     if(x == tex1Index) { 
+    //         value1 = texture2D(uSliceMaps[x],texpos1).x; 
+    //         value1Set = true; 
+    //     } 
 
-    return mix(value1, value2, fract(volpos.z*uNumberOfSlices)); 
+    //     if(x == tex2Index) { 
+    //         value2 = texture2D(uSliceMaps[x],texpos2).x; 
+    //         value2Set = true; 
+    //     } 
+
+    //     if(value1Set && value2Set) { 
+    //         break; 
+    //     } 
+
+    // } 
+
+    // return mix(value1, value2, fract(volpos.z*uNumberOfSlices)); 
 
 } 
 
@@ -128,7 +141,7 @@ void main(void)
          colorValue = vec4(0.0); 
      } else { 
          if(biggest_gray_value < gray_val) { 
-            biggest_gray_value = gray_val; 
+            biggest_gray_value = gray_val;
          } 
 
          if(uAbsorptionModeIndex == 0.0) 

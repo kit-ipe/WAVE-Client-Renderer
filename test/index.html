@@ -8,6 +8,7 @@
 		<script src="./libs/OrbitControls.js"></script>
 		<script src="./libs/dat.gui/dat.gui.min.js"></script>
 		<script src="./libs/dat.gui.helper.js"></script>
+		<script src="./libs/embeddedjs/ejs.js"></script>
 <!-- 
 	 	<script src="../build/volumeRaycaster.min.js"></script>
  -->	 	
@@ -31,28 +32,25 @@
 
 					var config = {
 						"dom_container_id": "container",
-						"renderer_size": [512, 512],
+						"render_size": [128, 128],
+						"render_canvas_size": [256, 256],
 						"auto_steps": true
 					};
 
 					rcl2 = new VRC.VolumeRaycaster(config);
 
-					rcl2.uploadConfig("visualization_config.json");
+					rcl2.uploadConfig("slicemap-config-8x8-2048x2048-BILINEAR.json");
 
 					rcl2.addCallback("onLoadSlicemaps", function() {
-						InitGUI( rcl2, rcl2.getConfig() );
+						InitGUI( rcl2.getConfig(), rcl2 );
 												
 						rcl2.addCallback("onPostDraw", function() {
-							console.log("wefwef");
 							UpdateGUI( rcl2.getConfig() );
 
 						});
 
 					});
 
-
-					// alert( rcl2._core.getMaxTextureSize() );
-					// alert( rcl2._core.getAvailableTexturesNumber() );
 				}
 
 				catch (e) {

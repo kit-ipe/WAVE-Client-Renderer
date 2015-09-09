@@ -20,9 +20,6 @@
  * @class EventDispatcher
  * @this {RC.EventDispatcher}
  * @author sogimu@nxt.ru Aleksandr Lizin aka sogimu
- * @version 0.1
- *
- * @requires NamespaceRC.js
  */
 
 (function(namespace) {
@@ -35,7 +32,6 @@
         me._context = window;
 
         me.add = function(func, is_start) {
-            // gizmo.Filter(func, "Function");
             me._functions.push({"is_start": is_start != undefined ? is_start : true, "func": func});
             return me._functions.length-1;
 
@@ -62,7 +58,6 @@
         };
 
         me.call = function(value, context) {
-            // var context = gizmo.isSet(context)? context : me._context;
             var context = context ? context : me._context;
 
             for(i in me._functions) {
@@ -81,11 +76,9 @@
         };
 
         me.setConfig = function(O) {
-            // gizmo.Filter(O, "Object");
             for(prop in O) {
                 switch(prop) {
                     case "context": {
-                        // gizmo.Filter(O[prop], "Object");
                         this._context = O[prop];
                     };break;
 
@@ -123,7 +116,6 @@
  * @class AdaptationManager
  * @this {AdaptationManager}
  * @author sogimu@nxt.ru Aleksandr Lizin aka sogimu
- * @version 0.1
  *
  */
 
@@ -134,209 +126,8 @@
 
         me._core = {};
 
-        // me._possible_steps = [32, 64, 128, 256, 512, 1024];
-        // me._possible_steps = [10, 20, 50, 80, 100, 150, 200];
-        me._possible_steps = [10,
- 20,
- 30,
- 40,
- 50,
- 60,
- 70,
- 80,
- 90,
- 100,
- 110,
- 120,
- 130,
- 140,
- 150,
- 160,
- 170,
- 180,
- 190,
- 200,
- 210,
- 220,
- 230,
- 240,
- 250,
- 260,
- 270,
- 280,
- 290,
- 300,
- 310,
- 320,
- 330,
- 340,
- 350,
- 360,
- 370,
- 380,
- 390,
- 400,
- 410,
- 420,
- 430,
- 440,
- 450,
- 460,
- 470,
- 480,
- 490,
- 500,
- 510,
- 520,
- 530,
- 540,
- 550,
- 560,
- 570,
- 580,
- 590,
- 600,
- 610,
- 620,
- 630,
- 640,
- 650,
- 660,
- 670,
- 680,
- 690,
- 700,
- 710,
- 720,
- 730,
- 740,
- 750,
- 760,
- 770,
- 780,
- 790,
- 800,
- 810,
- 820,
- 830,
- 840,
- 850,
- 860,
- 870,
- 880,
- 890,
- 900,
- 910,
- 920,
- 930,
- 940,
- 950,
- 960,
- 970,
- 980,
- 990,
- 1000,
- 1010,
- 1020,
- 1030,
- 1040,
- 1050,
- 1060,
- 1070,
- 1080,
- 1090,
- 1100,
- 1110,
- 1120,
- 1130,
- 1140,
- 1150,
- 1160,
- 1170,
- 1180,
- 1190,
- 1200,
- 1210,
- 1220,
- 1230,
- 1240,
- 1250,
- 1260,
- 1270,
- 1280,
- 1290,
- 1300,
- 1310,
- 1320,
- 1330,
- 1340,
- 1350,
- 1360,
- 1370,
- 1380,
- 1390,
- 1400,
- 1410,
- 1420,
- 1430,
- 1440,
- 1450,
- 1460,
- 1470,
- 1480,
- 1490,
- 1500,
- 1510,
- 1520,
- 1530,
- 1540,
- 1550,
- 1560,
- 1570,
- 1580,
- 1590,
- 1600,
- 1610,
- 1620,
- 1630,
- 1640,
- 1650,
- 1660,
- 1670,
- 1680,
- 1690,
- 1700,
- 1710,
- 1720,
- 1730,
- 1740,
- 1750,
- 1760,
- 1770,
- 1780,
- 1790,
- 1800,
- 1810,
- 1820,
- 1830,
- 1840,
- 1850,
- 1860,
- 1870,
- 1880,
- 1890,
- 1900,
- 1910,
- 1920,
- 1930,
- 1940,
- 1950,
- 1960,
- 1970,
- 1980,
- 1990];
-
-        me._current_steps_index = 0;
+        me._step = 5;
+        me._steps = me._step * 2;
 
         me._onPostDrawFuncIndex = -1;
         me._onCameraChangeStartFuncIndex = -1;
@@ -349,20 +140,7 @@
                 me.do(fps);
             });
 
-            me._onCameraChangeStartFuncIndex = me._core.onCameraChangeStart.add(function() {
-                // me.pause(true);
-
-            });
-
-            me._onCameraChangeEndFuncIndex = me._core.onCameraChangeEnd.add(function() {
-                // me.pause(false);
-            });
-
         };
-
-        // me.setPossibleSteps = function(possible_steps) {
-        //     me._possible_steps = possible_steps;
-        // };
 
         me.run = function(flag) {
             if(flag) {
@@ -394,45 +172,43 @@
         };
 
         me.getNearestSurroundingsPossibleStep = function(steps) {
-            var delta = me._possible_steps[1] - me._possible_steps[0];
-            var direction = (steps - me.getSteps()) > 0 ? 1 : -1;
+            var delta = me._step;
+            var direction = me._step * (steps - me.getSteps()) > 0 ? 1 : -1;
 
-            for(var adaptationStep = me._current_steps_index; adaptationStep<me._possible_steps.length; adaptationStep+=direction) {
-                if(Math.abs(me._possible_steps[adaptationStep] - steps) <= delta) {
-                    if(steps > me._possible_steps[adaptationStep]) {
-                        return [adaptationStep, adaptationStep+1];
-
-                    }
-
-                    if(steps > me._possible_steps[adaptationStep]) {
-                        return [adaptationStep-1, adaptationStep];
+            for(var adaptationSteps = me.getSteps(); adaptationSteps<me._core.getMaxStepsNumber(); adaptationSteps+=direction) {
+                if(Math.abs(adaptationSteps - steps) <= delta) {
+                    if(steps > adaptationSteps) {
+                        return [adaptationSteps, adaptationSteps+me._step];
 
                     }
 
-                    if(steps == me._possible_steps[adaptationStep]) {
-                        return [adaptationStep-1, adaptationStep+1];
+                    if(steps > adaptationSteps) {
+                        return [adaptationSteps-me._step, adaptationSteps];
+
+                    }
+
+                    if(steps == adaptationSteps) {
+                        return [adaptationSteps-me._step, adaptationSteps+me._step];
 
                     }
                 }
             };
 
-            return me._possible_steps.length;
+            return [me._core.getMaxStepsNumber()-me._step, me._core.getMaxStepsNumber()];
         };
 
         me.decreaseSteps = function() {
             var nearestSurroundingsPossibleSteps = me.getNearestSurroundingsPossibleStep(me._core.getSteps());
-
-            me._current_steps_index = nearestSurroundingsPossibleSteps[0];
+            me._steps = nearestSurroundingsPossibleSteps[0];
         };
 
         me.increaseSteps = function() {
             var nearestSurroundingsPossibleSteps = me.getNearestSurroundingsPossibleStep(me._core.getSteps());
-
-            me._current_steps_index = nearestSurroundingsPossibleSteps[1];
+            me._steps = nearestSurroundingsPossibleSteps[1];
         };
 
         me.getSteps = function() {
-            return me._possible_steps[me._current_steps_index];
+            return me._steps;
         };
 
         me.isRun = function() {
@@ -455,21 +231,19 @@
 
         me.do = function(fps) {
 
-            if( fps < 10 && me._current_steps_index > 0 ) {
+            if( fps < 10 && me.getSteps() > (me._step * 2) ) {
                 me._numberOfChanges--;
-                // console.log(me._numberOfChanges, "< 15");
                 if(me._numberOfChanges == -5) {
                     me.decreaseSteps();
                     console.log("FPS: " + fps + ", Number of steps: " + me.getSteps() );
                     me._numberOfChanges = 0;
 
-                    me._core.setSteps( me.getSteps() );            
+                    me._core.setSteps( me.getSteps() );
                 }
 
 
-            } else if( fps > 30 && me._current_steps_index < me._possible_steps.length-1 ) {
+            } else if( fps > 30 && me.getSteps() < me._core.getMaxStepsNumber() ) {
                 me._numberOfChanges++;
-                // console.log(me._numberOfChanges, "> 40");
                 if(me._numberOfChanges == 3) {
                     me.increaseSteps();
                     console.log("FPS: " + fps + ", Number of steps: " + me.getSteps() );
@@ -495,8 +269,6 @@
  * @class Core
  * @this {Core}
  * @author sogimu@nxt.ru Aleksandr Lizin aka sogimu
- * @version 0.1
- *
  */
 
 (function(namespace) {
@@ -665,633 +437,636 @@
  * @class Core
  * @this {Core}
  * @author sogimu@nxt.ru Aleksandr Lizin aka sogimu
- * @version 0.1
  *
  */
 
-// (function(namespace) {
-    var Core = function(domContainerId) {
+var Core = function(domContainerId) {
+    this._steps                      = 20;
+    this._slices_gap                 = [0,    '*'];
+    this._slicemap_row_col           = [16,   16];
+    this._gray_value                 = [0.0, 1.0];
+    this._slicemaps_images           = [];
+    this._slicemaps_paths            = [];
+    this._slicemaps_textures         = [];
+    this._opacity_factor             = 20.0;
+    this._color_factor               = 3.0;
+    this._absorption_mode_index      = 1.0;
+    this._render_size                = ['*', '*'];
+    this._canvas_size                = ['*', '*'];
+    this._render_clear_color         = "#ffffff";
+    this._transfer_function_as_image = new Image();
+    this._volume_sizes               = [1024.0, 1024.0, 1024.0];
+    this._geometry_dimensions        = {"xmin": 0.0, "xmax": 1.0, "ymin": 0.0, "ymax": 1.0, "zmin": 0.0, "zmax": 1.0};
+    this._threshold_otsu_index       = 0;
+    this._threshold_isodata_index    = 0;
+    this._threshold_yen_index        = 0;
+    this._threshold_li_index         = 0;
 
-        // var me = {};
+    this._transfer_function_colors   = [
+        {"pos": 0.25, "color": "#892c2c"},
+        {"pos": 0.5, "color": "#00ff00"},
+        {"pos": 0.75, "color": "#0000ff"}
+    ]
 
-        this._steps                      = 20;
-        this._slices_gap                 = [0,    '*'];
-        this._slicemap_row_col           = [16,   16];
-        this._gray_value                 = [0.0, 1.0];
-        this._slicemaps_images           = [];
-        this._slicemaps_paths            = [];
-        this._slicemaps_textures         = [];
-        this._opacity_factor             = 20.0;
-        this._color_factor               = 3.0;
-        this._absorption_mode_index      = 1.0;
-        this._render_size                = ['*', '*'];
-        this._canvas_size                = ['*', '*'];
-        this._render_clear_color         = "#ffffff";
-        this._transfer_function_as_image = new Image();
-        this._volume_sizes               = [1024.0, 1024.0, 1024.0];
-        this._geometry_dimensions        = {"xmin": 0.0, "xmax": 1.0, "ymin": 0.0, "ymax": 1.0, "zmin": 0.0, "zmax": 1.0};
-        this._threshold_otsu_index       = 0;
-        this._threshold_isodata_index    = 0;
-        this._threshold_yen_index        = 0;
-        this._threshold_li_index         = 0;
-
-        this._transfer_function_colors   = [
-            {"pos": 0.25, "color": "#892c2c"},
-            {"pos": 0.5, "color": "#00ff00"},
-            {"pos": 0.75, "color": "#0000ff"}
-        ]
-
-        this._dom_container_id           = domContainerId != undefined ? domContainerId : "container";
-        this._dom_container              = {};
-        this._renderer                   = {};
-        this._camera                     = {};
-        this._camera_settings            = {
-            "rotation": {
-                x: 0.0,
-                y: 0.0,
-                z: 0.0
-            },
-            "position": {
-                "x": 0, 
-                "y": 0,
-                "z": 2
-            }
-        };
-
-        this._rtTexture                  = {};
-
-        this._geometry                   = {};
-        this._geometry_settings          = {
-            "rotation": {
-                x: 0.0,
-                y: 0.0,
-                z: 0.0
-            }
-        };
-
-        this._materialFirstPass          = {};
-        this._materialSecondPass         = {};
-
-        this._sceneFirstPass             = {};
-        this._sceneSecondPass            = {};
-
-        this._meshFirstPass              = {};
-        this._meshSecondPass             = {};
-
-        this.onPreDraw                   = new VRC.EventDispatcher();
-        this.onPostDraw                  = new VRC.EventDispatcher();
-        this.onResizeWindow              = new VRC.EventDispatcher();
-        this.onCameraChange              = new VRC.EventDispatcher();
-        this.onCameraChangeStart         = new VRC.EventDispatcher();
-        this.onCameraChangeEnd           = new VRC.EventDispatcher();
-        this.onChangeTransferFunction    = new VRC.EventDispatcher();
-
-        this._onWindowResizeFuncIndex_canvasSize = -1;
-        this._onWindowResizeFuncIndex_renderSize = -1;
-
-    };
-
-    Core.prototype.init = function() {
-        var me = this;
-        this._container = this.getDOMContainer();
-
-        this._renderer = new THREE.WebGLRenderer();
-        this._renderer.setSize( this.getRenderSizeInPixels()[0], this.getRenderSizeInPixels()[1] );
-        this._renderer.setClearColor( this._render_clear_color );
-
-        this._container.appendChild( this._renderer.domElement );
-
-        this._camera = new THREE.PerspectiveCamera( 45, this.getRenderSizeInPixels()[0] / this.getRenderSizeInPixels()[1], 0.01, 11 );
-        this._camera.position.x = this._camera_settings["position"]["x"];
-        this._camera.position.y = this._camera_settings["position"]["y"];
-        this._camera.position.z = this._camera_settings["position"]["z"];
-
-        this._camera.rotation.x = this._camera_settings["rotation"]["x"];
-        this._camera.rotation.y = this._camera_settings["rotation"]["y"];
-        this._camera.rotation.z = this._camera_settings["rotation"]["z"];
-
-        this._controls = new THREE.OrbitControls( this._camera, this._renderer.domElement );
-        this._controls.center.set( 0.0, 0.0, 0.0 );
-
-        this._rtTexture = new THREE.WebGLRenderTarget( this.getRenderSizeInPixels()[0], this.getRenderSizeInPixels()[1], { minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, format: THREE.RGBAFormat} );
-
-        this._rtTexture.wrapS = this._rtTexture.wrapT = THREE.ClampToEdgeWrapping;
-        
-        this._materialFirstPass = new THREE.ShaderMaterial( {
-            vertexShader: this._shaders.firstPass.vertexShader,
-            fragmentShader: this._shaders.firstPass.fragmentShader,
-            attributes: {
-                vertColor: {type: 'c', value: [] }
-            },
-            side: THREE.FrontSide,
-            transparent: false
-        } );
-        
-        this._materialSecondPass = new THREE.ShaderMaterial( {
-            vertexShader: this._shaders.secondPass.vertexShader,
-            fragmentShader: this._shaders.secondPass.fragmentShader,
-            attributes: {
-                vertColor:                       {type: 'c', value: [] }
-            },
-            uniforms: {
-                uBackCoord:                      { type: "t",  value: this._rtTexture }, 
-                uSliceMaps:                      { type: "tv", value: this._slicemaps_textures }, 
-                uTransferFunction:               { type: "t",  value: this._transfer_function },
-
-                uSteps:                          { type: "f", value: this._steps },
-                uNumberOfSlices:                 { type: "f", value: this.getSlicesRange()[1] },
-                uSlicesOverX:                    { type: "f", value: this._slicemap_row_col[0] },
-                uSlicesOverY:                    { type: "f", value: this._slicemap_row_col[1] },
-                uOpacityVal:                     { type: "f", value: this._opacity_factor },
-                uColorVal:                       { type: "f", value: this._color_factor },
-                uAbsorptionModeIndex:            { type: "f", value: this._absorption_mode_index },
-                uMinGrayVal:                     { type: "f", value: this._gray_value[0] },
-                uMaxGrayVal:                     { type: "f", value: this._gray_value[1] },
-            },
-            side: THREE.BackSide,
-            // transparent: true,
-            transparent: true
-        });
-
-        this._sceneFirstPass = new THREE.Scene();
-        this._sceneSecondPass = new THREE.Scene();
-
-        this._initGeometry( this.getGeometryDimensions(), this.getVolumeSizeNormalized() );
-        
-        this._meshFirstPass = new THREE.Mesh( this._geometry, this._materialFirstPass );
-        this._meshSecondPass = new THREE.Mesh( this._geometry, this._materialSecondPass );
-                
-        this._sceneFirstPass.add( this._meshFirstPass );
-        this._sceneSecondPass.add( this._meshSecondPass );
-
-        window.addEventListener( 'resize', function() {
-            me.onResizeWindow.call();
-
-        }, false );
-
-        this._controls.addEventListener("change", function() {
-            me.onCameraChange.call();
-
-        });
-
-        this._controls.addEventListener("start", function() {
-            me.onCameraChangeStart.call();
-
-        });
-
-        this._controls.addEventListener("end", function() {
-            me.onCameraChangeEnd.call();
-
-        });
-
-        this._onWindowResizeFuncIndex_renderSize = this.onResizeWindow.add(function() {
-            me.setRendererSize('*', '*');
-
-        }, false);
-
-        this._onWindowResizeFuncIndex_canvasSize = this.onResizeWindow.add(function() {
-            me.setRendererCanvasSize('*', '*');
-
-        }, false);
-
-        this.setTransferFunctionByColors(this._transfer_function_colors);
-
-        this.setRendererSize(this.getRenderSize()[0], this.getRenderSize()[1]);
-        this.setRendererCanvasSize(this.getCanvasSize()[0], this.getCanvasSize()[1]);
-
-    };
-
-    Core.prototype._secondPassSetUniformValue = function(key, value) {
-        this._materialSecondPass.uniforms[key].value = value;
-
-    };
-
-    Core.prototype._setSlicemapsTextures = function(images) {
-        var textures = [];
-
-        for(var i=0; i<images.length; i++) {
-            var texture = new THREE.Texture( images[i] );
-            texture.wrapS = texture.wrapT = THREE.ClampToEdgeWrapping;
-            texture.magFilter = THREE.LinearFilter;
-            // texture.magFilter = THREE.LinearMipMapLinearFilter;
-            texture.minFilter = THREE.LinearFilter;
-            // texture.minFilter = THREE.LinearMipMapLinearFilter;
-            texture.flipY = false;
-            texture.needsUpdate = true;
-
-            textures.push(texture);
-        };
-
-        this._slicemaps_textures = textures;
-
-    };
-
-    Core.prototype.setTransferFunctionByImage = function(image) {
-        this._transfer_function_as_image = image;
-        var transferTexture =  new THREE.Texture(image);
-        transferTexture.wrapS = transferTexture.wrapT =  THREE.ClampToEdgeWrapping;
-        transferTexture.magFilter = THREE.LinearFilter;
-        // transferTexture.magFilter = THREE.LinearMipMapLinearFilter;
-        transferTexture.minFilter = THREE.LinearFilter;
-        // transferTexture.minFilter = THREE.LinearMipMapLinearFilter;
-        transferTexture.flipY = true;
-        transferTexture.needsUpdate = true;
-
-        this._secondPassSetUniformValue("uTransferFunction", transferTexture);
-        this.onChangeTransferFunction.call(image);
-
-    };
-
-    Core.prototype.setTransferFunctionByColors = function(colors) {
-        this._transfer_function_colors = colors;
-
-        var canvas = document.createElement('canvas');
-        canvas.width  = 512;
-        canvas.height = 2;
-
-        var ctx = canvas.getContext('2d');
-        
-        var grd = ctx.createLinearGradient(0, 0, canvas.width -1 , canvas.height - 1);
-
-        for(var i=0; i<colors.length; i++) {
-            grd.addColorStop(colors[i].pos, colors[i].color);
-
+    this._dom_container_id           = domContainerId != undefined ? domContainerId : "container";
+    this._dom_container              = {};
+    this._render                   = {};
+    this._camera                     = {};
+    this._camera_settings            = {
+        "rotation": {
+            x: 0.0,
+            y: 0.0,
+            z: 0.0
+        },
+        "position": {
+            "x": 0, 
+            "y": 0,
+            "z": 2
         }
-
-        ctx.fillStyle = grd;
-        ctx.fillRect(0,0,canvas.width ,canvas.height);
-        var image = new Image();
-        image.src = canvas.toDataURL();
-        image.style.width = 20 + " px";
-        image.style.height = 512 + " px";
-
-        var transferTexture = this.setTransferFunctionByImage(image);
-
-        this.onChangeTransferFunction.call(image);
-
     };
 
-    Core.prototype.getTransferFunctionAsImage = function() {
-        return this._transfer_function_as_image;
-    };
+    this._rtTexture                  = {};
 
-    Core.prototype._initGeometry = function(geometryDimensions, volumeSizes) {
-        var geometryHelper = new VRC.GeometryHelper();
-        this._geometry = geometryHelper.createBoxGeometry(geometryDimensions, volumeSizes);
-
-        this._geometry.applyMatrix( new THREE.Matrix4().makeTranslation( -volumeSizes[0] / 2, -volumeSizes[1] / 2, -volumeSizes[2] / 2 ) );
-        this._geometry.applyMatrix( new THREE.Matrix4().makeRotationX( this._geometry_settings["rotation"]["x"] ));
-        this._geometry.applyMatrix( new THREE.Matrix4().makeRotationY( this._geometry_settings["rotation"]["y"] ));
-        this._geometry.applyMatrix( new THREE.Matrix4().makeRotationZ( this._geometry_settings["rotation"]["z"] ));
-        this._geometry.doubleSided = true;
-
-    };
-
-    Core.prototype._setGeometry = function(geometryDimensions, volumeSizes) {
-        var geometryHelper = new VRC.GeometryHelper();
-        var geometry      = geometryHelper.createBoxGeometry(geometryDimensions, volumeSizes);
-        var colorArray    = geometry.attributes.vertColor.array;
-        var positionArray = geometry.attributes.position.array;
-
-        this._geometry.attributes.vertColor.array = colorArray;
-        this._geometry.attributes.vertColor.needsUpdate = true;
-
-        this._geometry.attributes.position.array = positionArray;
-        this._geometry.attributes.position.needsUpdate = true;
-
-        this._geometry.applyMatrix( new THREE.Matrix4().makeTranslation( -volumeSizes[0] / 2, -volumeSizes[1] / 2, -volumeSizes[2] / 2 ) );
-        this._geometry.applyMatrix( new THREE.Matrix4().makeRotationX( this._geometry_settings["rotation"]["x"] ));
-        this._geometry.applyMatrix( new THREE.Matrix4().makeRotationY( this._geometry_settings["rotation"]["y"] ));
-        this._geometry.applyMatrix( new THREE.Matrix4().makeRotationZ( this._geometry_settings["rotation"]["z"] ));
-
-        this._geometry.doubleSided = true;
-    };
-
-    Core.prototype.setSlicemapsImages = function(images, imagesPaths) {
-        this._slicemaps_images = images;
-        this._slicemaps_paths = imagesPaths != undefined ? imagesPaths : this._slicemaps_paths;
-        this._setSlicemapsTextures(images);
-        this._secondPassSetUniformValue("uSliceMaps", this._slicemaps_textures);
-        console.log("Core: setSlicemapsImages()");
-    };
-
-    Core.prototype.setSteps = function(steps) {
-        this._steps = steps;
-        this._secondPassSetUniformValue("uSteps", this._steps);
-        console.log("Core: setSteps()");
-    };
-
-    Core.prototype.setSlicesRange = function(from, to) {
-        this._slices_gap = [from, to];
-        this._secondPassSetUniformValue("uNumberOfSlices", this.getSlicesRange()[1])
-        console.log("Core: setSlicesRange()");
-    };
-
-    Core.prototype.setOpacityFactor = function(opacity_factor) {
-        this._opacity_factor = opacity_factor;
-        this._secondPassSetUniformValue("uOpacityVal", this._opacity_factor);
-        console.log("Core: setOpacityFactor()");
-    };
-
-    Core.prototype.setColorFactor = function(color_factor) {
-        this._color_factor = color_factor;
-        this._secondPassSetUniformValue("uColorVal", this._color_factor);
-        console.log("Core: setColorFactor()");
-    };
-
-    Core.prototype.setAbsorptionMode = function(mode_index) {
-        this._absorption_mode_index = mode_index;
-        this._secondPassSetUniformValue("uAbsorptionModeIndex", this._absorption_mode_index);
-        console.log("Core: setAbsorptionMode()");
-    };
-
-    Core.prototype.setVolumeSize = function(width, height, depth) {
-        this._volume_sizes = [width, height, depth];
-
-        var maxSize = Math.max(this.getVolumeSize()[0], this.getVolumeSize()[1], this.getVolumeSize()[2]);
-        var normalizedVolumeSizes = [this.getVolumeSize()[0] / maxSize,  this.getVolumeSize()[1] / maxSize, this.getVolumeSize()[2] / maxSize];
-
-        this._setGeometry(this.getGeometryDimensions(), normalizedVolumeSizes);
-
-    };
-
-    Core.prototype.setGeometryDimensions = function(geometryDimension) {
-        this._geometry_dimensions = geometryDimension;
-
-        this._setGeometry(this._geometry_dimensions, this.getVolumeSizeNormalized());
-
-        console.log("Core: setGeometryDimension()");
-    };
-
-    Core.prototype.setRendererCanvasSize = function(width, height) {
-        this._canvas_size = [width, height];
-        
-        if( (this._canvas_size[0] == '*' || this._canvas_size[1] == '*') && !this.onResizeWindow.isStart(this._onWindowResizeFuncIndex_canvasSize) ) {
-            this.onResizeWindow.start(this._onWindowResizeFuncIndex_canvasSize);
+    this._geometry                   = {};
+    this._geometry_settings          = {
+        "rotation": {
+            x: 0.0,
+            y: 0.0,
+            z: 0.0
         }
-
-        if( (this._canvas_size[0] != '*' || this._canvas_size[1] != '*') && this.onResizeWindow.isStart(this._onWindowResizeFuncIndex_canvasSize) ) {
-            this.onResizeWindow.stop(this._onWindowResizeFuncIndex_canvasSize);
-
-        }
-
-        var width = this.getCanvasSizeInPixels()[0];
-        var height = this.getCanvasSizeInPixels()[1];
-
-        // var canvas = this._renderer.domElement;
-        this._renderer.domElement.style.width = width + "px";
-        this._renderer.domElement.style.height = height + "px";
-
-        this._camera.aspect = width / height;
-        this._camera.updateProjectionMatrix();
-
-        console.log("Core: setRendererCanvasSize()");
     };
 
-    Core.prototype.setRendererSize = function(width, height) {
-        this._render_size = [width, height];
-        
-        if( (this._render_size[0] == '*' || this._render_size[1] == '*') && !this.onResizeWindow.isStart(this._onWindowResizeFuncIndex_renderSize) ) {
-            this.onResizeWindow.start(this._onWindowResizeFuncIndex_renderSize);
-        }
+    this._materialFirstPass          = {};
+    this._materialSecondPass         = {};
 
-        if( (this._render_size[0] != '*' || this._render_size[1] != '*') && this.onResizeWindow.isStart(this._onWindowResizeFuncIndex_renderSize) ) {
-            this.onResizeWindow.stop(this._onWindowResizeFuncIndex_renderSize);
+    this._sceneFirstPass             = {};
+    this._sceneSecondPass            = {};
 
-        }
+    this._meshFirstPass              = {};
+    this._meshSecondPass             = {};
 
-        var width = this.getRenderSizeInPixels()[0];
-        var height = this.getRenderSizeInPixels()[1];
+    this.onPreDraw                   = new VRC.EventDispatcher();
+    this.onPostDraw                  = new VRC.EventDispatcher();
+    this.onResizeWindow              = new VRC.EventDispatcher();
+    this.onCameraChange              = new VRC.EventDispatcher();
+    this.onCameraChangeStart         = new VRC.EventDispatcher();
+    this.onCameraChangeEnd           = new VRC.EventDispatcher();
+    this.onChangeTransferFunction    = new VRC.EventDispatcher();
 
-        this._camera.aspect = width / height;
-        this._camera.updateProjectionMatrix();
+    this._onWindowResizeFuncIndex_canvasSize = -1;
+    this._onWindowResizeFuncIndex_renderSize = -1;
 
-        this._renderer.setSize(width, height);
+};
 
-        this.setRendererCanvasSize(this.getCanvasSize()[0], this.getCanvasSize()[1]);
+Core.prototype.init = function() {
+    var me = this;
+    this._container = this.getDOMContainer();
 
-        console.log("Core: setRenderSize()");
+    this._render = new THREE.WebGLRenderer();
+    this._render.setSize( this.getRenderSizeInPixels()[0], this.getRenderSizeInPixels()[1] );
+    this._render.setClearColor( this._render_clear_color );
+
+    this._container.appendChild( this._render.domElement );
+
+    this._camera = new THREE.PerspectiveCamera( 45, this.getRenderSizeInPixels()[0] / this.getRenderSizeInPixels()[1], 0.01, 11 );
+    this._camera.position.x = this._camera_settings["position"]["x"];
+    this._camera.position.y = this._camera_settings["position"]["y"];
+    this._camera.position.z = this._camera_settings["position"]["z"];
+
+    this._camera.rotation.x = this._camera_settings["rotation"]["x"];
+    this._camera.rotation.y = this._camera_settings["rotation"]["y"];
+    this._camera.rotation.z = this._camera_settings["rotation"]["z"];
+
+    this._controls = new THREE.OrbitControls( this._camera, this._render.domElement );
+    this._controls.center.set( 0.0, 0.0, 0.0 );
+
+    this._rtTexture = new THREE.WebGLRenderTarget( this.getRenderSizeInPixels()[0], this.getRenderSizeInPixels()[1], { minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, format: THREE.RGBAFormat} );
+
+    this._rtTexture.wrapS = this._rtTexture.wrapT = THREE.ClampToEdgeWrapping;
+    
+    this._materialFirstPass = new THREE.ShaderMaterial( {
+        vertexShader: this._shaders.firstPass.vertexShader,
+        fragmentShader: this._shaders.firstPass.fragmentShader,
+        attributes: {
+            vertColor: {type: 'c', value: [] }
+        },
+        side: THREE.FrontSide,
+        transparent: false
+    } );
+    
+    this._materialSecondPass = new THREE.ShaderMaterial( {
+        vertexShader: this._shaders.secondPass.vertexShader,
+        fragmentShader: ejs.render( this._shaders.secondPass.fragmentShader, {"maxTexturesNumber": me.getAvailableTexturesNumber()}),
+        attributes: {
+            vertColor:                       {type: 'c', value: [] }
+        },
+        uniforms: {
+            uBackCoord:                      { type: "t",  value: this._rtTexture }, 
+            uSliceMaps:                      { type: "tv", value: this._slicemaps_textures }, 
+            uTransferFunction:               { type: "t",  value: this._transfer_function },
+
+            uSteps:                          { type: "f", value: this._steps },
+            uNumberOfSlices:                 { type: "f", value: this.getSlicesRange()[1] },
+            uSlicesOverX:                    { type: "f", value: this._slicemap_row_col[0] },
+            uSlicesOverY:                    { type: "f", value: this._slicemap_row_col[1] },
+            uOpacityVal:                     { type: "f", value: this._opacity_factor },
+            uColorVal:                       { type: "f", value: this._color_factor },
+            uAbsorptionModeIndex:            { type: "f", value: this._absorption_mode_index },
+            uMinGrayVal:                     { type: "f", value: this._gray_value[0] },
+            uMaxGrayVal:                     { type: "f", value: this._gray_value[1] },
+        },
+        side: THREE.BackSide,
+        // transparent: true,
+        transparent: true
+    });
+
+    this._sceneFirstPass = new THREE.Scene();
+    this._sceneSecondPass = new THREE.Scene();
+
+    this._initGeometry( this.getGeometryDimensions(), this.getVolumeSizeNormalized() );
+    
+    this._meshFirstPass = new THREE.Mesh( this._geometry, this._materialFirstPass );
+    this._meshSecondPass = new THREE.Mesh( this._geometry, this._materialSecondPass );
+            
+    this._sceneFirstPass.add( this._meshFirstPass );
+    this._sceneSecondPass.add( this._meshSecondPass );
+
+    window.addEventListener( 'resize', function() {
+        me.onResizeWindow.call();
+
+    }, false );
+
+    this._controls.addEventListener("change", function() {
+        me.onCameraChange.call();
+
+    });
+
+    this._controls.addEventListener("start", function() {
+        me.onCameraChangeStart.call();
+
+    });
+
+    this._controls.addEventListener("end", function() {
+        me.onCameraChangeEnd.call();
+
+    });
+
+    this._onWindowResizeFuncIndex_renderSize = this.onResizeWindow.add(function() {
+        me.setRenderSize('*', '*');
+
+    }, false);
+
+    this._onWindowResizeFuncIndex_canvasSize = this.onResizeWindow.add(function() {
+        me.setRenderCanvasSize('*', '*');
+
+    }, false);
+
+    this.setTransferFunctionByColors(this._transfer_function_colors);
+
+    this.setRenderSize(this.getRenderSize()[0], this.getRenderSize()[1]);
+    this.setRenderCanvasSize(this.getCanvasSize()[0], this.getCanvasSize()[1]);
+
+};
+
+Core.prototype._secondPassSetUniformValue = function(key, value) {
+    this._materialSecondPass.uniforms[key].value = value;
+
+};
+
+Core.prototype._setSlicemapsTextures = function(images) {
+    var textures = [];
+
+    for(var i=0; i<images.length; i++) {
+        var texture = new THREE.Texture( images[i] );
+        texture.wrapS = texture.wrapT = THREE.ClampToEdgeWrapping;
+        texture.magFilter = THREE.LinearFilter;
+        texture.minFilter = THREE.LinearFilter;
+        texture.flipY = false;
+        texture.needsUpdate = true;
+
+        textures.push(texture);
     };
 
-    Core.prototype.setBackgoundColor = function(color) {
-        this._render_clear_color = color;
-        this._renderer.setClearColor(color);
-        console.log("Core: setBackgoundColor()");
-    };
+    this._slicemaps_textures = textures;
 
-    Core.prototype.setRowCol = function(row, col) {
-        this._slicemap_row_col = [row, col];
-        this._secondPassSetUniformValue("uSlicesOverX", this._slicemap_row_col[0]);
-        this._secondPassSetUniformValue("uSlicesOverY", this._slicemap_row_col[1]);
-        console.log("Core: setRowCol()");
-    };
+};
 
-    Core.prototype.setGrayMinValue = function(value) {
-        this._gray_value[0] = value;
-        this._secondPassSetUniformValue("uMinGrayVal", this._gray_value[0]);
-        console.log("Core: setMinGrayValue()");
-    };
+Core.prototype.setTransferFunctionByImage = function(image) {
+    console.log("Core: setTransferFunctionByImage()");
+    this._transfer_function_as_image = image;
+    var transferTexture =  new THREE.Texture(image);
+    transferTexture.wrapS = transferTexture.wrapT =  THREE.ClampToEdgeWrapping;
+    transferTexture.magFilter = THREE.LinearFilter;
+    transferTexture.minFilter = THREE.LinearFilter;
+    transferTexture.flipY = true;
+    transferTexture.needsUpdate = true;
 
-    Core.prototype.applyThresholding = function(threshold_name) {
-        switch( threshold_name ) {
-            case "otsu": {
-                this.setGrayMinValue( this._threshold_otsu_index );
-            }; break;
+    this._secondPassSetUniformValue("uTransferFunction", transferTexture);
+    this.onChangeTransferFunction.call(image);
 
-            case "isodata": {
-                this.setGrayMinValue( this._threshold_isodata_index );
-            }; break;
+};
 
-            case "yen": {
-                this.setGrayMinValue( this._threshold_yen_index );
-            }; break;
+Core.prototype.setTransferFunctionByColors = function(colors) {
+    console.log("Core: setTransferFunctionByColors()");
+    this._transfer_function_colors = colors;
 
-            case "li": {
-                this.setGrayMinValue( this._threshold_li_index );
-            }; break;
+    var canvas = document.createElement('canvas');
+    canvas.width  = 512;
+    canvas.height = 2;
 
-        }
-        console.log("Core: applyThresholding()");
+    var ctx = canvas.getContext('2d');
+    
+    var grd = ctx.createLinearGradient(0, 0, canvas.width -1 , canvas.height - 1);
 
-    };
+    for(var i=0; i<colors.length; i++) {
+        grd.addColorStop(colors[i].pos, colors[i].color);
 
-    Core.prototype.setThresholdIndexes = function(otsu, isodata, yen, li) {
-        this._threshold_otsu_index       = otsu;
-        this._threshold_isodata_index    = isodata;
-        this._threshold_yen_index        = yen;
-        this._threshold_li_index         = li;
+    }
 
-        console.log("Core: setThresholdIndexes()");
-    };
+    ctx.fillStyle = grd;
+    ctx.fillRect(0,0,canvas.width ,canvas.height);
+    var image = new Image();
+    image.src = canvas.toDataURL();
+    image.style.width = 20 + " px";
+    image.style.height = 512 + " px";
 
-    Core.prototype.setGrayMaxValue = function(value) {
-        this._gray_value[1] = value;
-        this._secondPassSetUniformValue("uMaxGrayVal", this._gray_value[1]);
-        console.log("Core: setMaxGrayValue()");
-    };
+    var transferTexture = this.setTransferFunctionByImage(image);
 
-    Core.prototype.draw = function(fps) {
-        this.onPreDraw.call(fps.toFixed(3));
+    this.onChangeTransferFunction.call(image);
 
-        this._renderer.render( this._sceneFirstPass, this._camera, this._rtTexture, true );
-        // this._renderer.render( this._sceneFirstPass, this._camera );
+};
 
-        //Render the second pass and perform the volume rendering.
-        this._renderer.render( this._sceneSecondPass, this._camera );
+Core.prototype.getTransferFunctionAsImage = function() {
+    return this._transfer_function_as_image;
+};
 
-        this.onPostDraw.call(fps.toFixed(3));
+Core.prototype._initGeometry = function(geometryDimensions, volumeSizes) {
+    var geometryHelper = new VRC.GeometryHelper();
+    this._geometry = geometryHelper.createBoxGeometry(geometryDimensions, volumeSizes);
 
-    };
+    this._geometry.applyMatrix( new THREE.Matrix4().makeTranslation( -volumeSizes[0] / 2, -volumeSizes[1] / 2, -volumeSizes[2] / 2 ) );
+    this._geometry.applyMatrix( new THREE.Matrix4().makeRotationX( this._geometry_settings["rotation"]["x"] ));
+    this._geometry.applyMatrix( new THREE.Matrix4().makeRotationY( this._geometry_settings["rotation"]["y"] ));
+    this._geometry.applyMatrix( new THREE.Matrix4().makeRotationZ( this._geometry_settings["rotation"]["z"] ));
+    this._geometry.doubleSided = true;
 
-    Core.prototype.getDOMContainer = function() {
-        return document.getElementById(this._dom_container_id);
+};
 
-    };
+Core.prototype._setGeometry = function(geometryDimensions, volumeSizes) {
+    var geometryHelper = new VRC.GeometryHelper();
+    var geometry      = geometryHelper.createBoxGeometry(geometryDimensions, volumeSizes);
+    var colorArray    = geometry.attributes.vertColor.array;
+    var positionArray = geometry.attributes.position.array;
 
-    Core.prototype.getRenderSize  = function() {
-        var width = this._render_size[0];
-        var height = this._render_size[1];
+    this._geometry.attributes.vertColor.array = colorArray;
+    this._geometry.attributes.vertColor.needsUpdate = true;
 
-        return [width, height];
-    };
+    this._geometry.attributes.position.array = positionArray;
+    this._geometry.attributes.position.needsUpdate = true;
 
-    Core.prototype.getRenderSizeInPixels  = function() {
-        var width = this.getRenderSize()[0];
-        var height = this.getRenderSize()[0];
+    this._geometry.applyMatrix( new THREE.Matrix4().makeTranslation( -volumeSizes[0] / 2, -volumeSizes[1] / 2, -volumeSizes[2] / 2 ) );
+    this._geometry.applyMatrix( new THREE.Matrix4().makeRotationX( this._geometry_settings["rotation"]["x"] ));
+    this._geometry.applyMatrix( new THREE.Matrix4().makeRotationY( this._geometry_settings["rotation"]["y"] ));
+    this._geometry.applyMatrix( new THREE.Matrix4().makeRotationZ( this._geometry_settings["rotation"]["z"] ));
 
-        if(this._render_size[0] == '*') {
-            width = this._renderer.domElement.width;
-        } 
-        if(this._render_size[1] == '*') {
-            height = this._renderer.domElement.height;
-        }
+    this._geometry.doubleSided = true;
+};
 
-        return [width, height];
-    };
+Core.prototype.setSlicemapsImages = function(images, imagesPaths) {
+    console.log("Core: setSlicemapsImages()");
+    this._slicemaps_images = images;
+    this._slicemaps_paths = imagesPaths != undefined ? imagesPaths : this._slicemaps_paths;
+    this._setSlicemapsTextures(images);
+    this._secondPassSetUniformValue("uSliceMaps", this._slicemaps_textures);
+};
 
-    Core.prototype.getCanvasSize = function() {
-        var width = this._canvas_size[0];
-        var height = this._canvas_size[1];
+Core.prototype.setSteps = function(steps) {
+    console.log("Core: setSteps(" + steps + ")");
+    this._steps = steps;
+    this._secondPassSetUniformValue("uSteps", this._steps);
+};
 
-        return [width, height];
-    };
+Core.prototype.setSlicesRange = function(from, to) {
+    console.log("Core: setSlicesRange()");
+    this._slices_gap = [from, to];
+    this._secondPassSetUniformValue("uNumberOfSlices", this.getSlicesRange()[1])
+};
 
-    Core.prototype.getCanvasSizeInPixels = function() {
-        var width = this.getCanvasSize()[0];
-        var height = this.getCanvasSize()[1];
+Core.prototype.setOpacityFactor = function(opacity_factor) {
+    console.log("Core: setOpacityFactor()");
+    this._opacity_factor = opacity_factor;
+    this._secondPassSetUniformValue("uOpacityVal", this._opacity_factor);
+};
 
-        if(this._canvas_size[0] == '*') {
-            width = window.outerWidth;
-        } 
-        if(this._canvas_size[1] == '*') {
-            height = window.outerHeight;
-        }
+Core.prototype.setColorFactor = function(color_factor) {
+    console.log("Core: setColorFactor()");
+    this._color_factor = color_factor;
+    this._secondPassSetUniformValue("uColorVal", this._color_factor);
+};
 
-        return [width, height];
-    };
+Core.prototype.setAbsorptionMode = function(mode_index) {
+    console.log("Core: setAbsorptionMode()");
+    this._absorption_mode_index = mode_index;
+    this._secondPassSetUniformValue("uAbsorptionModeIndex", this._absorption_mode_index);
+};
 
-    Core.prototype.getSteps = function() {
-        return this._steps;
-    };
+Core.prototype.setVolumeSize = function(width, height, depth) {
+    console.log("Core: setVolumeSize()");
+    this._volume_sizes = [width, height, depth];
 
-    Core.prototype.getSlicemapsImages = function() {
-        return this._slicemaps_images;
-    };
+    var maxSize = Math.max(this.getVolumeSize()[0], this.getVolumeSize()[1], this.getVolumeSize()[2]);
+    var normalizedVolumeSizes = [this.getVolumeSize()[0] / maxSize,  this.getVolumeSize()[1] / maxSize, this.getVolumeSize()[2] / maxSize];
 
-    Core.prototype.getSlicemapsPaths = function() {
-        return this._slicemaps_paths;
-    };
+    this._setGeometry(this.getGeometryDimensions(), normalizedVolumeSizes);
 
-    Core.prototype.getRowCol = function() {
-        return this._slicemap_row_col;
-    };
+};
 
-    Core.prototype.getSlicesRange  = function() {
-        var from = this._slices_gap[0];
-        var to = this._slices_gap[1];
-        if(this._slices_gap[1] == '*') {
-            to = this.getRowCol()[0] * this.getRowCol()[1] * this.getSlicemapsImages().length;
-        }
+Core.prototype.setGeometryDimensions = function(geometryDimension) {
+    console.log("Core: setGeometryDimension()");
+    this._geometry_dimensions = geometryDimension;
 
-        return [from, to];
-    };
+    this._setGeometry(this._geometry_dimensions, this.getVolumeSizeNormalized());
 
-    Core.prototype.getVolumeSize = function() {
-        return this._volume_sizes;
+};
 
-    };
+Core.prototype.setRenderCanvasSize = function(width, height) {
+    console.log("Core: setRenderCanvasSize()");
+    this._canvas_size = [width, height];
+    
+    if( (this._canvas_size[0] == '*' || this._canvas_size[1] == '*') && !this.onResizeWindow.isStart(this._onWindowResizeFuncIndex_canvasSize) ) {
+        this.onResizeWindow.start(this._onWindowResizeFuncIndex_canvasSize);
+    }
 
-    Core.prototype.getVolumeSizeNormalized = function() {
-        var maxSize = Math.max(this.getVolumeSize()[0], this.getVolumeSize()[1], this.getVolumeSize()[2]);
-        var normalizedVolumeSizes = [this.getVolumeSize()[0] / maxSize,  this.getVolumeSize()[1] / maxSize, this.getVolumeSize()[2] / maxSize];
+    if( (this._canvas_size[0] != '*' || this._canvas_size[1] != '*') && this.onResizeWindow.isStart(this._onWindowResizeFuncIndex_canvasSize) ) {
+        this.onResizeWindow.stop(this._onWindowResizeFuncIndex_canvasSize);
 
-        return normalizedVolumeSizes;
-    };
+    }
 
-    Core.prototype.getGeometryDimensions = function() {
-        return this._geometry_dimensions;
+    var width = this.getCanvasSizeInPixels()[0];
+    var height = this.getCanvasSizeInPixels()[1];
 
-    };
+    this._render.domElement.style.width = width + "px";
+    this._render.domElement.style.height = height + "px";
 
-    Core.prototype.getGrayMinValue = function() {
-        return this._gray_value[0];
-    };
+    this._camera.aspect = width / height;
+    this._camera.updateProjectionMatrix();
 
-    Core.prototype.getGrayMaxValue = function() {
-        return this._gray_value[1]; 
-    }; 
+};
 
-    Core.prototype.getClearColor = function() {
-        return this._render_clear_color;
-    };
+Core.prototype.setRenderSize = function(width, height) {
+    console.log("Core: setRenderSize()");
+    this._render_size = [width, height];
+    
+    if( (this._render_size[0] == '*' || this._render_size[1] == '*') && !this.onResizeWindow.isStart(this._onWindowResizeFuncIndex_renderSize) ) {
+        this.onResizeWindow.start(this._onWindowResizeFuncIndex_renderSize);
+    }
 
-    Core.prototype.getTransferFunctionColors = function() {
-        return this._transfer_function_colors;
-    };
+    if( (this._render_size[0] != '*' || this._render_size[1] != '*') && this.onResizeWindow.isStart(this._onWindowResizeFuncIndex_renderSize) ) {
+        this.onResizeWindow.stop(this._onWindowResizeFuncIndex_renderSize);
 
-    Core.prototype.getOpacityFactor = function() {
-        return this._opacity_factor;
-    };
+    }
 
-    Core.prototype.getColorFactor = function() {  
-        return this._color_factor;
-    };
+    var width = this.getRenderSizeInPixels()[0];
+    var height = this.getRenderSizeInPixels()[1];
 
-    Core.prototype.getAbsorptionMode = function() {
-        return this._absorption_mode_index;
-    };
+    this._camera.aspect = width / height;
+    this._camera.updateProjectionMatrix();
 
-    Core.prototype.getClearColor = function() {
-        return this._render_clear_color;
-    };
+    this._render.setSize(width, height);
 
-    Core.prototype.getDomContainerId = function() {
-        return this._dom_container_id;
-    };
+    this.setRenderCanvasSize(this.getCanvasSize()[0], this.getCanvasSize()[1]);
 
-    Core.prototype.getAvailableTexturesNumber = function() {
-        var number_used_textures = 2;
-        var gl = this._renderer.getContext()
-        return gl.getParameter(gl.MAX_TEXTURE_IMAGE_UNITS) - number_used_textures;
-    };
+};
 
-    Core.prototype.getMaxTextureSize = function() {
-        var gl = this._renderer.getContext()
-        return gl.getParameter(gl.MAX_TEXTURE_SIZE);
-    };
+Core.prototype.setBackgoundColor = function(color) {
+    console.log("Core: setBackgoundColor()");
+    this._render_clear_color = color;
+    this._render.setClearColor(color);
+};
 
-    Core.prototype._shaders = {
-        // Here will be inserted shaders with help of grunt
+Core.prototype.setRowCol = function(row, col) {
+    console.log("Core: setRowCol()");
+    this._slicemap_row_col = [row, col];
+    this._secondPassSetUniformValue("uSlicesOverX", this._slicemap_row_col[0]);
+    this._secondPassSetUniformValue("uSlicesOverY", this._slicemap_row_col[1]);
+};
 
-    };
+Core.prototype.setGrayMinValue = function(value) {
+    console.log("Core: setMinGrayValue()");
+    this._gray_value[0] = value;
+    this._secondPassSetUniformValue("uMinGrayVal", this._gray_value[0]);
+};
 
-        // return me;
+Core.prototype.applyThresholding = function(threshold_name) {
+    console.log("Core: applyThresholding()");
+    switch( threshold_name ) {
+        case "otsu": {
+            this.setGrayMinValue( this._threshold_otsu_index );
+        }; break;
 
-    window.VRC.Core = Core;
+        case "isodata": {
+            this.setGrayMinValue( this._threshold_isodata_index );
+        }; break;
 
-    // namespace.Core = Core;
+        case "yen": {
+            this.setGrayMinValue( this._threshold_yen_index );
+        }; break;
 
-// })(window.VRC);
+        case "li": {
+            this.setGrayMinValue( this._threshold_li_index );
+        }; break;
+
+    }
+
+};
+
+Core.prototype.setThresholdIndexes = function(otsu, isodata, yen, li) {
+    console.log("Core: setThresholdIndexes()");
+    this._threshold_otsu_index       = otsu;
+    this._threshold_isodata_index    = isodata;
+    this._threshold_yen_index        = yen;
+    this._threshold_li_index         = li;
+
+};
+
+Core.prototype.setGrayMaxValue = function(value) {
+    console.log("Core: setMaxGrayValue()");
+    this._gray_value[1] = value;
+    this._secondPassSetUniformValue("uMaxGrayVal", this._gray_value[1]);
+};
+
+Core.prototype.draw = function(fps) {
+    this.onPreDraw.call(fps.toFixed(3));
+
+    this._render.render( this._sceneFirstPass, this._camera, this._rtTexture, true );
+    // this._render.render( this._sceneFirstPass, this._camera );
+
+    //Render the second pass and perform the volume rendering.
+    this._render.render( this._sceneSecondPass, this._camera );
+
+    this.onPostDraw.call(fps.toFixed(3));
+
+};
+
+Core.prototype.getDOMContainer = function() {
+    return document.getElementById(this._dom_container_id);
+
+};
+
+Core.prototype.getRenderSize  = function() {
+    var width = this._render_size[0];
+    var height = this._render_size[1];
+
+    return [width, height];
+};
+
+Core.prototype.getRenderSizeInPixels  = function() {
+    var width = this.getRenderSize()[0];
+    var height = this.getRenderSize()[0];
+
+    if(this._render_size[0] == '*') {
+        width = this._render.domElement.width;
+    } 
+    if(this._render_size[1] == '*') {
+        height = this._render.domElement.height;
+    }
+
+    return [width, height];
+};
+
+Core.prototype.getCanvasSize = function() {
+    var width = this._canvas_size[0];
+    var height = this._canvas_size[1];
+
+    return [width, height];
+};
+
+Core.prototype.getCanvasSizeInPixels = function() {
+    var width = this.getCanvasSize()[0];
+    var height = this.getCanvasSize()[1];
+
+    if(this._canvas_size[0] == '*') {
+        width = window.innerWidth
+        || document.documentElement.clientWidth
+        || document.body.clientWidth;
+
+    } 
+    if(this._canvas_size[1] == '*') {
+        height = window.innerHeight
+        || document.documentElement.clientHeight
+        || document.body.clientHeight;
+
+    }
+
+    return [width, height];
+};
+
+Core.prototype.getSteps = function() {
+    return this._steps;
+};
+
+Core.prototype.getSlicemapsImages = function() {
+    return this._slicemaps_images;
+};
+
+Core.prototype.getSlicemapsPaths = function() {
+    return this._slicemaps_paths;
+};
+
+Core.prototype.getRowCol = function() {
+    return this._slicemap_row_col;
+};
+
+Core.prototype.getSlicesRange  = function() {
+    var from = this._slices_gap[0];
+    var to = this._slices_gap[1];
+    if(this._slices_gap[1] == '*') {
+        to = this.getRowCol()[0] * this.getRowCol()[1] * this.getSlicemapsImages().length;
+    }
+
+    return [from, to];
+};
+
+Core.prototype.getVolumeSize = function() {
+    return this._volume_sizes;
+
+};
+
+Core.prototype.getMaxStepsNumber = function() {
+    return Math.min( this.getVolumeSize()[0], this.getVolumeSize()[1] );
+
+};
+
+Core.prototype.getVolumeSizeNormalized = function() {
+    var maxSize = Math.max(this.getVolumeSize()[0], this.getVolumeSize()[1], this.getVolumeSize()[2]);
+    var normalizedVolumeSizes = [this.getVolumeSize()[0] / maxSize,  this.getVolumeSize()[1] / maxSize, this.getVolumeSize()[2] / maxSize];
+
+    return normalizedVolumeSizes;
+};
+
+Core.prototype.getGeometryDimensions = function() {
+    return this._geometry_dimensions;
+
+};
+
+Core.prototype.getGrayMinValue = function() {
+    return this._gray_value[0];
+};
+
+Core.prototype.getGrayMaxValue = function() {
+    return this._gray_value[1]; 
+}; 
+
+Core.prototype.getClearColor = function() {
+    return this._render_clear_color;
+};
+
+Core.prototype.getTransferFunctionColors = function() {
+    return this._transfer_function_colors;
+};
+
+Core.prototype.getOpacityFactor = function() {
+    return this._opacity_factor;
+};
+
+Core.prototype.getColorFactor = function() {  
+    return this._color_factor;
+};
+
+Core.prototype.getAbsorptionMode = function() {
+    return this._absorption_mode_index;
+};
+
+Core.prototype.getClearColor = function() {
+    return this._render_clear_color;
+};
+
+Core.prototype.getDomContainerId = function() {
+    return this._dom_container_id;
+};
+
+Core.prototype.getAvailableTexturesNumber = function() {
+    var number_used_textures = 6;
+    var gl = this._render.getContext()
+    return gl.getParameter(gl.MAX_TEXTURE_IMAGE_UNITS) - number_used_textures;
+};
+
+Core.prototype.getMaxTextureSize = function() {
+    var gl = this._render.getContext()
+    return gl.getParameter(gl.MAX_TEXTURE_SIZE);
+};
+
+Core.prototype.getMaxFramebuferSize = function() {
+    var gl = this._render.getContext()
+    return gl.getParameter(gl.MAX_RENDERBUFFER_SIZE);
+};
+
+Core.prototype._shaders = {
+    // Here will be inserted shaders withhelp of grunt
+
+};
+
+window.VRC.Core = Core;
 window.VRC.Core.prototype._shaders.firstPass = {
 	uniforms: THREE.UniformsUtils.merge([
 		{
@@ -1383,7 +1158,7 @@ window.VRC.Core.prototype._shaders.secondPass = {
 		'varying vec4 pos; ',
 		'uniform sampler2D uBackCoord; ',
 		'uniform sampler2D uTransferFunction;',
-		'uniform sampler2D uSliceMaps[gl_MaxTextureImageUnits-2];',
+		'uniform sampler2D uSliceMaps[<%= maxTexturesNumber %>];',
 		'uniform float uNumberOfSlices; ',
 		'uniform float uMinGrayVal; ',
 		'uniform float uMaxGrayVal; ',
@@ -1399,46 +1174,56 @@ window.VRC.Core.prototype._shaders.secondPass = {
 		'{',
 		'    float s1Original, s2Original, s1, s2; ',
 		'    float dx1, dy1; ',
-		'    float dx2, dy2; ',
-		'    float value; ',
+		'    // float dx2, dy2; ',
+		'    // float value; ',
 		'    vec2 texpos1,texpos2; ',
 		'    float slicesPerSprite = uSlicesOverX * uSlicesOverY; ',
 		'    s1Original = floor(volpos.z*uNumberOfSlices); ',
-		'    s2Original = min(s1Original + 1.0, uNumberOfSlices);',
+		'    // s2Original = min(s1Original + 1.0, uNumberOfSlices);',
 		'    int tex1Index = int(floor(s1Original / slicesPerSprite));',
-		'    int tex2Index = int(floor(s2Original / slicesPerSprite));',
+		'    // int tex2Index = int(floor(s2Original / slicesPerSprite));',
 		'    s1 = mod(s1Original, slicesPerSprite);',
-		'    s2 = mod(s2Original, slicesPerSprite);',
+		'    // s2 = mod(s2Original, slicesPerSprite);',
 		'    dx1 = fract(s1/uSlicesOverX);',
 		'    dy1 = floor(s1/uSlicesOverY)/uSlicesOverY;',
-		'    dx2 = fract(s2/uSlicesOverX);',
-		'    dy2 = floor(s2/uSlicesOverY)/uSlicesOverY;',
+		'    // dx2 = fract(s2/uSlicesOverX);',
+		'    // dy2 = floor(s2/uSlicesOverY)/uSlicesOverY;',
 		'    texpos1.x = dx1+(volpos.x/uSlicesOverX);',
 		'    texpos1.y = dy1+(volpos.y/uSlicesOverY);',
-		'    texpos2.x = dx2+(volpos.x/uSlicesOverX);',
-		'    texpos2.y = dy2+(volpos.y/uSlicesOverY);',
+		'    // texpos2.x = dx2+(volpos.x/uSlicesOverX);',
+		'    // texpos2.y = dy2+(volpos.y/uSlicesOverY);',
 		'    float value1 = 0.0, value2 = 0.0; ',
-		'    bool value1Set = false, value2Set = false;',
-		'    int numberOfSlicemaps = int( ceil(uNumberOfSlices / (uSlicesOverX * uSlicesOverY)) );',
-		'    for (int x = 0; x < gl_MaxTextureImageUnits-2; x++)',
-		'    {',
-		'        if(x == numberOfSlicemaps)',
+		'    // bool value1Set = false, value2Set = false;',
+		'    // int numberOfSlicemaps = int( ceil(uNumberOfSlices / (uSlicesOverX * uSlicesOverY)) );',
+		'    <% for(var i=0; i < maxTexturesNumber; i++) { %>',
+		'        if( tex1Index == <%=i%> )',
 		'        {',
-		'            break;',
+		'            value1 = texture2D(uSliceMaps[<%=i%>],texpos1).x;',
 		'        }',
-		'        if(x == tex1Index) { ',
-		'            value1 = texture2D(uSliceMaps[x],texpos1).x; ',
-		'            value1Set = true; ',
-		'        } ',
-		'        if(x == tex2Index) { ',
-		'            value2 = texture2D(uSliceMaps[x],texpos2).x; ',
-		'            value2Set = true; ',
-		'        } ',
-		'        if(value1Set && value2Set) { ',
-		'            break; ',
-		'        } ',
-		'    } ',
-		'    return mix(value1, value2, fract(volpos.z*uNumberOfSlices)); ',
+		'        <% if( i < maxTexturesNumber-1 ) { %>',
+		'            else',
+		'        <% } %>',
+		'    <% } %>',
+		'    return value1;',
+		'    // for (int x = 0; x < gl_MaxTextureImageUnits-2; x++)',
+		'    // {',
+		'    //     if(x == numberOfSlicemaps)',
+		'    //     {',
+		'    //         break;',
+		'    //     }',
+		'    //     if(x == tex1Index) { ',
+		'    //         value1 = texture2D(uSliceMaps[x],texpos1).x; ',
+		'    //         value1Set = true; ',
+		'    //     } ',
+		'    //     if(x == tex2Index) { ',
+		'    //         value2 = texture2D(uSliceMaps[x],texpos2).x; ',
+		'    //         value2Set = true; ',
+		'    //     } ',
+		'    //     if(value1Set && value2Set) { ',
+		'    //         break; ',
+		'    //     } ',
+		'    // } ',
+		'    // return mix(value1, value2, fract(volpos.z*uNumberOfSlices)); ',
 		'} ',
 		'void main(void)',
 		'{',
@@ -1468,7 +1253,7 @@ window.VRC.Core.prototype._shaders.secondPass = {
 		'         colorValue = vec4(0.0); ',
 		'     } else { ',
 		'         if(biggest_gray_value < gray_val) { ',
-		'            biggest_gray_value = gray_val; ',
+		'            biggest_gray_value = gray_val;',
 		'         } ',
 		'         if(uAbsorptionModeIndex == 0.0) ',
 		'         { ',
@@ -1575,9 +1360,6 @@ window.VRC.Core.prototype._shaders.secondPass = {
 
                     me._needRedraw = false;
                 }
-                
-                // me._core._controls.update();
-                // me._needRedraw = true;
 
             };
 
@@ -1586,7 +1368,6 @@ window.VRC.Core.prototype._shaders.secondPass = {
         };
 
         me.setSlicemapsImages = function(images, imagesPaths) {
-            // var ctx = me._core._renderer.getContext()
             var maxTexSize = me._core.getMaxTextureSize();
             var availableTexturesNumber = me._core.getAvailableTexturesNumber();
 
@@ -1683,8 +1464,14 @@ window.VRC.Core.prototype._shaders.secondPass = {
         };
 
         me.setSteps = function(steps_number) {
-            me._core.setSteps(steps_number);
-            me._needRedraw = true;
+            if( steps_number <= me._core.getMaxStepsNumber() ) {
+                me._core.setSteps(steps_number);
+                me._needRedraw = true;
+
+            } else {
+                throw Error("Number of steps should be lower of equal length of min volume dimension.");
+
+            }
 
         };
 
@@ -1826,15 +1613,15 @@ window.VRC.Core.prototype._shaders.secondPass = {
             me._needRedraw = true;
         };
 
-        me.setRendererSize = function(width, height) {
-            var ctx = me._core._renderer.getContext()
+        me.setRenderSize = function(width, height) {
+            var ctx = me._core._render.getContext()
             var maxRenderbufferSize = ctx.getParameter(ctx.MAX_RENDERBUFFER_SIZE);
             if(Math.max(width, height) > maxRenderbufferSize) {
                 console.warn("Size of canvas setted in " + maxRenderbufferSize + "x" + maxRenderbufferSize + ". Max render buffer size is " + maxRenderbufferSize + ".");
-                me._core.setRendererSize(maxRenderbufferSize, maxRenderbufferSize);
+                me._core.setRenderSize(maxRenderbufferSize, maxRenderbufferSize);
 
             } else {
-                me._core.setRendererSize(width, height);
+                me._core.setRenderSize(width, height);
 
             }
 
@@ -1842,8 +1629,8 @@ window.VRC.Core.prototype._shaders.secondPass = {
 
         };
 
-        me.setRendererCanvasSize = function(width, height) {
-            me._core.setRendererCanvasSize(width, height);
+        me.setRenderCanvasSize = function(width, height) {
+            me._core.setRenderCanvasSize(width, height);
             me._needRedraw = true;
 
         };
@@ -2050,14 +1837,13 @@ window.VRC.Core.prototype._shaders.secondPass = {
             return me._core.getRenderSizeInPixels();
         };
 
-        me.getCanvasSize = function() {
+        me.getRenderCanvasSize = function() {
             return me._core.getCanvasSize();
         };
 
-        me.getCanvasSizeInPixels = function() {
+        me.getRenderCavnvasSizeInPixels  = function() {
             return me._core.getCanvasSizeInPixels();
         };
-
 
         me.getAbsorptionMode = function() {
             return me._core.getAbsorptionMode();
@@ -2204,12 +1990,12 @@ window.VRC.Core.prototype._shaders.secondPass = {
                 me._core.setAbsorptionMode( config['absorption_mode'] );
             }
 
-            if(config['renderer_size'] != undefined) {
-                me.setRendererSize( config['renderer_size'][0], config['renderer_size'][1] );
+            if(config['render_size'] != undefined) {
+                me.setRenderSize( config['render_size'][0], config['render_size'][1] );
             }
 
-            if(config['renderer_canvas_size'] != undefined) {
-                me.setRendererCanvasSize( config['renderer_canvas_size'][0], config['renderer_canvas_size'][1] );
+            if(config['render_canvas_size'] != undefined) {
+                me.setRenderCanvasSize( config['render_canvas_size'][0], config['render_canvas_size'][1] );
             }
 
             me._needRedraw = true;
@@ -2250,6 +2036,7 @@ window.VRC.Core.prototype._shaders.secondPass = {
             var config = {
                 "steps": me.getSteps(),
                 "slices_range": me.getSlicesRange(),
+                "volume_size": me.getVolumeSize(),
                 "row_col": me.getRowCol(),
                 "gray_min": me.getGrayMinValue(),
                 "gray_max": me.getGrayMaxValue(),
@@ -2257,8 +2044,8 @@ window.VRC.Core.prototype._shaders.secondPass = {
                 "opacity_factor": me.getOpacityFactor(),
                 "color_factor": me.getColorFactor(),
                 "absorption_mode": me.getAbsorptionMode(),
-                "renderer_size": me.getRenderSize(),
-                "renderer_canvas_size": me.getCanvasSize(),
+                "render_size": me.getRenderSize(),
+                "render_canvas_size": me.getRenderCanvasSize(),
                 "backgound": me.getClearColor(),
                 "tf_path": me.getTransferFunctionAsImage().src,
                 "tf_colors": me.getTransferFunctionColors(),

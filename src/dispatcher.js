@@ -5,9 +5,6 @@
  * @class EventDispatcher
  * @this {RC.EventDispatcher}
  * @author sogimu@nxt.ru Aleksandr Lizin aka sogimu
- * @version 0.1
- *
- * @requires NamespaceRC.js
  */
 
 (function(namespace) {
@@ -20,7 +17,6 @@
         me._context = window;
 
         me.add = function(func, is_start) {
-            // gizmo.Filter(func, "Function");
             me._functions.push({"is_start": is_start != undefined ? is_start : true, "func": func});
             return me._functions.length-1;
 
@@ -47,7 +43,6 @@
         };
 
         me.call = function(value, context) {
-            // var context = gizmo.isSet(context)? context : me._context;
             var context = context ? context : me._context;
 
             for(i in me._functions) {
@@ -66,11 +61,9 @@
         };
 
         me.setConfig = function(O) {
-            // gizmo.Filter(O, "Object");
             for(prop in O) {
                 switch(prop) {
                     case "context": {
-                        // gizmo.Filter(O[prop], "Object");
                         this._context = O[prop];
                     };break;
 

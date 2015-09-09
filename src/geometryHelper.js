@@ -5,8 +5,6 @@
  * @class Core
  * @this {Core}
  * @author sogimu@nxt.ru Aleksandr Lizin aka sogimu
- * @version 0.1
- *
  */
 
 (function(namespace) {

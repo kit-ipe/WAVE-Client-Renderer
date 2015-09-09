@@ -53,9 +53,6 @@
 
                     me._needRedraw = false;
                 }
-                
-                // me._core._controls.update();
-                // me._needRedraw = true;
 
             };
 
@@ -64,7 +61,6 @@
         };
 
         me.setSlicemapsImages = function(images, imagesPaths) {
-            // var ctx = me._core._renderer.getContext()
             var maxTexSize = me._core.getMaxTextureSize();
             var availableTexturesNumber = me._core.getAvailableTexturesNumber();
 
@@ -161,8 +157,14 @@
         };
 
         me.setSteps = function(steps_number) {
-            me._core.setSteps(steps_number);
-            me._needRedraw = true;
+            if( steps_number <= me._core.getMaxStepsNumber() ) {
+                me._core.setSteps(steps_number);
+                me._needRedraw = true;
+
+            } else {
+                throw Error("Number of steps should be lower of equal length of min volume dimension.");
+
+            }
 
         };
 
@@ -304,15 +306,15 @@
             me._needRedraw = true;
         };
 
-        me.setRendererSize = function(width, height) {
-            var ctx = me._core._renderer.getContext()
+        me.setRenderSize = function(width, height) {
+            var ctx = me._core._render.getContext()
             var maxRenderbufferSize = ctx.getParameter(ctx.MAX_RENDERBUFFER_SIZE);
             if(Math.max(width, height) > maxRenderbufferSize) {
                 console.warn("Size of canvas setted in " + maxRenderbufferSize + "x" + maxRenderbufferSize + ". Max render buffer size is " + maxRenderbufferSize + ".");
-                me._core.setRendererSize(maxRenderbufferSize, maxRenderbufferSize);
+                me._core.setRenderSize(maxRenderbufferSize, maxRenderbufferSize);
 
             } else {
-                me._core.setRendererSize(width, height);
+                me._core.setRenderSize(width, height);
 
             }
 
@@ -320,8 +322,8 @@
 
         };
 
-        me.setRendererCanvasSize = function(width, height) {
-            me._core.setRendererCanvasSize(width, height);
+        me.setRenderCanvasSize = function(width, height) {
+            me._core.setRenderCanvasSize(width, height);
             me._needRedraw = true;
 
         };
@@ -528,14 +530,13 @@
             return me._core.getRenderSizeInPixels();
         };
 
-        me.getCanvasSize = function() {
+        me.getRenderCanvasSize = function() {
             return me._core.getCanvasSize();
         };
 
-        me.getCanvasSizeInPixels = function() {
+        me.getRenderCavnvasSizeInPixels  = function() {
             return me._core.getCanvasSizeInPixels();
         };
-
 
         me.getAbsorptionMode = function() {
             return me._core.getAbsorptionMode();
@@ -682,12 +683,12 @@
                 me._core.setAbsorptionMode( config['absorption_mode'] );
             }
 
-            if(config['renderer_size'] != undefined) {
-                me.setRendererSize( config['renderer_size'][0], config['renderer_size'][1] );
+            if(config['render_size'] != undefined) {
+                me.setRenderSize( config['render_size'][0], config['render_size'][1] );
             }
 
-            if(config['renderer_canvas_size'] != undefined) {
-                me.setRendererCanvasSize( config['renderer_canvas_size'][0], config['renderer_canvas_size'][1] );
+            if(config['render_canvas_size'] != undefined) {
+                me.setRenderCanvasSize( config['render_canvas_size'][0], config['render_canvas_size'][1] );
             }
 
             me._needRedraw = true;
@@ -728,6 +729,7 @@
             var config = {
                 "steps": me.getSteps(),
                 "slices_range": me.getSlicesRange(),
+                "volume_size": me.getVolumeSize(),
                 "row_col": me.getRowCol(),
                 "gray_min": me.getGrayMinValue(),
                 "gray_max": me.getGrayMaxValue(),
@@ -735,8 +737,8 @@
                 "opacity_factor": me.getOpacityFactor(),
                 "color_factor": me.getColorFactor(),
                 "absorption_mode": me.getAbsorptionMode(),
-                "renderer_size": me.getRenderSize(),
-                "renderer_canvas_size": me.getCanvasSize(),
+                "render_size": me.getRenderSize(),
+                "render_canvas_size": me.getRenderCanvasSize(),
                 "backgound": me.getClearColor(),
                 "tf_path": me.getTransferFunctionAsImage().src,
                 "tf_colors": me.getTransferFunctionColors(),
