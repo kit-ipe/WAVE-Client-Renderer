@@ -506,6 +506,10 @@
             return me._core.getVolumeSizeNormalized();
         };
 
+        me.getMaxStepsNumber = function() {
+            return me._core.getMaxStepsNumber();
+        }
+
         me.getOpacityFactor = function() {
             return me._core.getOpacityFactor();
         };

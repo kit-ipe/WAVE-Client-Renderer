@@ -75,7 +75,7 @@ var InitGUI = function(config, rcl2) {
 		rcl2.setGeometryMaxZ(value);
 	});
 
-	steps_controller = gui.add(guiControls, 'steps', 10, Math.min( config.volume_size[0], config.volume_size[1] ), 5).listen();
+	steps_controller = gui.add(guiControls, 'steps', 10, rcl2.getMaxStepsNumber(), 1).listen();
 	steps_controller.onFinishChange(function(value) {
 		rcl2.setSteps(value);
 	});

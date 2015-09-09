@@ -1823,6 +1823,10 @@ window.VRC.Core.prototype._shaders.secondPass = {
             return me._core.getVolumeSizeNormalized();
         };
 
+        me.getMaxStepsNumber = function() {
+            return me._core.getMaxStepsNumber();
+        }
+
         me.getOpacityFactor = function() {
             return me._core.getOpacityFactor();
         };
