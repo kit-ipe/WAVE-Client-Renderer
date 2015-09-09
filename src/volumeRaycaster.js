@@ -627,7 +627,7 @@
             }
 
             if(config['threshold_indexes'] != undefined) {
-                me._core.setThresholdIndexes( config['threshold_indexes']["otsu"], config['threshold_indexes']["isodate"], config['threshold_indexes']["yen"], config['threshold_indexes']["li"] );
+                me._core.setThresholdIndexes( config['threshold_indexes']["otsu"], config['threshold_indexes']["isodata"], config['threshold_indexes']["yen"], config['threshold_indexes']["li"] );
             }
 
             if(config['volume_size'] != undefined) {
