@@ -124,7 +124,7 @@ Core.prototype.init = function() {
     
     this._materialSecondPass = new THREE.ShaderMaterial( {
         vertexShader: this._shaders.secondPass.vertexShader,
-        fragmentShader: ejs.render( this._shaders.secondPass.fragmentShader, {"maxTexturesNumber": me.getAvailableTexturesNumber()}),
+        fragmentShader: ejs.render( this._shaders.secondPass.fragmentShader, {"maxTexturesNumber": me.getMaxTexturesNumber()}),
         attributes: {
             vertColor:                       {type: 'c', value: [] }
         },
@@ -406,8 +406,8 @@ Core.prototype.setRenderSize = function(width, height) {
 
 };
 
-Core.prototype.setBackgoundColor = function(color) {
-    console.log("Core: setBackgoundColor()");
+Core.prototype.setBackgroundColor = function(color) {
+    console.log("Core: setBackgroundColor()");
     this._render_clear_color = color;
     this._render.setClearColor(color);
 };
@@ -613,7 +613,7 @@ Core.prototype.getDomContainerId = function() {
     return this._dom_container_id;
 };
 
-Core.prototype.getAvailableTexturesNumber = function() {
+Core.prototype.getMaxTexturesNumber = function() {
     var number_used_textures = 6;
     var gl = this._render.getContext()
     return gl.getParameter(gl.MAX_TEXTURE_IMAGE_UNITS) - number_used_textures;

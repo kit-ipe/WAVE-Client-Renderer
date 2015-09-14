@@ -62,16 +62,16 @@
 
         me.setSlicemapsImages = function(images, imagesPaths) {
             var maxTexSize = me._core.getMaxTextureSize();
-            var availableTexturesNumber = me._core.getAvailableTexturesNumber();
+            var maxTexturesNumber = me._core.getMaxTexturesNumber();
 
             var firstImage = images[0];
             var imagesNumber = images.length;
 
-            if( imagesNumber > availableTexturesNumber ) {
-                throw Error("Number of slicemaps bigger then number of available texture units. Available texture units: " + availableTexturesNumber);
+            if( imagesNumber > maxTexturesNumber ) {
+                throw Error("Number of slicemaps bigger then number of available texture units. Available texture units: " + maxTexturesNumber);
             };
 
-            if( (Math.max(firstImage.width, firstImage.height) > maxTexSize) || (imagesNumber > availableTexturesNumber) ) {
+            if( (Math.max(firstImage.width, firstImage.height) > maxTexSize) || (imagesNumber > maxTexturesNumber) ) {
                 throw Error("Size of slice bigger than maximum possible on current GPU. Maximum size of texture: " + maxTexSize);
             };
 
@@ -328,8 +328,8 @@
 
         };
 
-        me.setBackgoundColor = function(color) {
-            me._core.setBackgoundColor(color);
+        me.setBackgroundColor = function(color) {
+            me._core.setBackgroundColor(color);
             me._needRedraw = true;
 
         };
@@ -508,7 +508,19 @@
 
         me.getMaxStepsNumber = function() {
             return me._core.getMaxStepsNumber();
-        }
+        };
+
+        me.getMaxTextureSize = function() {
+            return me._core.getMaxTextureSize();
+        };
+
+        me.getMaxTexturesNumber = function() {
+            return me._core.getMaxTexturesNumber();
+        };
+
+        me.getMaxFramebuferSize = function() {
+            return me._core.getMaxFramebuferSize();
+        };
 
         me.getOpacityFactor = function() {
             return me._core.getOpacityFactor();
@@ -518,8 +530,8 @@
             return me._core.getColorFactor();
         };
 
-        me.getBackgound = function() {
-            return me._core.getBackgound();
+        me.getBackground = function() {
+            return me._core.getBackground();
         };
 
         me.getAbsorptionMode = function() {
@@ -675,8 +687,8 @@
                 me._core.setTransferFunctionByColors( config['tf_colors'] );   
             }
             
-            if(config['backgound'] != undefined) {
-                me._core.setBackgoundColor( config['backgound'] );
+            if(config['background'] != undefined) {
+                me._core.setBackgroundColor( config['background'] );
             }
 
             if(config['auto_steps'] != undefined) {
@@ -753,7 +765,7 @@
                 "z_min": me.getGeometryDimensions()["zmin"], 
                 "z_max": me.getGeometryDimensions()["zmax"],
                 "dom_container_id": me.getDomContainerId(),
-                "auto_steps": me.isAutoStepsOn(),
+                "auto_steps": me.isAutoStepsOn()
             };
 
             return config;

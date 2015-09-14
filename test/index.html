@@ -29,7 +29,6 @@
 		<script>
 			window.onload = function() {
 				try {
-
 					var config = {
 						"dom_container_id": "container",
 						"render_size": [128, 128],
@@ -39,7 +38,7 @@
 
 					rcl2 = new VRC.VolumeRaycaster(config);
 
-					rcl2.uploadConfig("slicemap-config-8x8-2048x2048-BILINEAR.json");
+					rcl2.uploadConfig("slicemap-config-10x10-2048x2048-BICUBIC.json");
 
 					rcl2.addCallback("onLoadSlicemaps", function() {
 						InitGUI( rcl2.getConfig(), rcl2 );
