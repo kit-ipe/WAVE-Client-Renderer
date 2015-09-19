@@ -86,7 +86,7 @@ $ ./start_http_server.sh
 ```
 ### 9. Point your browser to [localhost:10001](http://localhost:10001).
 
-### 10. Change files into dir src/*. Save it. Change code of test app in test/*. Refresh page localhost:10001 to see changes
+### 10. Change files into dir src/*. Save it. Change code of test app in test/*. Save it. Refresh page localhost:10001 to see changes
 
 ## LICENSE
 
