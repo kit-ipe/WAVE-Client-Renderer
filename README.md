@@ -21,7 +21,7 @@ vrc = new VRC.VolumeRaycaster({
 	"gray_max": 1.0,
 	"row_col": [16, 16],
 	"steps": 1024,
-	"resolution": [700, 700],
+	"render_size": [700, 700],
 	"absorption_mode": 1,
 });
 
@@ -63,22 +63,30 @@ $ sudo zypper in npm
 ```bash
 $ sudo pacman -S npm
 ```
-### 4. Install plugins for Grunt
+### 4. Prepare Grunt
 ```bash
-$ ./install.sh
+$ ./prepare_grunt.sh
 ```
-### 5. Generate minification version of tomo_raycaster2
+### 5. Start auto concatination and minification of js and glsl source code if changes appears
 ```bash
-$ grunt
+$ grunt watch
 ```
-### 6. Start python http server
+### 6. Go to the test dir
 ```bash
-$ ./start_server.sh
+$ cd test
+```
+### 7. Upload js library dependencies withhelp of bower
+```bash
+$ ./upload_dependencies.sh
+```
+### 8. Start python http server
+```bash
+$ ./start_http_server.sh
 
 ```
-### 7. Point your browser to [localhost:10001](http://localhost:10001/examples).
+### 9. Point your browser to [localhost:10001](http://localhost:10001).
 
-### 8. See more examples of usage [here](https://github.com/kit-ipe/tomo_raycaster2_examples.git)
+### 10. Change files into dir src/*. Save it. Change code of test app in test/*. Refresh page localhost:10001 to see changes
 
 ## LICENSE
 

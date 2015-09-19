@@ -13,7 +13,7 @@
 	 	<script src="../build/volumeRaycaster.min.js"></script>
  -->	 	
 
-	 	<script src="../build/volumeRaycaster.js"></script>
+	 	<script src="./volumeRaycaster.js"></script>
 
 <!-- 
  		<script src="../build/volumeRaycaster.with-deps.min.js"></script>
@@ -38,7 +38,7 @@
 
 					rcl2 = new VRC.VolumeRaycaster(config);
 
-					rcl2.uploadConfig("slicemap-config-10x10-2048x2048-BICUBIC.json");
+					rcl2.uploadConfig("slicemap-config-9x9-4096x4096-BILINEAR.json");
 
 					rcl2.addCallback("onLoadSlicemaps", function() {
 						InitGUI( rcl2.getConfig(), rcl2 );

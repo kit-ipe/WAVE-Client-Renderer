@@ -1,12 +1,12 @@
 {
   "name": "tomo_raycaster2",
-  "version": "0.5.0",
+  "version": "0.54.4",
   "homepage": "https://github.com/kit-ipe/tomo_raycaster2",
   "authors": [
     "Aleksandr Lizin <sogimu@nxt.ru>"
   ],
   "description": "JavaScrip framework for client side raycasting",
-  "main": "build/volumeRaycaster.min.js",
+  "main": "build/volumeRaycaster.js",
   "moduleType": [
     "globals",
     "node"
@@ -25,19 +25,11 @@
     "node_modules",
     "bower_components",
     "test",
-    "tests",
-    "data",
     "docs",
     "src",
-    "install_npm_packages",
-    "start_local_http_server.sh",
-    "upload_dependencies.sh",
+    "prepare_grunt.sh",
     "package.json",
     "Gruntfile.js"
-  ],
-  "dependencies": {
-    "threejs": "r70",
-    "dat.gui": "*"
-  }
+  ]
 
 }

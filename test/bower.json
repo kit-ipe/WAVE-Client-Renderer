@@ -1,0 +1,28 @@
+{
+  "name": "test_tomo_raycaster2",
+  "version": "0.5.0",
+  "homepage": "https://github.com/kit-ipe/tomo_raycaster2",
+  "authors": [
+    "Aleksandr Lizin <sogimu@nxt.ru>"
+  ],
+  "description": "Example of using tomo_raycastrer2",
+  "main": "build/volumeRaycaster.min.js",
+  "moduleType": [
+    "globals",
+    "node"
+  ],
+  "keywords": [
+    "raycasting",
+    "3D",
+    "WebGL",
+    "Threejs",
+    "tomodata",
+    "tomographia"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "threejs": "r70",
+    "dat.gui": "*"
+  }
+
+}
