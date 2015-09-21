@@ -1,12 +1,15 @@
 JavaScrip framework for client side raycasting.
 ====================
 
-##Possablites
+##Possibilities
 - Three graphics mods: x-ray, MIPS, Maximum intensity projection
 - Thresholding by intensity of grayscale value
+- Transfer function applying after thresholding only
+- Cross-browser (Chrome, Chromium, Firefox, Safari, Seamonkey, Safary mobile version, Chrome mobile version)
+- Cross-browser
 - Adoptive steps changing for getting good performance
 - Configurability
-- Utility for creating sitemaps
+- Methods getConfig() and setConfig() for ability save or recover state of work
 
 ##Example of usage:
 
@@ -67,7 +70,8 @@ $ sudo pacman -S npm
 ```bash
 $ ./prepare_grunt.sh
 ```
-### 5. Start auto concatination and minification of js and glsl source code if changes appears
+### 5. Open additional console
+### 6. Start auto concatination and minification of js and glsl source code if changes appears
 ```bash
 $ grunt watch
 ```
