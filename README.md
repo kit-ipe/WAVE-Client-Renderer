@@ -1,6 +1,8 @@
 JavaScrip framework for client side raycasting.
 ====================
 
+[![Join the chat at https://gitter.im/kit-ipe/tomo_raycaster2](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/kit-ipe/tomo_raycaster2?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 ##Possibilities
 - Three graphics mods: x-ray, MIPS, Maximum intensity projection
 - Thresholding by intensity of grayscale value
