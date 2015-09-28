@@ -631,7 +631,6 @@ Core.prototype.getMaxFramebuferSize = function() {
 
 Core.prototype._shaders = {
     // Here will be inserted shaders withhelp of grunt
-
 };
 
 window.VRC.Core = Core;
