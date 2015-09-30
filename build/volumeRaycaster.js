@@ -551,7 +551,6 @@ Core.prototype.init = function() {
     this._controls.center.set( 0.0, 0.0, 0.0 );
 
     this._rtTexture = new THREE.WebGLRenderTarget( this.getRenderSizeInPixels()[0], this.getRenderSizeInPixels()[1], { minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, format: THREE.RGBAFormat} );
-
     this._rtTexture.wrapS = this._rtTexture.wrapT = THREE.ClampToEdgeWrapping;
     
     this._materialFirstPass = new THREE.ShaderMaterial( {
@@ -648,9 +647,10 @@ Core.prototype._setSlicemapsTextures = function(images) {
 
     for(var i=0; i<images.length; i++) {
         var texture = new THREE.Texture( images[i] );
-        texture.wrapS = texture.wrapT = THREE.ClampToEdgeWrapping;
         texture.magFilter = THREE.LinearFilter;
         texture.minFilter = THREE.LinearFilter;
+        texture.wrapS = texture.wrapT = THREE.ClampToEdgeWrapping;
+        texture.generateMipmaps = false;
         texture.flipY = false;
         texture.needsUpdate = true;
 
@@ -664,12 +664,13 @@ Core.prototype._setSlicemapsTextures = function(images) {
 Core.prototype.setTransferFunctionByImage = function(image) {
     console.log("Core: setTransferFunctionByImage()");
     this._transfer_function_as_image = image;
-    var transferTexture =  new THREE.Texture(image);
-    transferTexture.wrapS = transferTexture.wrapT =  THREE.ClampToEdgeWrapping;
-    transferTexture.magFilter = THREE.LinearFilter;
-    transferTexture.minFilter = THREE.LinearFilter;
-    transferTexture.flipY = true;
-    transferTexture.needsUpdate = true;
+    var texture = new THREE.Texture(image);
+    texture.magFilter = THREE.LinearFilter;
+    texture.minFilter = THREE.LinearFilter;
+    texture.wrapS = texture.wrapT =  THREE.ClampToEdgeWrapping;
+    texture.generateMipmaps = false;
+    texture.flipY = true;
+    texture.needsUpdate = true;
 
     this._secondPassSetUniformValue("uTransferFunction", transferTexture);
     this.onChangeTransferFunction.call(image);
