@@ -9,6 +9,10 @@
  */
 
 var Core = function(domContainerId) {
+    this.refl = 1;
+    this.sos = 1;
+    this.sat = 1;
+    
     this._steps                      = 20;
     this._slices_gap                 = [0,    '*'];
     this._slicemap_row_col           = [16,   16];
@@ -142,9 +146,11 @@ Core.prototype.init = function() {
             uAbsorptionModeIndex:            { type: "f", value: this._absorption_mode_index },
             uMinGrayVal:                     { type: "f", value: this._gray_value[0] },
             uMaxGrayVal:                     { type: "f", value: this._gray_value[1] },
+            refl:                            { type: "f", value: this.getRefl() },
+            sat:                           { type: "f", value: this.getSat() },
+            sos:                             { type: "f", value: this.getSos() },
         },
         side: THREE.BackSide,
-        // transparent: true,
         transparent: true
     });
 
@@ -233,6 +239,35 @@ Core.prototype.setTransferFunctionByImage = function(image) {
     this.onChangeTransferFunction.call(image);
 
 };
+
+
+Core.prototype.setRefl = function(refl) {
+    this.refl=refl;
+    this._secondPassSetUniformValue("refl", this.refl);
+}
+
+Core.prototype.setSos = function(sos) {
+    this.sos=sos;
+    this._secondPassSetUniformValue("sos", this.sos);
+}
+
+Core.prototype.setSat = function(sat) {
+    this.sat=sat;
+    this._secondPassSetUniformValue("sat", this.sat);
+}
+
+Core.prototype.getRefl = function() {
+    return this.refl;
+}
+
+Core.prototype.getSos = function() {
+    return this.sos;
+}
+
+Core.prototype.getSat = function() {
+    return this.sat;
+}
+
 
 Core.prototype.setTransferFunctionByColors = function(colors) {
     console.log("Core: setTransferFunctionByColors()");

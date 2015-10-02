@@ -334,6 +334,20 @@
 
         };
 
+        me.setRefl = function(value) {
+            me._core.setRefl(value);
+            me._needRedraw = true;
+
+        };
+        me.setSos = function(value) {
+            me._core.setSos(value);
+            me._needRedraw = true;
+        };
+        me.setSat = function(value) {
+            me._core.setSat(value);
+            me._needRedraw = true;
+        };
+        
         me.setRowCol = function(row, col) {
             me._core.setRowCol(row, col);
             me._needRedraw = true;
@@ -470,6 +484,18 @@
 
         };
 
+        me.getRefl = function() {
+            return me._core.getRefl();
+        };
+        
+        me.getSos = function() {
+            return me._core.getSos();
+        };
+        
+        me.getSat = function() {
+            return me._core.getSat();
+        };
+        
         me.getGrayMaxValue = function() {
             return me._core.getGrayMaxValue();
         };
@@ -619,8 +645,7 @@
                         me.start();
                     }
 
-                );
-                
+                );                
             }
 
             if(config['slices_range'] != undefined) {
@@ -634,6 +659,9 @@
             if(config['row_col'] != undefined) {
                 me._core.setRowCol( config['row_col'][0], config['row_col'][1] );
             }
+            
+            if(config['test'] != undefined) 
+                me._core.setRowCol( config['test'], config['test'] );
 
             if(config['gray_min'] != undefined) {
                 me._core.setGrayMinValue( config['gray_min'] );
@@ -706,6 +734,19 @@
             if(config['render_canvas_size'] != undefined) {
                 me.setRenderCanvasSize( config['render_canvas_size'][0], config['render_canvas_size'][1] );
             }
+            
+            if(config['refl'] != undefined) {
+                me.setRefl(config['refl']);
+            }
+                        
+            if(config['sat'] != undefined) {
+                me.setSat(config['sat']);
+            }
+            
+             if(config['sos'] != undefined) {
+                me.setSos(config['sos']);
+            }
+            
 
             me._needRedraw = true;
         };
@@ -765,11 +806,13 @@
                 "z_min": me.getGeometryDimensions()["zmin"], 
                 "z_max": me.getGeometryDimensions()["zmax"],
                 "dom_container_id": me.getDomContainerId(),
-                "auto_steps": me.isAutoStepsOn()
+                "auto_steps": me.isAutoStepsOn(),
+                "refl": me.getRefl(),
+                "sat": me.getSat(),
+                "sos": me.getSos()
             };
 
             return config;
-
         };
 
         me.init();

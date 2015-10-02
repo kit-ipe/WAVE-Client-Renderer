@@ -451,6 +451,10 @@
  */
 
 var Core = function(domContainerId) {
+    this.refl = 1;
+    this.sos = 1;
+    this.sat = 1;
+    
     this._steps                      = 20;
     this._slices_gap                 = [0,    '*'];
     this._slicemap_row_col           = [16,   16];
@@ -584,9 +588,11 @@ Core.prototype.init = function() {
             uAbsorptionModeIndex:            { type: "f", value: this._absorption_mode_index },
             uMinGrayVal:                     { type: "f", value: this._gray_value[0] },
             uMaxGrayVal:                     { type: "f", value: this._gray_value[1] },
+            refl:                            { type: "f", value: this.getRefl() },
+            sat:                           { type: "f", value: this.getSat() },
+            sos:                             { type: "f", value: this.getSos() },
         },
         side: THREE.BackSide,
-        // transparent: true,
         transparent: true
     });
 
@@ -675,6 +681,35 @@ Core.prototype.setTransferFunctionByImage = function(image) {
     this.onChangeTransferFunction.call(image);
 
 };
+
+
+Core.prototype.setRefl = function(refl) {
+    this.refl=refl;
+    this._secondPassSetUniformValue("refl", this.refl);
+}
+
+Core.prototype.setSos = function(sos) {
+    this.sos=sos;
+    this._secondPassSetUniformValue("sos", this.sos);
+}
+
+Core.prototype.setSat = function(sat) {
+    this.sat=sat;
+    this._secondPassSetUniformValue("sat", this.sat);
+}
+
+Core.prototype.getRefl = function() {
+    return this.refl;
+}
+
+Core.prototype.getSos = function() {
+    return this.sos;
+}
+
+Core.prototype.getSat = function() {
+    return this.sat;
+}
+
 
 Core.prototype.setTransferFunctionByColors = function(colors) {
     console.log("Core: setTransferFunctionByColors()");
@@ -1073,7 +1108,6 @@ Core.prototype.getMaxFramebuferSize = function() {
 
 Core.prototype._shaders = {
     // Here will be inserted shaders withhelp of grunt
-
 };
 
 window.VRC.Core = Core;
@@ -1083,15 +1117,15 @@ window.VRC.Core.prototype._shaders.firstPass = {
 		}
 	]),
 	vertexShader: [
-		'#ifdef GL_FRAGMENT_PRECISION_HIGH ',
-		' // highp is supported ',
-		' precision highp int; ',
-		' precision highp float; ',
-		'#else ',
-		' // high is not supported ',
+		'//#ifdef GL_FRAGMENT_PRECISION_HIGH ',
+		'//  highp is supported ',
+		'// precision highp int; ',
+		'// precision highp float; ',
+		'//#else ',
+		'//  high is not supported ',
 		' precision mediump int; ',
 		' precision mediump float; ',
-		'#endif',
+		'//#endif',
 		'attribute vec4 vertColor; ',
 		'varying vec4 backColor; ',
 		'varying vec4 pos; ',
@@ -1102,15 +1136,15 @@ window.VRC.Core.prototype._shaders.firstPass = {
 		'    gl_Position = pos; ',
 		'}  '].join("\n"),
 	fragmentShader: [
-		'#ifdef GL_FRAGMENT_PRECISION_HIGH ',
-		' // highp is supported ',
-		' precision highp int; ',
-		' precision highp float; ',
-		'#else ',
+		'//#ifdef GL_FRAGMENT_PRECISION_HIGH ',
+		'// // highp is supported ',
+		'// precision highp int; ',
+		'// precision highp float; ',
+		'//#else ',
 		' // high is not supported ',
 		' precision mediump int; ',
 		' precision mediump float; ',
-		'#endif ',
+		'//#endif ',
 		'varying vec4 backColor; ',
 		'void main(void) ',
 		'{ ',
@@ -1132,19 +1166,22 @@ window.VRC.Core.prototype._shaders.secondPass = {
 		"uSlicesOverX" : { type: "f", value: -1 },
 		"uSlicesOverY" : { type: "f", value: -1 },
 		"uSteps" : { type: "f", value: -1 },
+		"refl" : { type: "f", value: -1 },
+		"sat" : { type: "f", value: -1 },
+		"sos" : { type: "f", value: -1 },
 		"uAvailable_textures_number" : { type: "i", value: 0 },
 		}
 	]),
 	vertexShader: [
-		'#ifdef GL_FRAGMENT_PRECISION_HIGH ',
-		' // highp is supported ',
-		' precision highp int; ',
-		' precision highp float; ',
-		'#else ',
+		'//#ifdef GL_FRAGMENT_PRECISION_HIGH ',
+		'// // highp is supported ',
+		'// precision highp int; ',
+		'// precision highp float; ',
+		'//#else ',
 		' // high is not supported ',
 		' precision mediump int; ',
 		' precision mediump float; ',
-		'#endif',
+		'//#endif',
 		'attribute vec4 vertColor; ',
 		'varying vec4 frontColor; ',
 		'varying vec4 pos; ',
@@ -1155,15 +1192,15 @@ window.VRC.Core.prototype._shaders.secondPass = {
 		'    gl_Position = pos; ',
 		'} '].join("\n"),
 	fragmentShader: [
-		'#ifdef GL_FRAGMENT_PRECISION_HIGH ',
-		' // highp is supported ',
-		' precision highp int; ',
-		' precision highp float; ',
-		'#else ',
+		'//#ifdef GL_FRAGMENT_PRECISION_HIGH ',
+		'// // highp is supported ',
+		'// precision highp int; ',
+		'// precision highp float; ',
+		'//#else  ',
 		' // high is not supported ',
 		' precision mediump int; ',
 		' precision mediump float; ',
-		'#endif ',
+		'//#endif ',
 		'varying vec4 frontColor; ',
 		'varying vec4 pos; ',
 		'uniform sampler2D uBackCoord; ',
@@ -1178,75 +1215,149 @@ window.VRC.Core.prototype._shaders.secondPass = {
 		'uniform float uSlicesOverX; ',
 		'uniform float uSlicesOverY; ',
 		'uniform float uSteps; ',
+		'uniform float refl; ',
+		'uniform float sat; ',
+		'uniform float sos; ',
 		'// uniform int uAvailable_textures_number;',
 		'//Acts like a texture3D using Z slices and trilinear filtering. ',
-		'float getVolumeValue(vec3 volpos)',
+		'vec3 getVolumeValue(vec3 volpos)',
 		'{',
 		'    float s1Original, s2Original, s1, s2; ',
 		'    float dx1, dy1; ',
-		'    // float dx2, dy2; ',
-		'    // float value; ',
 		'    vec2 texpos1,texpos2; ',
 		'    float slicesPerSprite = uSlicesOverX * uSlicesOverY; ',
-		'    s1Original = floor(volpos.z*uNumberOfSlices); ',
-		'    // s2Original = min(s1Original + 1.0, uNumberOfSlices);',
-		'    int tex1Index = int(floor(s1Original / slicesPerSprite));',
-		'    // int tex2Index = int(floor(s2Original / slicesPerSprite));',
+		'    s1Original = floor(volpos.z*uNumberOfSlices);     ',
+		'    int tex1Index = int(floor(s1Original / slicesPerSprite));    ',
 		'    s1 = mod(s1Original, slicesPerSprite);',
-		'    // s2 = mod(s2Original, slicesPerSprite);',
 		'    dx1 = fract(s1/uSlicesOverX);',
 		'    dy1 = floor(s1/uSlicesOverY)/uSlicesOverY;',
-		'    // dx2 = fract(s2/uSlicesOverX);',
-		'    // dy2 = floor(s2/uSlicesOverY)/uSlicesOverY;',
 		'    texpos1.x = dx1+(volpos.x/uSlicesOverX);',
 		'    texpos1.y = dy1+(volpos.y/uSlicesOverY);',
-		'    // texpos2.x = dx2+(volpos.x/uSlicesOverX);',
-		'    // texpos2.y = dy2+(volpos.y/uSlicesOverY);',
-		'    float value1 = 0.0, value2 = 0.0; ',
-		'    // bool value1Set = false, value2Set = false;',
-		'    // int numberOfSlicemaps = int( ceil(uNumberOfSlices / (uSlicesOverX * uSlicesOverY)) );',
+		'    vec3 value = vec3(0.0,0.0,0.0); ',
+		'    ',
 		'    <% for(var i=0; i < maxTexturesNumber; i++) { %>',
 		'        if( tex1Index == <%=i%> )',
 		'        {',
-		'            value1 = texture2D(uSliceMaps[<%=i%>],texpos1).x;',
+		'            value = texture2D(uSliceMaps[<%=i%>],texpos1).xyz;',
 		'        }',
 		'        <% if( i < maxTexturesNumber-1 ) { %>',
 		'            else',
 		'        <% } %>',
 		'    <% } %>',
-		'    return value1;',
-		'    // for (int x = 0; x < gl_MaxTextureImageUnits-2; x++)',
-		'    // {',
-		'    //     if(x == numberOfSlicemaps)',
-		'    //     {',
-		'    //         break;',
-		'    //     }',
-		'    //     if(x == tex1Index) { ',
-		'    //         value1 = texture2D(uSliceMaps[x],texpos1).x; ',
-		'    //         value1Set = true; ',
-		'    //     } ',
-		'    //     if(x == tex2Index) { ',
-		'    //         value2 = texture2D(uSliceMaps[x],texpos2).x; ',
-		'    //         value2Set = true; ',
-		'    //     } ',
-		'    //     if(value1Set && value2Set) { ',
-		'    //         break; ',
-		'    //     } ',
-		'    // } ',
-		'    // return mix(value1, value2, fract(volpos.z*uNumberOfSlices)); ',
+		'    return value;',
 		'} ',
+		'// x - R, y - G, z - B',
+		'// x - H, y - S, z - V',
+		'vec3 hsv2rgb(vec3 hsv) ',
+		'{',
+		'        ',
+		'float r = refl;',
+		'    ',
+		'    float     hue, p, q, t, ff;',
+		'    int        i;    ',
+		'    ',
+		'    hsv.z+=r;  ',
+		'        ',
+		'    hsv.x*=360.0*sos;    ',
+		'    ',
+		'    ',
+		'    hue=hsv.x >= 360.0?hsv.x-360.0:hsv.x;',
+		'    ',
+		'    hue /= 60.0;',
+		'    i = int((hue));',
+		'    ff = hue - float(i); ',
+		'    p = hsv.z * (1.0 - sat);',
+		'    q = hsv.z * (1.0 - (sat * ff));',
+		'    t = hsv.z * (1.0 - (sat * (1.0 - ff)));',
+		'    if(i==0)',
+		'        return vec3(hsv.z,t,p);',
+		'    ',
+		'    else if(i==1)',
+		'      return vec3(q,hsv.z,p);',
+		'        ',
+		'    else if(i==2)     ',
+		'        return vec3(p,hsv.z,t);',
+		'        ',
+		'    else if(i==3)',
+		'        return vec3(p,q,hsv.z);',
+		'        ',
+		'    else if(i==4)',
+		'        return vec3(t,p,hsv.z);',
+		'        ',
+		'    else',
+		'        return vec3(hsv.z,p,q);',
+		'}',
+		'vec3 tumorHighlighter(vec3 hsv) ',
+		'{',
+		'        ',
+		'float r = refl;',
+		'    ',
+		'    float     hue, p, q, t, ff;',
+		'    int        i;    ',
+		'    float s=(hsv.x>sos-0.05 && hsv.x<sos+0.05)?sat:0.0; ',
+		'    hsv.z+=r;  ',
+		'  ',
+		'    hue = 0.0;',
+		'    i = int((hue));',
+		'    ff = hue - float(i); ',
+		'    p = hsv.z * (1.0 - s);',
+		'    q = hsv.z * (1.0 - (s * ff));',
+		'    t = hsv.z * (1.0 - (s * (1.0 - ff)));',
+		'    if(i==0)',
+		'        return vec3(hsv.z,t,p);',
+		'    ',
+		'    else if(i==1)',
+		'      return vec3(q,hsv.z,p);',
+		'        ',
+		'    else if(i==2)     ',
+		'        return vec3(p,hsv.z,t);',
+		'        ',
+		'    else if(i==3)',
+		'        return vec3(p,q,hsv.z);',
+		'        ',
+		'    else if(i==4)',
+		'        return vec3(t,p,hsv.z);',
+		'        ',
+		'    else',
+		'        return vec3(hsv.z,p,q);',
+		'}',
+		'vec3 realBody(vec3 hsv) ',
+		'{',
+		'        ',
+		'float r = refl;',
+		'    ',
+		'    float     hue, p, q, t, ff;',
+		'    int        i;    ',
+		'    ',
+		'    hsv.z+=r;  ',
+		'        ',
+		'    hsv.x*=360.0*sos;    ',
+		'    ',
+		'    ',
+		'    hue=hsv.x >= 360.0?hsv.x-360.0:hsv.x;',
+		'    ',
+		'    hue /= 230.0;',
+		'    i = int((hue));',
+		'    ff = hue - float(i); ',
+		'    p = hsv.z * (1.0 - sat);',
+		'    q = hsv.z * (1.0 - (sat * ff));',
+		'    t = hsv.z * (1.0 - (sat * (1.0 - ff)));',
+		'//    if(i==0)',
+		'        return vec3(hsv.z,t,p);    ',
+		'//    else',
+		' //       return vec3(hsv.z,p,q);',
+		'}',
 		'void main(void)',
 		'{',
 		' vec2 texC = ((pos.xy/pos.w) + 1.0) / 2.0; ',
 		' vec4 backColor = texture2D(uBackCoord,texC); ',
 		' vec3 dir = backColor.rgb - frontColor.rgb; ',
-		' //dir /= length(dir); ',
 		' vec4 vpos = frontColor; ',
-		'//      vec3 Step = dir/uSteps; ',
 		' vec3 Step = dir/uSteps; ',
 		' vec4 accum = vec4(0, 0, 0, 0); ',
 		' vec4 sample = vec4(0.0, 0.0, 0.0, 0.0); ',
 		' vec4 colorValue = vec4(0, 0, 0, 0); ',
+		'    ',
 		' float biggest_gray_value = 0.0; ',
 		' float opacityFactor = uOpacityVal; ',
 		' float lightFactor = uColorVal; ',
@@ -1255,61 +1366,89 @@ window.VRC.Core.prototype._shaders.secondPass = {
 		' for(float i = 0.0; i < 4095.0; i+=1.0) ',
 		' { ',
 		' // It because expression i > uSteps impossible ',
-		'     if(i == uSteps) { ',
+		'     if(i == uSteps) ',
 		'         break; ',
-		'     } ',
-		'     float gray_val = getVolumeValue(vpos.xyz); ',
-		'     if(gray_val < uMinGrayVal || gray_val > uMaxGrayVal) { ',
+		'      ',
+		'     vec3 gray_val = getVolumeValue(vpos.xyz); ',
+		'     if(gray_val.z < uMinGrayVal || gray_val.z > uMaxGrayVal)  //doesn\'t work ',
 		'         colorValue = vec4(0.0); ',
-		'     } else { ',
-		'         if(biggest_gray_value < gray_val) { ',
-		'            biggest_gray_value = gray_val;',
-		'         } ',
+		'     else { ',
+		'         ',
+		'         if(biggest_gray_value < gray_val.z)  ',
+		'                biggest_gray_value = gray_val.z;          ',
+		'                     ',
+		'         ',
+		'         ',
 		'         if(uAbsorptionModeIndex == 0.0) ',
-		'         { ',
-		'             vec2 tf_pos; ',
-		'             tf_pos.x = (gray_val - uMinGrayVal) / (uMaxGrayVal - uMinGrayVal); ',
-		'             tf_pos.y = 0.5; ',
-		'             colorValue = texture2D(uTransferFunction,tf_pos);',
-		'             //colorValue = vec4(tf_pos.x, tf_pos.x, tf_pos.x, 1.0); ',
-		'             sample.a = colorValue.a * opacityFactor; ',
-		'             sample.rgb = colorValue.rgb * uColorVal; ',
-		'             accum += sample; ',
-		'             if(accum.a>=1.0) ',
-		'                break; ',
-		'         } ',
-		'         if(uAbsorptionModeIndex == 1.0) ',
-		'         { ',
-		'             vec2 tf_pos; ',
-		'             tf_pos.x = (gray_val - uMinGrayVal) / (uMaxGrayVal - uMinGrayVal); ',
-		'             tf_pos.y = 0.5; ',
-		'             colorValue = texture2D(uTransferFunction,tf_pos);',
-		'             //colorValue = vec4(tf_pos.x, tf_pos.x, tf_pos.x, 1.0); ',
+		'         {     ',
+		'             float xPosX = (gray_val.x - uMinGrayVal) / (uMaxGrayVal - uMinGrayVal); ',
+		'             float xPosY = (gray_val.y - uMinGrayVal) / (uMaxGrayVal - uMinGrayVal); ',
+		'             float xPosZ = (gray_val.z - uMinGrayVal) / (uMaxGrayVal - uMinGrayVal); ',
+		'            colorValue.xw = texture2D(uTransferFunction,vec2(xPosX,0.5)).xw;',
+		'            colorValue.y = texture2D(uTransferFunction,vec2(xPosY,0.5)).y;',
+		'            colorValue.z = texture2D(uTransferFunction,vec2(xPosZ,0.5)).z;',
+		'              ',
 		'             sample.a = colorValue.a * opacityFactor * (1.0 / uSteps); ',
-		'             sample.rgb = (1.0 - accum.a) * colorValue.rgb * sample.a * lightFactor; ',
+		'             sample.rgb = (1.0 - accum.a) * tumorHighlighter(colorValue.rgb) * sample.a * lightFactor; ',
+		'            ',
+		'             ',
+		'             ',
 		'             accum += sample; ',
 		'             if(accum.a>=1.0) ',
 		'                break; ',
-		'         } ',
-		'         if(uAbsorptionModeIndex == 2.0) ',
-		'         { ',
-		'             vec2 tf_pos; ',
-		'             tf_pos.x = (biggest_gray_value - uMinGrayVal) / (uMaxGrayVal - uMinGrayVal); ',
-		'             tf_pos.y = 0.5; ',
-		'             colorValue = texture2D(uTransferFunction,tf_pos);',
-		'             //colorValue = vec4(tf_pos.x, tf_pos.x, tf_pos.x, 1.0); ',
-		'             sample.a = colorValue.a * opacityFactor; ',
-		'             sample.rgb = colorValue.rgb * uColorVal; ',
-		'             accum = sample; ',
+		'             ',
+		'         } else if(uAbsorptionModeIndex == 1.0) ',
+		'         {                 ',
+		'             float xPosX = (gray_val.x - uMinGrayVal) / (uMaxGrayVal - uMinGrayVal); ',
+		'             float xPosY = (gray_val.y - uMinGrayVal) / (uMaxGrayVal - uMinGrayVal); ',
+		'             float xPosZ = (gray_val.z - uMinGrayVal) / (uMaxGrayVal - uMinGrayVal); ',
+		'            colorValue.xw = texture2D(uTransferFunction,vec2(xPosX,0.5)).xw;',
+		'            colorValue.y = texture2D(uTransferFunction,vec2(xPosY,0.5)).y;',
+		'            colorValue.z = texture2D(uTransferFunction,vec2(xPosZ,0.5)).z;',
+		'              ',
+		'             sample.a = colorValue.a * opacityFactor * (1.0 / uSteps); ',
+		'             sample.rgb = (1.0 - accum.a) * hsv2rgb(colorValue.rgb) * sample.a * lightFactor; ',
+		'            ',
+		'             ',
+		'             ',
+		'             accum += sample; ',
+		'             if(accum.a>=1.0) ',
+		'                break; ',
+		'         } else if(uAbsorptionModeIndex == 2.0) ',
+		'         {  ',
+		'//            vec2 tf_pos; ',
+		'//            tf_pos.x = (biggest_gray_value - uMinGrayVal) / (uMaxGrayVal - uMinGrayVal); ',
+		'//            tf_pos.y = 0.5; ',
+		'//             ',
+		'//            colorValue = texture2D(uTransferFunction,tf_pos);',
+		'//             ',
+		'//             sample.a = colorValue.a * opacityFactor; ',
+		'//             sample.g = colorValue.g * uColorVal; ',
+		'//',
+		'//             accum = sample; ',
+		'             ',
+		'             float xPosX = (gray_val.x - uMinGrayVal) / (uMaxGrayVal - uMinGrayVal); ',
+		'             float xPosY = (gray_val.y - uMinGrayVal) / (uMaxGrayVal - uMinGrayVal); ',
+		'             float xPosZ = (gray_val.z - uMinGrayVal) / (uMaxGrayVal - uMinGrayVal); ',
+		'            colorValue.xw = texture2D(uTransferFunction,vec2(xPosX,0.5)).xw;',
+		'            colorValue.y = texture2D(uTransferFunction,vec2(xPosY,0.5)).y;',
+		'            colorValue.z = texture2D(uTransferFunction,vec2(xPosZ,0.5)).z;',
+		'              ',
+		'             sample.a = colorValue.a * opacityFactor * (1.0 / uSteps); ',
+		'             sample.rgb = (1.0 - accum.a) * realBody(colorValue.rgb) * sample.a * lightFactor; ',
+		'            ',
+		'             ',
+		'             ',
+		'             accum += sample; ',
+		'             if(accum.a>=1.0) ',
+		'                break; ',
 		'         } ',
 		'     } ',
 		'     //advance the current position ',
 		'     vpos.xyz += Step; ',
 		'     //break if the position is greater than <1, 1, 1> ',
-		'     if(vpos.x > 1.0 || vpos.y > 1.0 || vpos.z > 1.0 || vpos.x < 0.0 || vpos.y < 0.0 || vpos.z < 0.0) ',
-		'     { ',
-		'         break; ',
-		'     } ',
+		'     if(vpos.x > 1.0 || vpos.y > 1.0 || vpos.z > 1.0 || vpos.x < 0.0 || vpos.y < 0.0 || vpos.z < 0.0)       ',
+		'         break;   ',
 		' } ',
 		' gl_FragColor = accum; ',
 		'}'].join("\n")
@@ -1651,6 +1790,20 @@ window.VRC.Core.prototype._shaders.secondPass = {
 
         };
 
+        me.setRefl = function(value) {
+            me._core.setRefl(value);
+            me._needRedraw = true;
+
+        };
+        me.setSos = function(value) {
+            me._core.setSos(value);
+            me._needRedraw = true;
+        };
+        me.setSat = function(value) {
+            me._core.setSat(value);
+            me._needRedraw = true;
+        };
+        
         me.setRowCol = function(row, col) {
             me._core.setRowCol(row, col);
             me._needRedraw = true;
@@ -1787,6 +1940,18 @@ window.VRC.Core.prototype._shaders.secondPass = {
 
         };
 
+        me.getRefl = function() {
+            return me._core.getRefl();
+        };
+        
+        me.getSos = function() {
+            return me._core.getSos();
+        };
+        
+        me.getSat = function() {
+            return me._core.getSat();
+        };
+        
         me.getGrayMaxValue = function() {
             return me._core.getGrayMaxValue();
         };
@@ -1936,8 +2101,7 @@ window.VRC.Core.prototype._shaders.secondPass = {
                         me.start();
                     }
 
-                );
-                
+                );                
             }
 
             if(config['slices_range'] != undefined) {
@@ -1951,6 +2115,9 @@ window.VRC.Core.prototype._shaders.secondPass = {
             if(config['row_col'] != undefined) {
                 me._core.setRowCol( config['row_col'][0], config['row_col'][1] );
             }
+            
+            if(config['test'] != undefined) 
+                me._core.setRowCol( config['test'], config['test'] );
 
             if(config['gray_min'] != undefined) {
                 me._core.setGrayMinValue( config['gray_min'] );
@@ -2023,6 +2190,19 @@ window.VRC.Core.prototype._shaders.secondPass = {
             if(config['render_canvas_size'] != undefined) {
                 me.setRenderCanvasSize( config['render_canvas_size'][0], config['render_canvas_size'][1] );
             }
+            
+            if(config['refl'] != undefined) {
+                me.setRefl(config['refl']);
+            }
+                        
+            if(config['sat'] != undefined) {
+                me.setSat(config['sat']);
+            }
+            
+             if(config['sos'] != undefined) {
+                me.setSos(config['sos']);
+            }
+            
 
             me._needRedraw = true;
         };
@@ -2082,11 +2262,13 @@ window.VRC.Core.prototype._shaders.secondPass = {
                 "z_min": me.getGeometryDimensions()["zmin"], 
                 "z_max": me.getGeometryDimensions()["zmax"],
                 "dom_container_id": me.getDomContainerId(),
-                "auto_steps": me.isAutoStepsOn()
+                "auto_steps": me.isAutoStepsOn(),
+                "refl": me.getRefl(),
+                "sat": me.getSat(),
+                "sos": me.getSos()
             };
 
             return config;
-
         };
 
         me.init();
