@@ -132,7 +132,7 @@
                 var backCounter = vertexPositions.length - 1 - i;
                 var x = vertexPositions[backCounter][0];
                 var y = vertexPositions[backCounter][1];
-                var z = vertexPositions[backCounter][2];
+                var z = vertexPositions[backCounter][2]/2;
 
                 var r = vertexColors[backCounter][0];
                 var g = vertexColors[backCounter][1];

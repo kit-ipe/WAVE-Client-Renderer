@@ -1,14 +1,8 @@
-//#ifdef GL_FRAGMENT_PRECISION_HIGH 
-// // highp is supported 
-// precision highp int; 
-// precision highp float; 
-//#else  
- // high is not supported 
  precision mediump int; 
- precision mediump float; 
-//#endif 
-varying vec4 frontColor; 
-varying vec4 pos; 
+ precision mediump float;
+ 
+ varying vec4 frontColor; 
+ varying vec4 pos; 
 
 uniform sampler2D uBackCoord; 
 uniform sampler2D uTransferFunction;

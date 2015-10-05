@@ -406,7 +406,7 @@
                 var backCounter = vertexPositions.length - 1 - i;
                 var x = vertexPositions[backCounter][0];
                 var y = vertexPositions[backCounter][1];
-                var z = vertexPositions[backCounter][2];
+                var z = vertexPositions[backCounter][2]/2;
 
                 var r = vertexColors[backCounter][0];
                 var g = vertexColors[backCounter][1];
@@ -1117,15 +1117,8 @@ window.VRC.Core.prototype._shaders.firstPass = {
 		}
 	]),
 	vertexShader: [
-		'//#ifdef GL_FRAGMENT_PRECISION_HIGH ',
-		'//  highp is supported ',
-		'// precision highp int; ',
-		'// precision highp float; ',
-		'//#else ',
-		'//  high is not supported ',
 		' precision mediump int; ',
 		' precision mediump float; ',
-		'//#endif',
 		'attribute vec4 vertColor; ',
 		'varying vec4 backColor; ',
 		'varying vec4 pos; ',
@@ -1173,15 +1166,8 @@ window.VRC.Core.prototype._shaders.secondPass = {
 		}
 	]),
 	vertexShader: [
-		'//#ifdef GL_FRAGMENT_PRECISION_HIGH ',
-		'// // highp is supported ',
-		'// precision highp int; ',
-		'// precision highp float; ',
-		'//#else ',
-		' // high is not supported ',
 		' precision mediump int; ',
 		' precision mediump float; ',
-		'//#endif',
 		'attribute vec4 vertColor; ',
 		'varying vec4 frontColor; ',
 		'varying vec4 pos; ',
@@ -1192,17 +1178,11 @@ window.VRC.Core.prototype._shaders.secondPass = {
 		'    gl_Position = pos; ',
 		'} '].join("\n"),
 	fragmentShader: [
-		'//#ifdef GL_FRAGMENT_PRECISION_HIGH ',
-		'// // highp is supported ',
-		'// precision highp int; ',
-		'// precision highp float; ',
-		'//#else  ',
-		' // high is not supported ',
 		' precision mediump int; ',
-		' precision mediump float; ',
-		'//#endif ',
-		'varying vec4 frontColor; ',
-		'varying vec4 pos; ',
+		' precision mediump float;',
+		' ',
+		' varying vec4 frontColor; ',
+		' varying vec4 pos; ',
 		'uniform sampler2D uBackCoord; ',
 		'uniform sampler2D uTransferFunction;',
 		'uniform sampler2D uSliceMaps[<%= maxTexturesNumber %>];',
