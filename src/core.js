@@ -230,7 +230,7 @@ Core.prototype.setTransferFunctionByImage = function(image) {
     texture.flipY = true;
     texture.needsUpdate = true;
 
-    this._secondPassSetUniformValue("uTransferFunction", transferTexture);
+    this._secondPassSetUniformValue("uTransferFunction", texture);
     this.onChangeTransferFunction.call(image);
 
 };

@@ -672,7 +672,7 @@ Core.prototype.setTransferFunctionByImage = function(image) {
     texture.flipY = true;
     texture.needsUpdate = true;
 
-    this._secondPassSetUniformValue("uTransferFunction", transferTexture);
+    this._secondPassSetUniformValue("uTransferFunction", texture);
     this.onChangeTransferFunction.call(image);
 
 };
@@ -1078,6 +1078,7 @@ Core.prototype._shaders = {
 };
 
 window.VRC.Core = Core;
+
 window.VRC.Core.prototype._shaders.firstPass = {
 	uniforms: THREE.UniformsUtils.merge([
 		{
