@@ -161,8 +161,6 @@
         
     };
 
-
-
     namespace.GeometryHelper = GeometryHelper;
 
 })(window.VRC);

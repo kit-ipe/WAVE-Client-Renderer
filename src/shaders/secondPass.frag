@@ -249,18 +249,7 @@ void main(void)
                 break; 
 
          } else if(uAbsorptionModeIndex == 2.0) 
-         {  
-//            vec2 tf_pos; 
-//            tf_pos.x = (biggest_gray_value - uMinGrayVal) / (uMaxGrayVal - uMinGrayVal); 
-//            tf_pos.y = 0.5; 
-//             
-//            colorValue = texture2D(uTransferFunction,tf_pos);
-//             
-//             sample.a = colorValue.a * opacityFactor; 
-//             sample.g = colorValue.g * uColorVal; 
-//
-//             accum = sample; 
-             
+         {              
              float xPosX = (gray_val.x - uMinGrayVal) / (uMaxGrayVal - uMinGrayVal); 
              float xPosY = (gray_val.y - uMinGrayVal) / (uMaxGrayVal - uMinGrayVal); 
              float xPosZ = (gray_val.z - uMinGrayVal) / (uMaxGrayVal - uMinGrayVal); 
@@ -281,12 +270,12 @@ void main(void)
          } 
 
      } 
-
+     
      //advance the current position 
      vpos.xyz += Step; 
 
      //break if the position is greater than <1, 1, 1> 
-     if(vpos.x > 1.0 || vpos.y > 1.0 || vpos.z > 1.0 || vpos.x < 0.0 || vpos.y < 0.0 || vpos.z < 0.0)       
+     if(vpos.x > 1.0 || vpos.y > 1.0 || vpos.z > 1.0 || vpos.x < 0.0 || vpos.y < 0.0 || vpos.z < 0.0)      
          break;   
  } 
 

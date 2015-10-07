@@ -8,7 +8,7 @@
  *
  */
 
-var Core = function(domContainerId) {
+var Core = function(conf) {
     this.refl = 1;
     this.sos = 1;
     this.sat = 1;
@@ -23,7 +23,7 @@ var Core = function(domContainerId) {
     this._opacity_factor             = 20.0;
     this._color_factor               = 3.0;
     this._absorption_mode_index      = 1.0;
-    this._render_size                = ['*', '*'];
+    this._render_size                = conf.renderer_size != undefined? ['*', '*'] :conf.render_size;
     this._canvas_size                = ['*', '*'];
     this._render_clear_color         = "#ffffff";
     this._transfer_function_as_image = new Image();
@@ -40,7 +40,7 @@ var Core = function(domContainerId) {
         {"pos": 0.75, "color": "#0000ff"}
     ]
 
-    this._dom_container_id           = domContainerId != undefined ? domContainerId : "container";
+    this._dom_container_id           = conf.domContainerId != undefined ? conf.domContainerId : "container";
     this._dom_container              = {};
     this._render                   = {};
     this._camera                     = {};
@@ -94,8 +94,8 @@ Core.prototype.init = function() {
     var me = this;
     this._container = this.getDOMContainer();
 
-    this._render = new THREE.WebGLRenderer();
-    this._render.setSize( this.getRenderSizeInPixels()[0], this.getRenderSizeInPixels()[1] );
+    this._render = new THREE.WebGLRenderer();  
+    
     this._render.setClearColor( this._render_clear_color );
 
     this._container.appendChild( this._render.domElement );
@@ -182,24 +182,20 @@ Core.prototype.init = function() {
 
     this._controls.addEventListener("end", function() {
         me.onCameraChangeEnd.call();
-
     });
 
     this._onWindowResizeFuncIndex_renderSize = this.onResizeWindow.add(function() {
         me.setRenderSize('*', '*');
-
     }, false);
 
     this._onWindowResizeFuncIndex_canvasSize = this.onResizeWindow.add(function() {
         me.setRenderCanvasSize('*', '*');
-
     }, false);
 
     this.setTransferFunctionByColors(this._transfer_function_colors);
 
-    this.setRenderSize(this.getRenderSize()[0], this.getRenderSize()[1]);
+    this._render.setSize(this.getRenderSizeInPixels()[0], this.getRenderSizeInPixels()[1]); 
     this.setRenderCanvasSize(this.getCanvasSize()[0], this.getCanvasSize()[1]);
-
 };
 
 Core.prototype._secondPassSetUniformValue = function(key, value) {
@@ -389,7 +385,6 @@ Core.prototype.setGeometryDimensions = function(geometryDimension) {
     this._geometry_dimensions = geometryDimension;
 
     this._setGeometry(this._geometry_dimensions, this.getVolumeSizeNormalized());
-
 };
 
 Core.prototype.setRenderCanvasSize = function(width, height) {
@@ -413,31 +408,6 @@ Core.prototype.setRenderCanvasSize = function(width, height) {
 
     this._camera.aspect = width / height;
     this._camera.updateProjectionMatrix();
-
-};
-
-Core.prototype.setRenderSize = function(width, height) {
-    console.log("Core: setRenderSize()");
-    this._render_size = [width, height];
-    
-    if( (this._render_size[0] == '*' || this._render_size[1] == '*') && !this.onResizeWindow.isStart(this._onWindowResizeFuncIndex_renderSize) ) {
-        this.onResizeWindow.start(this._onWindowResizeFuncIndex_renderSize);
-    }
-
-    if( (this._render_size[0] != '*' || this._render_size[1] != '*') && this.onResizeWindow.isStart(this._onWindowResizeFuncIndex_renderSize) ) {
-        this.onResizeWindow.stop(this._onWindowResizeFuncIndex_renderSize);
-
-    }
-
-    var width = this.getRenderSizeInPixels()[0];
-    var height = this.getRenderSizeInPixels()[1];
-
-    this._camera.aspect = width / height;
-    this._camera.updateProjectionMatrix();
-
-    this._render.setSize(width, height);
-
-    this.setRenderCanvasSize(this.getCanvasSize()[0], this.getCanvasSize()[1]);
 
 };
 

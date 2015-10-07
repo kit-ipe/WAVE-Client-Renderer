@@ -23,7 +23,7 @@
         me._onLoadSlicemap              = new VRC.EventDispatcher();
         me._onLoadSlicemaps             = new VRC.EventDispatcher();
 
-        me._core = new VRC.Core( config['dom_container_id'] );
+        me._core = new VRC.Core( config );
         me._adaptationManager = new VRC.AdaptationManager();
 
         me.init = function() {
@@ -307,22 +307,22 @@
         };
 
         me.setRenderSize = function(width, height) {
-            var ctx = me._core._render.getContext()
-            var maxRenderbufferSize = ctx.getParameter(ctx.MAX_RENDERBUFFER_SIZE);
-            if(Math.max(width, height) > maxRenderbufferSize) {
-                console.warn("Size of canvas setted in " + maxRenderbufferSize + "x" + maxRenderbufferSize + ". Max render buffer size is " + maxRenderbufferSize + ".");
-                me._core.setRenderSize(maxRenderbufferSize, maxRenderbufferSize);
-
-            } else {
-                me._core.setRenderSize(width, height);
-
-            }
-
-            me._needRedraw = true;
+//            var ctx = me._core._render.getContext()
+//            var maxRenderbufferSize = ctx.getParameter(ctx.MAX_RENDERBUFFER_SIZE);
+//            if(Math.max(width, height) > maxRenderbufferSize) {
+//                console.warn("Size of canvas setted in " + maxRenderbufferSize + "x" + maxRenderbufferSize + ". Max render buffer size is " + maxRenderbufferSize + ".");
+//                me._core.setRenderSize(maxRenderbufferSize, maxRenderbufferSize);
+//
+//            } else {
+//                me._core.setRenderSize(width, height);
+//
+//            }
+//
+//            me._needRedraw = true;
 
         };
 
-        me.setRenderCanvasSize = function(width, height) {
+        me.setCanvasSize = function(width, height) {
             me._core.setRenderCanvasSize(width, height);
             me._needRedraw = true;
 

@@ -435,8 +435,6 @@
         
     };
 
-
-
     namespace.GeometryHelper = GeometryHelper;
 
 })(window.VRC);
@@ -450,7 +448,7 @@
  *
  */
 
-var Core = function(domContainerId) {
+var Core = function(conf) {
     this.refl = 1;
     this.sos = 1;
     this.sat = 1;
@@ -465,7 +463,7 @@ var Core = function(domContainerId) {
     this._opacity_factor             = 20.0;
     this._color_factor               = 3.0;
     this._absorption_mode_index      = 1.0;
-    this._render_size                = ['*', '*'];
+    this._render_size                = conf.renderer_size != undefined? ['*', '*'] :conf.render_size;
     this._canvas_size                = ['*', '*'];
     this._render_clear_color         = "#ffffff";
     this._transfer_function_as_image = new Image();
@@ -482,7 +480,7 @@ var Core = function(domContainerId) {
         {"pos": 0.75, "color": "#0000ff"}
     ]
 
-    this._dom_container_id           = domContainerId != undefined ? domContainerId : "container";
+    this._dom_container_id           = conf.domContainerId != undefined ? conf.domContainerId : "container";
     this._dom_container              = {};
     this._render                   = {};
     this._camera                     = {};
@@ -536,8 +534,8 @@ Core.prototype.init = function() {
     var me = this;
     this._container = this.getDOMContainer();
 
-    this._render = new THREE.WebGLRenderer();
-    this._render.setSize( this.getRenderSizeInPixels()[0], this.getRenderSizeInPixels()[1] );
+    this._render = new THREE.WebGLRenderer();  
+    
     this._render.setClearColor( this._render_clear_color );
 
     this._container.appendChild( this._render.domElement );
@@ -624,24 +622,20 @@ Core.prototype.init = function() {
 
     this._controls.addEventListener("end", function() {
         me.onCameraChangeEnd.call();
-
     });
 
     this._onWindowResizeFuncIndex_renderSize = this.onResizeWindow.add(function() {
         me.setRenderSize('*', '*');
-
     }, false);
 
     this._onWindowResizeFuncIndex_canvasSize = this.onResizeWindow.add(function() {
         me.setRenderCanvasSize('*', '*');
-
     }, false);
 
     this.setTransferFunctionByColors(this._transfer_function_colors);
 
-    this.setRenderSize(this.getRenderSize()[0], this.getRenderSize()[1]);
+    this._render.setSize(this.getRenderSizeInPixels()[0], this.getRenderSizeInPixels()[1]); 
     this.setRenderCanvasSize(this.getCanvasSize()[0], this.getCanvasSize()[1]);
-
 };
 
 Core.prototype._secondPassSetUniformValue = function(key, value) {
@@ -831,7 +825,6 @@ Core.prototype.setGeometryDimensions = function(geometryDimension) {
     this._geometry_dimensions = geometryDimension;
 
     this._setGeometry(this._geometry_dimensions, this.getVolumeSizeNormalized());
-
 };
 
 Core.prototype.setRenderCanvasSize = function(width, height) {
@@ -855,31 +848,6 @@ Core.prototype.setRenderCanvasSize = function(width, height) {
 
     this._camera.aspect = width / height;
     this._camera.updateProjectionMatrix();
-
-};
-
-Core.prototype.setRenderSize = function(width, height) {
-    console.log("Core: setRenderSize()");
-    this._render_size = [width, height];
-    
-    if( (this._render_size[0] == '*' || this._render_size[1] == '*') && !this.onResizeWindow.isStart(this._onWindowResizeFuncIndex_renderSize) ) {
-        this.onResizeWindow.start(this._onWindowResizeFuncIndex_renderSize);
-    }
-
-    if( (this._render_size[0] != '*' || this._render_size[1] != '*') && this.onResizeWindow.isStart(this._onWindowResizeFuncIndex_renderSize) ) {
-        this.onResizeWindow.stop(this._onWindowResizeFuncIndex_renderSize);
-
-    }
-
-    var width = this.getRenderSizeInPixels()[0];
-    var height = this.getRenderSizeInPixels()[1];
-
-    this._camera.aspect = width / height;
-    this._camera.updateProjectionMatrix();
-
-    this._render.setSize(width, height);
-
-    this.setRenderCanvasSize(this.getCanvasSize()[0], this.getCanvasSize()[1]);
 
 };
 
@@ -1395,18 +1363,7 @@ window.VRC.Core.prototype._shaders.secondPass = {
 		'             if(accum.a>=1.0) ',
 		'                break; ',
 		'         } else if(uAbsorptionModeIndex == 2.0) ',
-		'         {  ',
-		'//            vec2 tf_pos; ',
-		'//            tf_pos.x = (biggest_gray_value - uMinGrayVal) / (uMaxGrayVal - uMinGrayVal); ',
-		'//            tf_pos.y = 0.5; ',
-		'//             ',
-		'//            colorValue = texture2D(uTransferFunction,tf_pos);',
-		'//             ',
-		'//             sample.a = colorValue.a * opacityFactor; ',
-		'//             sample.g = colorValue.g * uColorVal; ',
-		'//',
-		'//             accum = sample; ',
-		'             ',
+		'         {              ',
 		'             float xPosX = (gray_val.x - uMinGrayVal) / (uMaxGrayVal - uMinGrayVal); ',
 		'             float xPosY = (gray_val.y - uMinGrayVal) / (uMaxGrayVal - uMinGrayVal); ',
 		'             float xPosZ = (gray_val.z - uMinGrayVal) / (uMaxGrayVal - uMinGrayVal); ',
@@ -1424,10 +1381,11 @@ window.VRC.Core.prototype._shaders.secondPass = {
 		'                break; ',
 		'         } ',
 		'     } ',
+		'     ',
 		'     //advance the current position ',
 		'     vpos.xyz += Step; ',
 		'     //break if the position is greater than <1, 1, 1> ',
-		'     if(vpos.x > 1.0 || vpos.y > 1.0 || vpos.z > 1.0 || vpos.x < 0.0 || vpos.y < 0.0 || vpos.z < 0.0)       ',
+		'     if(vpos.x > 1.0 || vpos.y > 1.0 || vpos.z > 1.0 || vpos.x < 0.0 || vpos.y < 0.0 || vpos.z < 0.0)      ',
 		'         break;   ',
 		' } ',
 		' gl_FragColor = accum; ',
@@ -1459,7 +1417,7 @@ window.VRC.Core.prototype._shaders.secondPass = {
         me._onLoadSlicemap              = new VRC.EventDispatcher();
         me._onLoadSlicemaps             = new VRC.EventDispatcher();
 
-        me._core = new VRC.Core( config['dom_container_id'] );
+        me._core = new VRC.Core( config );
         me._adaptationManager = new VRC.AdaptationManager();
 
         me.init = function() {
@@ -1743,22 +1701,22 @@ window.VRC.Core.prototype._shaders.secondPass = {
         };
 
         me.setRenderSize = function(width, height) {
-            var ctx = me._core._render.getContext()
-            var maxRenderbufferSize = ctx.getParameter(ctx.MAX_RENDERBUFFER_SIZE);
-            if(Math.max(width, height) > maxRenderbufferSize) {
-                console.warn("Size of canvas setted in " + maxRenderbufferSize + "x" + maxRenderbufferSize + ". Max render buffer size is " + maxRenderbufferSize + ".");
-                me._core.setRenderSize(maxRenderbufferSize, maxRenderbufferSize);
-
-            } else {
-                me._core.setRenderSize(width, height);
-
-            }
-
-            me._needRedraw = true;
+//            var ctx = me._core._render.getContext()
+//            var maxRenderbufferSize = ctx.getParameter(ctx.MAX_RENDERBUFFER_SIZE);
+//            if(Math.max(width, height) > maxRenderbufferSize) {
+//                console.warn("Size of canvas setted in " + maxRenderbufferSize + "x" + maxRenderbufferSize + ". Max render buffer size is " + maxRenderbufferSize + ".");
+//                me._core.setRenderSize(maxRenderbufferSize, maxRenderbufferSize);
+//
+//            } else {
+//                me._core.setRenderSize(width, height);
+//
+//            }
+//
+//            me._needRedraw = true;
 
         };
 
-        me.setRenderCanvasSize = function(width, height) {
+        me.setCanvasSize = function(width, height) {
             me._core.setRenderCanvasSize(width, height);
             me._needRedraw = true;
 
