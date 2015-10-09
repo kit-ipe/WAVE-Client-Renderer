@@ -46,7 +46,7 @@ vec3 getVolumeValue(vec3 volpos)
     texpos1.y = dy1+(volpos.y/uSlicesOverY);
 
 
-    vec3 value = vec3(0.0,0.0,0.0); 
+    vec3 value = vec3(1.0,0.0,0.0); 
     
     <% for(var i=0; i < maxTexturesNumber; i++) { %>
         if( tex1Index == <%=i%> )

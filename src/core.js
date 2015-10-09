@@ -25,7 +25,7 @@ var Core = function(conf) {
     this._absorption_mode_index      = 1.0;
     this._render_size                = conf.renderer_size != undefined? ['*', '*'] :conf.render_size;
     this._canvas_size                = ['*', '*'];
-    this._render_clear_color         = "#ffffff";
+    this._render_clear_color         = "#000";
     this._transfer_function_as_image = new Image();
     this._volume_sizes               = [1024.0, 1024.0, 1024.0];
     this._geometry_dimensions        = {"xmin": 0.0, "xmax": 1.0, "ymin": 0.0, "ymax": 1.0, "zmin": 0.0, "zmax": 1.0};
