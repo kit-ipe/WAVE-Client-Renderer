@@ -88,6 +88,8 @@ var Core = function(conf) {
     this._onWindowResizeFuncIndex_canvasSize = -1;
     this._onWindowResizeFuncIndex_renderSize = -1;
 
+
+    this._callback = conf.callback;
 };
 
 Core.prototype.init = function() {
@@ -196,6 +198,8 @@ Core.prototype.init = function() {
 
     this._render.setSize(this.getRenderSizeInPixels()[0], this.getRenderSizeInPixels()[1]); 
     this.setRenderCanvasSize(this.getCanvasSize()[0], this.getCanvasSize()[1]);
+    
+    this._callback();
 };
 
 Core.prototype._secondPassSetUniformValue = function(key, value) {
