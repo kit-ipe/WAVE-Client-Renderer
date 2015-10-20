@@ -24,7 +24,7 @@ var Core = function(conf) {
     this._color_factor               = 3.0;
     this._absorption_mode_index      = 1.0;
     this._render_size                = conf.renderer_size != undefined? ['*', '*'] :conf.render_size;
-    this._canvas_size                = ['*', '*'];
+    this._canvas_size                = [512, 512];
     this._render_clear_color         = "#000";
     this._transfer_function_as_image = new Image();
     this._volume_sizes               = [1024.0, 1024.0, 1024.0];
@@ -94,9 +94,9 @@ Core.prototype.init = function() {
     var me = this;
     this._container = this.getDOMContainer();
 
-    this._render = new THREE.WebGLRenderer();  
+    this._render = new THREE.WebGLRenderer({ alpha : true });  
     
-    this._render.setClearColor( this._render_clear_color );
+    this._render.setClearColor( this._render_clear_color, 0 );
 
     this._container.appendChild( this._render.domElement );
 
