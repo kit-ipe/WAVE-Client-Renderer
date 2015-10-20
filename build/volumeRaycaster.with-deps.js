@@ -406,7 +406,7 @@
                 var backCounter = vertexPositions.length - 1 - i;
                 var x = vertexPositions[backCounter][0];
                 var y = vertexPositions[backCounter][1];
-                var z = vertexPositions[backCounter][2]/2;
+                var z = vertexPositions[backCounter][2]*0.56;
 
                 var r = vertexColors[backCounter][0];
                 var g = vertexColors[backCounter][1];
@@ -464,8 +464,8 @@ var Core = function(conf) {
     this._color_factor               = 3.0;
     this._absorption_mode_index      = 1.0;
     this._render_size                = conf.renderer_size != undefined? ['*', '*'] :conf.render_size;
-    this._canvas_size                = ['*', '*'];
-    this._render_clear_color         = "#ffffff";
+    this._canvas_size                = [512, 512];
+    this._render_clear_color         = "#000";
     this._transfer_function_as_image = new Image();
     this._volume_sizes               = [1024.0, 1024.0, 1024.0];
     this._geometry_dimensions        = {"xmin": 0.0, "xmax": 1.0, "ymin": 0.0, "ymax": 1.0, "zmin": 0.0, "zmax": 1.0};
@@ -534,9 +534,9 @@ Core.prototype.init = function() {
     var me = this;
     this._container = this.getDOMContainer();
 
-    this._render = new THREE.WebGLRenderer();  
+    this._render = new THREE.WebGLRenderer({ alpha : true });  
     
-    this._render.setClearColor( this._render_clear_color );
+    this._render.setClearColor( this._render_clear_color, 0 );
 
     this._container.appendChild( this._render.domElement );
 
@@ -1181,7 +1181,7 @@ window.VRC.Core.prototype._shaders.secondPass = {
 		'    dy1 = floor(s1/uSlicesOverY)/uSlicesOverY;',
 		'    texpos1.x = dx1+(volpos.x/uSlicesOverX);',
 		'    texpos1.y = dy1+(volpos.y/uSlicesOverY);',
-		'    vec3 value = vec3(0.0,0.0,0.0); ',
+		'    vec3 value = vec3(1.0,0.0,0.0); ',
 		'    ',
 		'    <% for(var i=0; i < maxTexturesNumber; i++) { %>',
 		'        if( tex1Index == <%=i%> )',
