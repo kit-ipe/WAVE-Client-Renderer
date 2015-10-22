@@ -110,29 +110,27 @@ void main(void)
   
  for(int i = 0; i < uStepsI; i++) 
  {       
-     float gray_val = getVolumeValue(vpos.xyz).z; 
+     float gray_val = getVolumeValue(vpos.xyz).x; 
 
      if(gray_val < uMinGrayVal || gray_val > uMaxGrayVal)  
          colorValue = vec4(0.0);   
    
      else { 
-             if(biggest_gray_value < gray_val)  
+            if(biggest_gray_value < gray_val)  
               biggest_gray_value = gray_val;    
                                               
                            
-            float xPosX = (gray_val - uMinGrayVal) / (uMaxGrayVal - uMinGrayVal); 
+             vec2 tf_pos; 
+             tf_pos.x = (biggest_gray_value - uMinGrayVal) / (uMaxGrayVal - uMinGrayVal); 
+             tf_pos.y = 0.5; 
 
-            colorValue.xyzw = texture2D(uTransferFunction,vec2(xPosX,0.5)).xyzw;
-              
-            sample.a = colorValue.a * opacityFactor * (1.0 / uStepsF); 
-            sample.rgb = (1.0 - accum.a) * colorValue.bbb * sample.a * lightFactor; 
-            
-             
-             
-             accum += sample; 
+             colorValue = texture2D(uTransferFunction,tf_pos);
+             sample.a = colorValue.a * opacityFactor; 
+             sample.b = colorValue.r * uColorVal; 
+             sample.g = colorValue.r * uColorVal / 2.0; 
+             sample.r = colorValue.r * uColorVal / 2.0; 
 
-             if(accum.a>=1.0) 
-                break; 
+             accum = sample; 
      }    
    
      //advance the current position 

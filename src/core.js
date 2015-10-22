@@ -22,9 +22,9 @@ var Core = function(conf) {
     this._slicemaps_textures         = [];
     this._opacity_factor             = 20.0;
     this._color_factor               = 3.0;
-    this._absorption_mode_index      = 1.0;
-    this._render_size                = conf.renderer_size != undefined? ['*', '*'] :conf.render_size;
-    this._canvas_size                = [512, 512];
+    this._shader_name                =  conf.shader_name;
+    this._render_size                = conf.renderer_size != undefined ? ['*', '*'] : conf.render_size;
+    this._canvas_size                = conf.renderer_size != undefined ? ['*', '*'] : conf.renderer_canvas_size;
     this._render_clear_color         = "#000";
     this._transfer_function_as_image = new Image();
     this._volume_sizes               = [1024.0, 1024.0, 1024.0];
@@ -33,7 +33,7 @@ var Core = function(conf) {
     this._threshold_isodata_index    = 0;
     this._threshold_yen_index        = 0;
     this._threshold_li_index         = 0;
-
+  
     this._transfer_function_colors   = [
         {"pos": 0.25, "color": "#892c2c"},
         {"pos": 0.5, "color": "#00ff00"},
@@ -129,8 +129,9 @@ Core.prototype.init = function() {
     } );
     
     this._materialSecondPass = new THREE.ShaderMaterial( {
-        vertexShader: this._shaders.secondPass.vertexShader,
-        fragmentShader: ejs.render( this._shaders.secondPass.fragmentShader, {"maxTexturesNumber": me.getMaxTexturesNumber()}),
+        vertexShader: this._shaders[this._shader_name].vertexShader,
+        fragmentShader: ejs.render( this._shaders[this._shader_name].fragmentShader, {
+          "maxTexturesNumber": me.getMaxTexturesNumber()}),
         attributes: {
             vertColor:                       {type: 'c', value: [] }
         },

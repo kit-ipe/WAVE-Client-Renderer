@@ -1,5 +1,5 @@
- precision mediump int; 
- precision mediump float; 
+precision mediump int; 
+precision mediump float; 
 
 attribute vec4 vertColor; 
 

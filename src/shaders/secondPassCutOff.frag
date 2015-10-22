@@ -110,22 +110,25 @@ void main(void)
   
  for(int i = 0; i < uStepsI; i++) 
  {       
-     float gray_val = getVolumeValue(vpos.xyz).z; 
+     vec3 gray_val = getVolumeValue(vpos.xyz); 
 
-     if(gray_val < uMinGrayVal || gray_val > uMaxGrayVal)  
-         colorValue = vec4(0.0);   
-   
+     if(gray_val.z < uMinGrayVal || gray_val.z > uMaxGrayVal)  
+         colorValue = vec4(0.0);    
      else { 
-             if(biggest_gray_value < gray_val)  
-              biggest_gray_value = gray_val;    
+            if(biggest_gray_value < gray_val.z)  
+              biggest_gray_value = gray_val.z;    
                                               
                            
-            float xPosX = (gray_val - uMinGrayVal) / (uMaxGrayVal - uMinGrayVal); 
+              float xPosX = (gray_val.x - uMinGrayVal) / (uMaxGrayVal - uMinGrayVal); 
+             float xPosY = (gray_val.y - uMinGrayVal) / (uMaxGrayVal - uMinGrayVal); 
+             float xPosZ = (gray_val.z - uMinGrayVal) / (uMaxGrayVal - uMinGrayVal); 
 
-            colorValue.xyzw = texture2D(uTransferFunction,vec2(xPosX,0.5)).xyzw;
+            colorValue.xw = texture2D(uTransferFunction,vec2(xPosX,0.5)).xw;
+            colorValue.y = texture2D(uTransferFunction,vec2(xPosY,0.5)).y;
+            colorValue.z = texture2D(uTransferFunction,vec2(xPosZ,0.5)).z;
               
-            sample.a = colorValue.a * opacityFactor * (1.0 / uStepsF); 
-            sample.rgb = (1.0 - accum.a) * colorValue.bbb * sample.a * lightFactor; 
+             sample.a = colorValue.a * opacityFactor * (1.0 / uStepsF); 
+             sample.rgb = (1.0 - accum.a) * tumorHighlighter(colorValue.rgb) * sample.a * lightFactor; 
             
              
              
