@@ -110,7 +110,7 @@ void main(void)
   
  for(int i = 0; i < uStepsI; i++) 
  {       
-     float gray_val = getVolumeValue(vpos.xyz).x; 
+     float gray_val = getVolumeValue(vpos.xyz).r; 
 
      if(gray_val < uMinGrayVal || gray_val > uMaxGrayVal)  
          colorValue = vec4(0.0);   
@@ -125,7 +125,7 @@ void main(void)
             colorValue.xyzw = texture2D(uTransferFunction,vec2(xPosX,0.5)).xyzw;
               
             sample.a = colorValue.a * opacityFactor * (1.0 / uStepsF); 
-            sample.rgb = (1.0 - accum.a) * colorValue.xxx * sample.a * lightFactor; 
+            sample.rgb = (1.0 - accum.a) * colorValue.rrr * sample.a * lightFactor; 
             
              
              

@@ -180,6 +180,11 @@
 
         };
 
+        me.setMode = function(conf){
+          me._core.setMode(conf);
+          me._needRedraw = true;
+        };
+      
         me.setOpacityFactor = function(opacity_factor) {
             me._core.setOpacityFactor(opacity_factor);
             me._needRedraw = true;

@@ -200,7 +200,7 @@ Core.prototype.init = function() {
     this._render.setSize(this.getRenderSizeInPixels()[0], this.getRenderSizeInPixels()[1]); 
     this.setRenderCanvasSize(this.getCanvasSize()[0], this.getCanvasSize()[1]);
     
-    this._callback();
+    this._callback();      
 };
 
 Core.prototype._secondPassSetUniformValue = function(key, value) {
@@ -316,6 +316,44 @@ Core.prototype._initGeometry = function(geometryDimensions, volumeSizes) {
 
 };
 
+Core.prototype.setMode = function(conf){
+  
+  this._shader_name =  conf.shader_name;
+  
+this._materialSecondPass = new THREE.ShaderMaterial( {
+        vertexShader: this._shaders[this._shader_name].vertexShader,
+        fragmentShader: ejs.render( this._shaders[this._shader_name].fragmentShader, {
+          "maxTexturesNumber": this.getMaxTexturesNumber()}),
+        attributes: {
+            vertColor:                       {type: 'c', value: [] }
+        },
+        uniforms: {
+            uBackCoord:                      { type: "t",  value: this._rtTexture }, 
+            uSliceMaps:                      { type: "tv", value: this._slicemaps_textures }, 
+            uTransferFunction:               { type: "t",  value: this._transfer_function },
+
+            uSteps:                          { type: "f", value: this._steps },
+            uNumberOfSlices:                 { type: "f", value: this.getSlicesRange()[1] },
+            uSlicesOverX:                    { type: "f", value: this._slicemap_row_col[0] },
+            uSlicesOverY:                    { type: "f", value: this._slicemap_row_col[1] },
+            uOpacityVal:                     { type: "f", value: this._opacity_factor },
+            uColorVal:                       { type: "f", value: this._color_factor },
+            uAbsorptionModeIndex:            { type: "f", value: this._absorption_mode_index },
+            uMinGrayVal:                     { type: "f", value: this._gray_value[0] },
+            uMaxGrayVal:                     { type: "f", value: this._gray_value[1] },
+            refl:                            { type: "f", value: this.getRefl() },
+            sat:                           { type: "f", value: this.getSat() },
+            sos:                             { type: "f", value: this.getSos() },
+        },
+        side: THREE.BackSide,
+        transparent: true
+    });
+  
+  this._meshSecondPass = new THREE.Mesh( this._geometry, this._materialSecondPass );
+  
+  this._sceneSecondPass = new THREE.Scene();
+  this._sceneSecondPass.add( this._meshSecondPass );
+}
 Core.prototype._setGeometry = function(geometryDimensions, volumeSizes) {
     var geometryHelper = new VRC.GeometryHelper();
     var geometry      = geometryHelper.createBoxGeometry(geometryDimensions, volumeSizes);

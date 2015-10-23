@@ -63,32 +63,26 @@ vec3 getVolumeValue(vec3 volpos)
 
 // x - R, y - G, z - B
 // x - H, y - S, z - V
-vec3 realBody(vec3 hsv) 
+vec3 tumorHighlighter(vec3 hsv) 
 {
         
-float r = refl;
+    float r = refl;
     
     float     hue, p, q, t, ff;
     int        i;    
-    
+    float s=(hsv.x>sos-0.05 && hsv.x<sos+0.05)?sat:0.0; 
     hsv.z+=r;  
-        
-    hsv.x*=360.0*sos;    
-    
-    
-    hue=hsv.x >= 360.0?360.0:hsv.x;
-    
-    hue /= 230.0;
+  
+    hue = 0.0;
     i = int((hue));
     ff = hue - float(i); 
-    p = hsv.z * (1.0 - sat);
-    q = hsv.z * (1.0 - (sat * ff));
-    t = hsv.z * (1.0 - (sat * (1.0 - ff)));
+    p = hsv.z * (1.0 - s);
+    q = hsv.z * (1.0 - (s * ff));
+    t = hsv.z * (1.0 - (s * (1.0 - ff)));
 
-
-    return vec3(hsv.z,t,p);    
+    
+     return vec3(hsv.z,t,p);
 }
-
 void main(void)
 {
  const int uStepsI = 144;
@@ -116,25 +110,22 @@ void main(void)
   
  for(int i = 0; i < uStepsI; i++) 
  {       
-     vec3 gray_val = getVolumeValue(vpos.xyz); 
+     float gray_val = getVolumeValue(vpos.xyz).g; 
 
-     if(gray_val.z < uMinGrayVal || gray_val.z > uMaxGrayVal)  
-         colorValue = vec4(0.0);    
+     if(gray_val < uMinGrayVal || gray_val > uMaxGrayVal)  
+         colorValue = vec4(0.0);   
+   
      else { 
-            if(biggest_gray_value < gray_val.z)  
-              biggest_gray_value = gray_val.z;    
+             if(biggest_gray_value < gray_val)  
+              biggest_gray_value = gray_val;    
                                               
                            
-            float xPosX = (gray_val.x - uMinGrayVal) / (uMaxGrayVal - uMinGrayVal); 
-            float xPosY = (gray_val.y - uMinGrayVal) / (uMaxGrayVal - uMinGrayVal); 
-            float xPosZ = (gray_val.z - uMinGrayVal) / (uMaxGrayVal - uMinGrayVal); 
+            float xPosX = (gray_val - uMinGrayVal) / (uMaxGrayVal - uMinGrayVal); 
 
-            colorValue.xw = texture2D(uTransferFunction,vec2(xPosX,0.5)).xw;
-            colorValue.y = texture2D(uTransferFunction,vec2(xPosY,0.5)).y;
-            colorValue.z = texture2D(uTransferFunction,vec2(xPosZ,0.5)).z;
+            colorValue.xyzw = texture2D(uTransferFunction,vec2(xPosX,0.5)).xyzw;
               
             sample.a = colorValue.a * opacityFactor * (1.0 / uStepsF); 
-            sample.rgb = (1.0 - accum.a) * realBody(colorValue.rgb) * sample.a * lightFactor; 
+            sample.rgb = (1.0 - accum.a) * colorValue.ggg * sample.a * lightFactor; 
             
              
              
