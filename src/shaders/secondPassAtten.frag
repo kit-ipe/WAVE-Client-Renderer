@@ -82,7 +82,7 @@ void main(void)
  {       
      float gray_val = getVolumeValue(vpos.xyz).y; 
 
-     if(gray_val < 0.03)  
+     if(getVolumeValue(vpos.xyz).x < 0.1)  
          colorValue = vec4(0.0);    
      else { 
             colorValue.x = (1.0-pow(gray_val,contrast/5.0));
