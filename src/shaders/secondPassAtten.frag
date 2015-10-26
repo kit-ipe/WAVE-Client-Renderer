@@ -5,22 +5,18 @@ varying vec4 frontColor;
 varying vec4 pos; 
 
 uniform sampler2D uBackCoord; 
-uniform sampler2D uTransferFunction;
 uniform sampler2D uSliceMaps[<%= maxTexturesNumber %>];
 
 uniform float uNumberOfSlices; 
-uniform float uMinGrayVal; 
-uniform float uMaxGrayVal; 
 uniform float uOpacityVal; 
-uniform float uColorVal; 
-uniform float uAbsorptionModeIndex;
 uniform float uSlicesOverX; 
 uniform float uSlicesOverY; 
+uniform float contrast;
+
 uniform float refl; 
 uniform float sat; 
 uniform float sos; 
 
-// uniform int uAvailable_textures_number;
 
 //Acts like a texture3D using Z slices and trilinear filtering. 
 vec3 getVolumeValue(vec3 volpos)
@@ -61,28 +57,6 @@ vec3 getVolumeValue(vec3 volpos)
     return value;
 } 
 
-// x - R, y - G, z - B
-// x - H, y - S, z - V
-vec3 tumorHighlighter(vec3 hsv) 
-{
-        
-    float r = refl;
-    
-    float     hue, p, q, t, ff;
-    int        i;    
-    float s=(hsv.x>sos-0.05 && hsv.x<sos+0.05)?sat:0.0; 
-    hsv.z+=r;  
-  
-    hue = 0.0;
-    i = int((hue));
-    ff = hue - float(i); 
-    p = hsv.z * (1.0 - s);
-    q = hsv.z * (1.0 - (s * ff));
-    t = hsv.z * (1.0 - (s * (1.0 - ff)));
-
-    
-     return vec3(hsv.z,t,p);
-}
 void main(void)
 {
  const int uStepsI = 144;
@@ -102,37 +76,25 @@ void main(void)
  vec4 sample = vec4(0.0, 0.0, 0.0, 0.0); 
  vec4 colorValue = vec4(0, 0, 0, 0); 
     
- float biggest_gray_value = 0.0; 
-
-
  float opacityFactor = uOpacityVal; 
- float lightFactor = uColorVal; 
   
  for(int i = 0; i < uStepsI; i++) 
  {       
-     float gray_val = getVolumeValue(vpos.xyz).g; 
+     float gray_val = getVolumeValue(vpos.xyz).y; 
 
-     if(gray_val < uMinGrayVal || gray_val > uMaxGrayVal)  
-         colorValue = vec4(0.0);   
-   
+     if(gray_val < 0.03)  
+         colorValue = vec4(0.0);    
      else { 
-             if(biggest_gray_value < gray_val)  
-              biggest_gray_value = gray_val;    
-                                              
-                           
-            float xPosX = (gray_val - uMinGrayVal) / (uMaxGrayVal - uMinGrayVal); 
-
-            colorValue.xyzw = texture2D(uTransferFunction,vec2(xPosX,0.5)).xyzw;
+            colorValue.x = (1.0-pow(gray_val,contrast/5.0));
+            colorValue.w = 0.1;
               
             sample.a = colorValue.a * opacityFactor * (1.0 / uStepsF); 
-            sample.rgb = (1.0 - accum.a) * colorValue.ggg * sample.a * lightFactor; 
-            
+            sample.rgb = (1.0 - accum.a) * colorValue.xxx * refl * sample.a; 
              
-             
-             accum += sample; 
+            accum += sample; 
 
-             if(accum.a>=1.0) 
-                break; 
+            if(accum.a>=1.0) 
+               break; 
      }    
    
      //advance the current position 

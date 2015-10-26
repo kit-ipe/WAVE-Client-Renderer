@@ -5,20 +5,18 @@ varying vec4 frontColor;
 varying vec4 pos; 
 
 uniform sampler2D uBackCoord; 
-uniform sampler2D uTransferFunction;
 uniform sampler2D uSliceMaps[<%= maxTexturesNumber %>];
 
 uniform float uNumberOfSlices; 
-uniform float uMinGrayVal; 
-uniform float uMaxGrayVal; 
 uniform float uOpacityVal; 
-uniform float uColorVal; 
-uniform float uAbsorptionModeIndex;
 uniform float uSlicesOverX; 
 uniform float uSlicesOverY; 
+uniform float contrast;
+
 uniform float refl; 
 uniform float sat; 
 uniform float sos; 
+ 
 
 // uniform int uAvailable_textures_number;
 
@@ -61,28 +59,6 @@ vec3 getVolumeValue(vec3 volpos)
     return value;
 } 
 
-// x - R, y - G, z - B
-// x - H, y - S, z - V
-vec3 tumorHighlighter(vec3 hsv) 
-{
-        
-    float r = refl;
-    
-    float     hue, p, q, t, ff;
-    int        i;    
-    float s=(hsv.x>sos-0.05 && hsv.x<sos+0.05)?sat:0.0; 
-    hsv.z+=r;  
-  
-    hue = 0.0;
-    i = int((hue));
-    ff = hue - float(i); 
-    p = hsv.z * (1.0 - s);
-    q = hsv.z * (1.0 - (s * ff));
-    t = hsv.z * (1.0 - (s * (1.0 - ff)));
-
-    
-     return vec3(hsv.z,t,p);
-}
 void main(void)
 {
  const int uStepsI = 144;
@@ -106,29 +82,23 @@ void main(void)
 
 
  float opacityFactor = uOpacityVal; 
- float lightFactor = uColorVal; 
   
  for(int i = 0; i < uStepsI; i++) 
  {       
      float gray_val = getVolumeValue(vpos.xyz).y; 
 
-     if(gray_val < uMinGrayVal || gray_val > uMaxGrayVal)  
+     if(gray_val< 0.03)  
          colorValue = vec4(0.0);   
    
      else { 
             if(biggest_gray_value < gray_val)  
               biggest_gray_value = gray_val;    
-                                              
-                           
-             vec2 tf_pos; 
-             tf_pos.x = (biggest_gray_value - uMinGrayVal) / (uMaxGrayVal - uMinGrayVal); 
-             tf_pos.y = 0.5; 
 
-             colorValue = texture2D(uTransferFunction,tf_pos);
-             sample.a = colorValue.a * opacityFactor; 
-             sample.b = colorValue.g * uColorVal; 
-             sample.g = colorValue.g * uColorVal / 2.0; 
-             sample.r = colorValue.g * uColorVal / 2.0; 
+             colorValue.g = (1.0-pow(biggest_gray_value,contrast/5.0));
+             sample.a = 0.1 * opacityFactor; 
+             sample.b = colorValue.g * sos *2.0; 
+             sample.g = colorValue.g * sos; 
+             sample.r = colorValue.g * sos; 
 
              accum = sample; 
      }    
