@@ -13,6 +13,13 @@ uniform float uSlicesOverX;
 uniform float uSlicesOverY; 
 uniform float contrast;
 
+uniform float minSos;
+uniform float minRefl;
+uniform float minAtten;
+uniform float maxSos;
+uniform float maxRefl;
+uniform float maxAtten;
+
 uniform float refl; 
 uniform float sat; 
 uniform float sos; 
@@ -107,11 +114,17 @@ void main(void)
   
  for(int i = 0; i < uStepsI; i++) 
  {       
-     vec3 gray_val = getVolumeValue(vpos.xyz); 
+    vec3 gray_val = getVolumeValue(vpos.xyz); 
 
-     //if(gray_val.z < 0.05 || gray_val.z > uMaxGrayVal)  
-     if(gray_val.z < 0.05)
-         colorValue = vec4(0.0);    
+     if(gray_val.z < 0.05 || 
+         gray_val.x < minSos ||
+         gray_val.x > maxSos ||       
+         gray_val.y < minAtten ||
+         gray_val.y > maxAtten ||
+         gray_val.z < minRefl ||
+         gray_val.z > maxRefl 
+       )  
+         colorValue = vec4(0.0);   
      else {              
             colorValue.x = gray_val.x;
             colorValue.y = gray_val.y;

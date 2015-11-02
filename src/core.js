@@ -12,6 +12,14 @@ var Core = function(conf) {
     this.refl = 1;
     this.sos = 1;
     this.sat = 1;
+  
+    this.minRefl = 0;
+    this.minSos = 0;
+    this.minAtten = 0;
+  
+    this.maxRefl = 1;
+    this.maxSos = 1;
+    this.maxAtten = 1;
     
     this._steps                      = 20;
     this._slices_gap                 = [0,    '*'];
@@ -147,8 +155,15 @@ Core.prototype.init = function() {
             contrast:                        { type: "f", value: this._color_factor },            
             
             refl:                            { type: "f", value: this.getRefl() },
-            sat:                           { type: "f", value: this.getSat() },
+            sat:                             { type: "f", value: this.getSat() },
             sos:                             { type: "f", value: this.getSos() },
+          
+            minSos:                          { type: "f", value: this.minSos },
+            maxSos:                          { type: "f", value: this.maxSos },
+            minAtten:                        { type: "f", value: this.minAtten },
+            maxAtten:                        { type: "f", value: this.maxAtten },
+            minRefl:                         { type: "f", value: this.minRefl },
+            maxRefl:                         { type: "f", value: this.maxRefl }    
         },
         side: THREE.BackSide,
         transparent: true
@@ -238,18 +253,48 @@ Core.prototype.setTransferFunctionByImage = function(image) {
 
 
 Core.prototype.setRefl = function(refl) {
-    this.refl=refl;
+    this.refl = refl;
     this._secondPassSetUniformValue("refl", this.refl);
 }
 
 Core.prototype.setSos = function(sos) {
-    this.sos=sos;
+    this.sos = sos;
     this._secondPassSetUniformValue("sos", this.sos);
 }
 
 Core.prototype.setSat = function(sat) {
-    this.sat=sat;
+    this.sat = sat;
     this._secondPassSetUniformValue("sat", this.sat);
+}
+
+Core.prototype.setMaxRefl = function(refl) {
+    this.maxRefl = refl;
+    this._secondPassSetUniformValue("maxRefl", this.maxRefl);
+}
+
+Core.prototype.setMaxSos = function(sos) {
+    this.maxSos = sos;
+    this._secondPassSetUniformValue("maxSos", this.maxSos);
+}
+
+Core.prototype.setMinAtten = function(sat) {
+    this.minAtten = sat;
+    this._secondPassSetUniformValue("minAtten", this.minAtten);
+}
+
+Core.prototype.setMinRefl = function(refl) {
+    this.minRefl = refl;
+    this._secondPassSetUniformValue("minRefl", this.minRefl);
+}
+
+Core.prototype.setMinSos = function(sos) {
+    this.minSos = sos;
+    this._secondPassSetUniformValue("minSos", this.minSos);
+}
+
+Core.prototype.setMaxAtten = function(sat) {
+    this.maxAtten = sat;
+    this._secondPassSetUniformValue("maxAtten", this.maxAtten);
 }
 
 Core.prototype.getRefl = function() {
@@ -330,11 +375,18 @@ Core.prototype.setMode = function(conf){
             uSlicesOverX:                    { type: "f", value: this._slicemap_row_col[0] },
             uSlicesOverY:                    { type: "f", value: this._slicemap_row_col[1] },
             uOpacityVal:                     { type: "f", value: this._opacity_factor },
-            contrast:                       { type: "f", value: this._color_factor },
+            contrast:                        { type: "f", value: this._color_factor },
           
             refl:                            { type: "f", value: this.getRefl() },
-            sat:                           { type: "f", value: this.getSat() },
+            sat:                             { type: "f", value: this.getSat() },
             sos:                             { type: "f", value: this.getSos() },
+          
+            minSos:                          { type: "f", value: this.minSos },
+            maxSos:                          { type: "f", value: this.maxSos },
+            minAtten:                        { type: "f", value: this.minAtten },
+            maxAtten:                        { type: "f", value: this.maxAtten },
+            minRefl:                         { type: "f", value: this.minRefl },
+            maxRefl:                         { type: "f", value: this.maxRefl }    
         },
         side: THREE.BackSide,
         transparent: true
@@ -345,6 +397,7 @@ Core.prototype.setMode = function(conf){
   this._sceneSecondPass = new THREE.Scene();
   this._sceneSecondPass.add( this._meshSecondPass );
 }
+
 Core.prototype._setGeometry = function(geometryDimensions, volumeSizes) {
     var geometryHelper = new VRC.GeometryHelper();
     var geometry      = geometryHelper.createBoxGeometry(geometryDimensions, volumeSizes);

@@ -342,7 +342,6 @@
         me.setRefl = function(value) {
             me._core.setRefl(value);
             me._needRedraw = true;
-
         };
         me.setSos = function(value) {
             me._core.setSos(value);
@@ -352,7 +351,35 @@
             me._core.setSat(value);
             me._needRedraw = true;
         };
-        
+      
+        me.setMaxRefl = function(value) {
+            me._core.setMaxRefl(value);
+            me._needRedraw = true;
+
+        };
+        me.setMaxSos = function(value) {
+            me._core.setMaxSos(value);
+            me._needRedraw = true;
+        };
+        me.setMaxAtten = function(value) {
+            me._core.setMaxAtten(value);
+            me._needRedraw = true;
+        };
+      
+        me.setMinRefl = function(value) {
+            me._core.setMinRefl(value);
+            me._needRedraw = true;
+
+        };
+        me.setMinSos = function(value) {
+            me._core.setMinSos(value);
+            me._needRedraw = true;
+        };
+        me.setMinAtten = function(value) {
+            me._core.setMinAtten(value);
+            me._needRedraw = true;
+        };
+      
         me.setRowCol = function(row, col) {
             me._core.setRowCol(row, col);
             me._needRedraw = true;
