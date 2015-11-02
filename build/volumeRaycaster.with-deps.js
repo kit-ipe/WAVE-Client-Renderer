@@ -468,7 +468,7 @@ var Core = function(conf) {
     this._render_clear_color         = "#000";
  //   this._transfer_function_as_image = new Image();
     this._volume_sizes               = [1024.0, 1024.0, 1024.0];
-    this._geometry_dimensions        = {"xmin": 0.0, "xmax": 1.0, "ymin": 0.0, "ymax": 1.0, "zmin": 0.0, "zmax": 1.0};
+    this._geometry_dimensions        = {"xmin": 0.0, "xmax": 1.0, "ymin": 0.0, "ymax": 1.0, "zmin": 0.0, "zmax": 0.99};
     this._threshold_otsu_index       = 0;
     this._threshold_isodata_index    = 0;
     this._threshold_yen_index        = 0;
@@ -552,7 +552,7 @@ Core.prototype.init = function() {
     this._camera.rotation.z = this._camera_settings["rotation"]["z"];
 
     this._controls = new THREE.OrbitControls( this._camera, this._render.domElement );
-    this._controls.center.set( 0.0, 0.0, 0.0 );
+    this._controls.center.set( 0.0, 0.0, -0.5 );
 
     this._rtTexture = new THREE.WebGLRenderTarget( this.getRenderSizeInPixels()[0], this.getRenderSizeInPixels()[1], { minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, format: THREE.RGBAFormat} );
 
@@ -612,12 +612,10 @@ Core.prototype.init = function() {
 
     this._controls.addEventListener("change", function() {
         me.onCameraChange.call();
-
     });
 
     this._controls.addEventListener("start", function() {
         me.onCameraChangeStart.call();
-
     });
 
     this._controls.addEventListener("end", function() {
@@ -2574,7 +2572,7 @@ window.VRC.Core.prototype._shaders.secondPassSosMax = {
 		'              biggest_gray_value = gray_val;    ',
 		'             colorValue.g = (1.0-pow(biggest_gray_value,contrast/5.0));',
 		'             sample.a = 0.1 * opacityFactor; ',
-		'             sample.b = colorValue.g * sos *2.0; ',
+		'             sample.b = colorValue.g * sos * 5.0; ',
 		'             sample.g = colorValue.g * sos; ',
 		'             sample.r = colorValue.g * sos; ',
 		'             accum = sample; ',

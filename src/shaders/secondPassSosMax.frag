@@ -96,7 +96,7 @@ void main(void)
 
              colorValue.g = (1.0-pow(biggest_gray_value,contrast/5.0));
              sample.a = 0.1 * opacityFactor; 
-             sample.b = colorValue.g * sos *2.0; 
+             sample.b = colorValue.g * sos * 5.0; 
              sample.g = colorValue.g * sos; 
              sample.r = colorValue.g * sos; 
 
