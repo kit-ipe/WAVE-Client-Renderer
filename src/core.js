@@ -446,8 +446,8 @@ Core.prototype.setOpacityFactor = function(opacity_factor) {
 
 Core.prototype.setColorFactor = function(color_factor) {
     console.log("Core: setColorFactor()");
-//    this._color_factor = color_factor;
-//    this._secondPassSetUniformValue("uColorVal", this._color_factor);
+    this._color_factor = color_factor;
+    this._secondPassSetUniformValue("contrast", this._color_factor);
 };
 
 Core.prototype.setAbsorptionMode = function(mode_index) {
