@@ -11,7 +11,7 @@ uniform float uNumberOfSlices;
 uniform float uOpacityVal; 
 uniform float uSlicesOverX; 
 uniform float uSlicesOverY; 
-uniform float contrast;
+uniform float darkness;
 
 uniform float minSos;
 uniform float minRefl;
@@ -20,9 +20,10 @@ uniform float maxSos;
 uniform float maxRefl;
 uniform float maxAtten;
 
-uniform float refl; 
-uniform float sat; 
-uniform float sos; 
+uniform float l; 
+uniform float s; 
+uniform float hMin; 
+uniform float hMax; 
 
 //Acts like a texture3D using Z slices and trilinear filtering. 
 vec3 getVolumeValue(vec3 volpos)
@@ -67,13 +68,15 @@ vec3 getVolumeValue(vec3 volpos)
 // x - H, y - S, z - V
 vec3 hsv2rgb(vec3 hsv) 
 {
-    float     hue, p, q, t, ff;
+    float     hue, p, q, t, ff, sat;
     int        i;    
     
-    hsv.z=(1.0-pow(hsv.z,contrast/5.0))*refl;
-    hsv.x*=360.0*sos;     
+    hsv.z = (darkness-hsv.z)*l;
+    hsv.x = (hsv.x - hMin)/(hMax - hMin) * 360.0; 
   
-    hue=hsv.x >= 360.0?hsv.x-360.0:hsv.x;
+    hue = hsv.x >= 360.0 ? hsv.x-360.0 : hsv.x;
+    
+    sat = s * 1.3;
     
     hue /= 60.0;
     i = int(hue);
@@ -119,12 +122,12 @@ void main(void)
  vec4 accum = vec4(0, 0, 0, 0); 
  vec4 sample = vec4(0.0, 0.0, 0.0, 0.0); 
  vec4 colorValue = vec4(0, 0, 0, 0); 
-
+    
  float opacityFactor = uOpacityVal; 
   
  for(int i = 0; i < uStepsI; i++) 
  {       
-      vec3 gray_val = getVolumeValue(vpos.xyz); 
+     vec3 gray_val = getVolumeValue(vpos.xyz); 
 
      if(gray_val.z < 0.05 || 
          gray_val.x < minSos ||
@@ -133,12 +136,11 @@ void main(void)
          gray_val.y > maxAtten ||
          gray_val.z < minRefl ||
          gray_val.z > maxRefl 
-       ) 
-        colorValue = vec4(0.0);   
-   
-     else {                
+       )  
+         colorValue = vec4(0.0);    
+     else { 
             colorValue.x = gray_val.x;
-            colorValue.y = 1.0-gray_val.y/0.6;
+            colorValue.y = 1.0 - sqrt(gray_val.y);
             colorValue.z = gray_val.z;
             colorValue.w = 0.1;
               

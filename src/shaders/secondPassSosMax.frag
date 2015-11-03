@@ -11,7 +11,7 @@ uniform float uNumberOfSlices;
 uniform float uOpacityVal; 
 uniform float uSlicesOverX; 
 uniform float uSlicesOverY; 
-uniform float contrast;
+uniform float darkness;
 
 uniform float minSos;
 uniform float minRefl;
@@ -20,9 +20,10 @@ uniform float maxSos;
 uniform float maxRefl;
 uniform float maxAtten;
 
-uniform float refl; 
-uniform float sat; 
-uniform float sos; 
+uniform float l; 
+uniform float s; 
+uniform float hMin; 
+uniform float hMax;  
  
 
 // uniform int uAvailable_textures_number;
@@ -108,11 +109,11 @@ void main(void)
             if(biggest_gray_value < gray_val.x)  
               biggest_gray_value = gray_val.x;    
 
-             colorValue.g = (1.0-pow(biggest_gray_value,contrast/5.0));
+             colorValue.g = (darkness * 2.5 - biggest_gray_value) * l * 0.15;
              sample.a = 0.1 * opacityFactor; 
-             sample.b = colorValue.g * sos * 5.0; 
-             sample.g = colorValue.g * sos; 
-             sample.r = colorValue.g * sos; 
+             sample.b = colorValue.g * s * 2.0; 
+             sample.g = colorValue.g; 
+             sample.r = colorValue.g; 
 
              accum = sample; 
      }    

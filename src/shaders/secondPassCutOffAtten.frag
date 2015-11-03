@@ -11,7 +11,7 @@ uniform float uNumberOfSlices;
 uniform float uOpacityVal; 
 uniform float uSlicesOverX; 
 uniform float uSlicesOverY; 
-uniform float contrast;
+uniform float darkness;
 
 uniform float minSos;
 uniform float minRefl;
@@ -20,9 +20,10 @@ uniform float maxSos;
 uniform float maxRefl;
 uniform float maxAtten;
 
-uniform float refl; 
-uniform float sat; 
-uniform float sos; 
+uniform float l; 
+uniform float s; 
+uniform float hMin; 
+uniform float hMax;  
 
 
 //Acts like a texture3D using Z slices and trilinear filtering. 
@@ -70,15 +71,16 @@ vec3 tumorHighlighter(vec3 hsv)
 {     
     float     hue, p, q, t, ff;
     int        i;    
-    float s=(hsv.x>sos-0.05 && hsv.x<sos+0.05)?sat:0.0; 
-    hsv.z=(1.0-pow(hsv.z,contrast/5.0))*refl;
+    
+    float sat = (hsv.y>(hMin + 0.5) && hsv.y<hMax)? s : 0.0; 
+    hsv.z = (darkness-hsv.z)*l;
   
     hue = 0.0;
     i = int((hue));
     ff = hue - float(i); 
-    p = hsv.z * (1.0 - s);
-    q = hsv.z * (1.0 - (s * ff));
-    t = hsv.z * (1.0 - (s * (1.0 - ff)));
+    p = hsv.z * (1.0 - sat);
+    q = hsv.z * (1.0 - (sat * ff));
+    t = hsv.z * (1.0 - (sat * (1.0 - ff)));
 
     
      return vec3(hsv.z,t,p);

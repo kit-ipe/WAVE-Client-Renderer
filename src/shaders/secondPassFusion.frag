@@ -11,7 +11,7 @@ uniform float uNumberOfSlices;
 uniform float uOpacityVal; 
 uniform float uSlicesOverX; 
 uniform float uSlicesOverY; 
-uniform float contrast;
+uniform float darkness;
 
 uniform float minSos;
 uniform float minRefl;
@@ -20,9 +20,10 @@ uniform float maxSos;
 uniform float maxRefl;
 uniform float maxAtten;
 
-uniform float refl; 
-uniform float sat; 
-uniform float sos;   
+uniform float l; 
+uniform float s; 
+uniform float hMin; 
+uniform float hMax;    
 
 //Acts like a texture3D using Z slices and trilinear filtering. 
 vec3 getVolumeValue(vec3 volpos)
@@ -70,9 +71,9 @@ vec3 hsv2rgb(vec3 hsv)
     float     hue, p, q, t, ff;
     int        i;    
     
-    hsv.z=(1.0-pow(hsv.z,contrast/5.0))*refl;
-    hsv.x*=360.0*sos;    
-    hsv.y*= sat*2.0;  
+    hsv.z = (darkness - hsv.z) * l;
+    hsv.x = (hsv.x - hMin)/(hMax - hMin) * 360.0;    
+    hsv.y*= s*2.0;  
   
     hue=hsv.x >= 360.0?hsv.x-360.0:hsv.x;
     

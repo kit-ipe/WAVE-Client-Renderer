@@ -11,7 +11,7 @@ uniform float uNumberOfSlices;
 uniform float uOpacityVal; 
 uniform float uSlicesOverX; 
 uniform float uSlicesOverY; 
-uniform float contrast;
+uniform float darkness;
 
 uniform float minSos;
 uniform float minRefl;
@@ -20,9 +20,10 @@ uniform float maxSos;
 uniform float maxRefl;
 uniform float maxAtten;
 
-uniform float refl; 
-uniform float sat; 
-uniform float sos; 
+uniform float l; 
+uniform float s; 
+uniform float hMin; 
+uniform float hMax; 
 
 
 //Acts like a texture3D using Z slices and trilinear filtering. 
@@ -99,11 +100,11 @@ void main(void)
        )  
          colorValue = vec4(0.0);   
      else { 
-            colorValue.x = (1.0-pow(gray_val.y,contrast/5.0));
+            colorValue.x = (darkness * 2.0 - gray_val.y) * l * 0.3;
             colorValue.w = 0.1;
               
             sample.a = colorValue.a * opacityFactor * (1.0 / uStepsF); 
-            sample.rgb = (1.0 - accum.a) * colorValue.xxx * refl * sample.a; 
+            sample.rgb = (1.0 - accum.a) * colorValue.xxx * sample.a; 
              
             accum += sample; 
 

@@ -339,30 +339,23 @@
 
         };
 
-        me.setRefl = function(value) {
-            me._core.setRefl(value);
-            me._needRedraw = true;
-        };
-        me.setSos = function(value) {
-            me._core.setSos(value);
-            me._needRedraw = true;
-        };
-        me.setSat = function(value) {
-            me._core.setSat(value);
+        me.setL = function(value) {
+            me._core.setL(value);
             me._needRedraw = true;
         };
       
-        me.setMaxRefl = function(value) {
-            me._core.setMaxRefl(value);
-            me._needRedraw = true;
-
-        };
-        me.setMaxSos = function(value) {
-            me._core.setMaxSos(value);
+        me.setS = function(value) {
+            me._core.setS(value);
             me._needRedraw = true;
         };
-        me.setMaxAtten = function(value) {
-            me._core.setMaxAtten(value);
+      
+        me.setHMin = function(value) {
+            me._core.setHMin(value);
+            me._needRedraw = true;
+        };
+      
+        me.setHMax = function(value) {
+            me._core.setHMax(value);
             me._needRedraw = true;
         };
       
@@ -377,6 +370,20 @@
         };
         me.setMinAtten = function(value) {
             me._core.setMinAtten(value);
+            me._needRedraw = true;
+        };
+      
+       me.setMaxRefl = function(value) {
+            me._core.setMaxRefl(value);
+            me._needRedraw = true;
+
+        };
+        me.setMaxSos = function(value) {
+            me._core.setMaxSos(value);
+            me._needRedraw = true;
+        };
+        me.setMaxAtten = function(value) {
+            me._core.setMaxAtten(value);
             me._needRedraw = true;
         };
       

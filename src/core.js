@@ -5,13 +5,14 @@
  * @class Core
  * @this {Core}
  * @author sogimu@nxt.ru Aleksandr Lizin aka sogimu
- *
  */
 
 var Core = function(conf) {
-    this.refl = 1;
-    this.sos = 1;
-    this.sat = 1;
+    this.l = conf.l;
+    this.s = conf.s;
+  
+    this.hMin = conf.hMin;
+    this.hMax = conf.hMax;
   
     this.minRefl = 0;
     this.minSos = 0;
@@ -152,11 +153,12 @@ Core.prototype.init = function() {
             uSlicesOverX:                    { type: "f", value: this._slicemap_row_col[0] },
             uSlicesOverY:                    { type: "f", value: this._slicemap_row_col[1] },
             uOpacityVal:                     { type: "f", value: this._opacity_factor },
-            contrast:                        { type: "f", value: this._color_factor },            
+            darkness:                        { type: "f", value: this._color_factor },            
             
-            refl:                            { type: "f", value: this.getRefl() },
-            sat:                             { type: "f", value: this.getSat() },
-            sos:                             { type: "f", value: this.getSos() },
+            l:                               { type: "f", value: this.l },
+            s:                               { type: "f", value: this.s },
+            hMin:                            { type: "f", value: this.hMin },
+            hMax:                            { type: "f", value: this.hMax },
           
             minSos:                          { type: "f", value: this.minSos },
             maxSos:                          { type: "f", value: this.maxSos },
@@ -252,63 +254,55 @@ Core.prototype.setTransferFunctionByImage = function(image) {
 };
 
 
-Core.prototype.setRefl = function(refl) {
-    this.refl = refl;
-    this._secondPassSetUniformValue("refl", this.refl);
+Core.prototype.setL = function(v) {
+    this.l = v;
+    this._secondPassSetUniformValue("l", this.l);
 }
 
-Core.prototype.setSos = function(sos) {
-    this.sos = sos;
-    this._secondPassSetUniformValue("sos", this.sos);
+Core.prototype.setS = function(v) {
+    this.s = v;
+    this._secondPassSetUniformValue("s", this.s);
 }
 
-Core.prototype.setSat = function(sat) {
-    this.sat = sat;
-    this._secondPassSetUniformValue("sat", this.sat);
+Core.prototype.setHMin = function(v) {
+    this.hMin = v;
+    this._secondPassSetUniformValue("hMin", this.hMin);
 }
 
-Core.prototype.setMaxRefl = function(refl) {
-    this.maxRefl = refl;
+Core.prototype.setHMax = function(v) {
+    this.hMax = v;
+    this._secondPassSetUniformValue("hMax", this.hMax);
+}
+
+Core.prototype.setMaxRefl = function(v) {
+    this.maxRefl = v;
     this._secondPassSetUniformValue("maxRefl", this.maxRefl);
 }
 
-Core.prototype.setMaxSos = function(sos) {
-    this.maxSos = sos;
+Core.prototype.setMaxSos = function(v) {
+    this.maxSos = v;
     this._secondPassSetUniformValue("maxSos", this.maxSos);
 }
 
-Core.prototype.setMinAtten = function(sat) {
-    this.minAtten = sat;
+Core.prototype.setMinAtten = function(v) {
+    this.minAtten = v;
     this._secondPassSetUniformValue("minAtten", this.minAtten);
 }
 
-Core.prototype.setMinRefl = function(refl) {
-    this.minRefl = refl;
+Core.prototype.setMinRefl = function(v) {
+    this.minRefl = v;
     this._secondPassSetUniformValue("minRefl", this.minRefl);
 }
 
-Core.prototype.setMinSos = function(sos) {
-    this.minSos = sos;
+Core.prototype.setMinSos = function(v) {
+    this.minSos = v;
     this._secondPassSetUniformValue("minSos", this.minSos);
 }
 
-Core.prototype.setMaxAtten = function(sat) {
-    this.maxAtten = sat;
+Core.prototype.setMaxAtten = function(v) {
+    this.maxAtten = v;
     this._secondPassSetUniformValue("maxAtten", this.maxAtten);
 }
-
-Core.prototype.getRefl = function() {
-    return this.refl;
-}
-
-Core.prototype.getSos = function() {
-    return this.sos;
-}
-
-Core.prototype.getSat = function() {
-    return this.sat;
-}
-
 
 Core.prototype.setTransferFunctionByColors = function(colors) {
 //    console.log("Core: setTransferFunctionByColors()");
@@ -375,11 +369,12 @@ Core.prototype.setMode = function(conf){
             uSlicesOverX:                    { type: "f", value: this._slicemap_row_col[0] },
             uSlicesOverY:                    { type: "f", value: this._slicemap_row_col[1] },
             uOpacityVal:                     { type: "f", value: this._opacity_factor },
-            contrast:                        { type: "f", value: this._color_factor },
+            darkness:                        { type: "f", value: this._color_factor },
           
-            refl:                            { type: "f", value: this.getRefl() },
-            sat:                             { type: "f", value: this.getSat() },
-            sos:                             { type: "f", value: this.getSos() },
+            l:                               { type: "f", value: this.l },
+            s:                               { type: "f", value: this.s },
+            hMin:                            { type: "f", value: this.hMin },
+            hMax:                            { type: "f", value: this.hMax },
           
             minSos:                          { type: "f", value: this.minSos },
             maxSos:                          { type: "f", value: this.maxSos },
@@ -447,7 +442,7 @@ Core.prototype.setOpacityFactor = function(opacity_factor) {
 Core.prototype.setColorFactor = function(color_factor) {
     console.log("Core: setColorFactor()");
     this._color_factor = color_factor;
-    this._secondPassSetUniformValue("contrast", this._color_factor);
+    this._secondPassSetUniformValue("darkness", this._color_factor);
 };
 
 Core.prototype.setAbsorptionMode = function(mode_index) {
