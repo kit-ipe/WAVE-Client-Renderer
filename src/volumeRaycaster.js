@@ -521,19 +521,7 @@
             }
             me._needRedraw = true;
 
-        };
-
-        me.getRefl = function() {
-            return me._core.getRefl();
-        };
-        
-        me.getSos = function() {
-            return me._core.getSos();
-        };
-        
-        me.getSat = function() {
-            return me._core.getSat();
-        };
+        };       
         
         me.getGrayMaxValue = function() {
             return me._core.getGrayMaxValue();
@@ -773,20 +761,6 @@
             if(config['render_canvas_size'] != undefined) {
                 me.setRenderCanvasSize( config['render_canvas_size'][0], config['render_canvas_size'][1] );
             }
-            
-            if(config['refl'] != undefined) {
-                me.setRefl(config['refl']);
-            }
-                        
-            if(config['sat'] != undefined) {
-                me.setSat(config['sat']);
-            }
-            
-             if(config['sos'] != undefined) {
-                me.setSos(config['sos']);
-            }
-            
-
             me._needRedraw = true;
         };
 

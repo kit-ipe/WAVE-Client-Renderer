@@ -14,13 +14,13 @@ var Core = function(conf) {
     this.hMin = conf.hMin;
     this.hMax = conf.hMax;
   
-    this.minRefl = 0;
-    this.minSos = 0;
-    this.minAtten = 0;
+    this.minRefl = conf.minRefl;
+    this.minSos = conf.minSos;
+    this.minAtten = conf.minAtten;
   
-    this.maxRefl = 1;
-    this.maxSos = 1;
-    this.maxAtten = 1;
+    this.maxRefl = conf.maxRefl;
+    this.maxSos = conf.maxSos;
+    this.maxAtten = conf.maxAtten;
     
     this._steps                      = 20;
     this._slices_gap                 = [0,    '*'];
@@ -62,7 +62,7 @@ var Core = function(conf) {
         "position": {
             "x": 0, 
             "y": 0,
-            "z": 2
+            "z": this._canvas_size[0] > this._canvas_size[1] ? 1 : 2
         }
     };
 
@@ -184,7 +184,6 @@ Core.prototype.init = function() {
 
     window.addEventListener( 'resize', function() {
         me.onResizeWindow.call();
-
     }, false );
 
     this._controls.addEventListener("change", function() {

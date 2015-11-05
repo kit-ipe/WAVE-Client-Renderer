@@ -73,7 +73,7 @@ vec3 hsv2rgb(vec3 hsv)
     
     hsv.z = (darkness - hsv.z) * l;
     hsv.x = (hsv.x - hMin)/(hMax - hMin) * 360.0;    
-    hsv.y*= s*2.0;  
+    hsv.y *= s * 1.5;  
   
     hue=hsv.x >= 360.0?hsv.x-360.0:hsv.x;
     

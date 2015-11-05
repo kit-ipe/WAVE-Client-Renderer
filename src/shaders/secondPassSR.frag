@@ -76,7 +76,7 @@ vec3 hsv2rgb(vec3 hsv)
   
     hue = hsv.x >= 360.0 ? hsv.x-360.0 : hsv.x;
     
-    sat = s * 1.3;
+    sat = s;
     
     hue /= 60.0;
     i = int(hue);

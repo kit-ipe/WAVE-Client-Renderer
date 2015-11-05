@@ -291,11 +291,11 @@
                 //front face first
                 [geometryDimension.xmin * volumeSize[0], geometryDimension.ymin * volumeSize[1], geometryDimension.zmax * volumeSize[2]],
                 [geometryDimension.xmax * volumeSize[0], geometryDimension.ymin * volumeSize[1], geometryDimension.zmax * volumeSize[2]],
-                [geometryDimension.xmax * volumeSize[0], geometryDimension.ymax * volumeSize[1], geometryDimension.zmax * volumeSize[2]],
+                [geometryDimension.xmax * volumeSize[0], geometryDimension.ymax * volumeSize[1], geometryDimension.zmax * volumeSize[2]], 
                 //front face second
                 [geometryDimension.xmin * volumeSize[0], geometryDimension.ymin * volumeSize[1], geometryDimension.zmax * volumeSize[2]],
                 [geometryDimension.xmax * volumeSize[0], geometryDimension.ymax * volumeSize[1], geometryDimension.zmax * volumeSize[2]],
-                [geometryDimension.xmin * volumeSize[0], geometryDimension.ymax * volumeSize[1], geometryDimension.zmax * volumeSize[2]],
+                [geometryDimension.xmin * volumeSize[0], geometryDimension.ymax * volumeSize[1], geometryDimension.zmax * volumeSize[2]], 
 
                 // back face first
                 [geometryDimension.xmin * volumeSize[0], geometryDimension.ymin * volumeSize[1], geometryDimension.zmin * volumeSize[2]],
@@ -454,13 +454,13 @@ var Core = function(conf) {
     this.hMin = conf.hMin;
     this.hMax = conf.hMax;
   
-    this.minRefl = 0;
-    this.minSos = 0;
-    this.minAtten = 0;
+    this.minRefl = conf.minRefl;
+    this.minSos = conf.minSos;
+    this.minAtten = conf.minAtten;
   
-    this.maxRefl = 1;
-    this.maxSos = 1;
-    this.maxAtten = 1;
+    this.maxRefl = conf.maxRefl;
+    this.maxSos = conf.maxSos;
+    this.maxAtten = conf.maxAtten;
     
     this._steps                      = 20;
     this._slices_gap                 = [0,    '*'];
@@ -502,7 +502,7 @@ var Core = function(conf) {
         "position": {
             "x": 0, 
             "y": 0,
-            "z": 2
+            "z": this._canvas_size[0] > this._canvas_size[1] ? 1 : 2
         }
     };
 
@@ -624,7 +624,6 @@ Core.prototype.init = function() {
 
     window.addEventListener( 'resize', function() {
         me.onResizeWindow.call();
-
     }, false );
 
     this._controls.addEventListener("change", function() {
@@ -2190,7 +2189,7 @@ window.VRC.Core.prototype._shaders.secondPassFusion = {
 		'    ',
 		'    hsv.z = (darkness - hsv.z) * l;',
 		'    hsv.x = (hsv.x - hMin)/(hMax - hMin) * 360.0;    ',
-		'    hsv.y*= s*2.0;  ',
+		'    hsv.y *= s * 1.5;  ',
 		'  ',
 		'    hue=hsv.x >= 360.0?hsv.x-360.0:hsv.x;',
 		'    ',
@@ -2650,7 +2649,7 @@ window.VRC.Core.prototype._shaders.secondPassSR = {
 		'  ',
 		'    hue = hsv.x >= 360.0 ? hsv.x-360.0 : hsv.x;',
 		'    ',
-		'    sat = s * 1.3;',
+		'    sat = s;',
 		'    ',
 		'    hue /= 60.0;',
 		'    i = int(hue);',
@@ -3519,19 +3518,7 @@ window.VRC.Core.prototype._shaders.secondPassSosMax = {
             }
             me._needRedraw = true;
 
-        };
-
-        me.getRefl = function() {
-            return me._core.getRefl();
-        };
-        
-        me.getSos = function() {
-            return me._core.getSos();
-        };
-        
-        me.getSat = function() {
-            return me._core.getSat();
-        };
+        };       
         
         me.getGrayMaxValue = function() {
             return me._core.getGrayMaxValue();
@@ -3771,20 +3758,6 @@ window.VRC.Core.prototype._shaders.secondPassSosMax = {
             if(config['render_canvas_size'] != undefined) {
                 me.setRenderCanvasSize( config['render_canvas_size'][0], config['render_canvas_size'][1] );
             }
-            
-            if(config['refl'] != undefined) {
-                me.setRefl(config['refl']);
-            }
-                        
-            if(config['sat'] != undefined) {
-                me.setSat(config['sat']);
-            }
-            
-             if(config['sos'] != undefined) {
-                me.setSos(config['sos']);
-            }
-            
-
             me._needRedraw = true;
         };
 
