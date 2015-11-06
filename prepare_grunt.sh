@@ -1,6 +1,6 @@
 #sudo zypper in npm
-sudo npm install -g grunt-cli
-sudo npm install grunt-contrib-concat --save-dev
-sudo npm install grunt-contrib-uglify --save-dev
-sudo npm install grunt-contrib-watch --save-dev
-sudo npm install grunt-glsl-threejs --save-dev
+npm install -g grunt-cli
+npm install grunt-contrib-concat --save-dev
+npm install grunt-contrib-uglify --save-dev
+npm install grunt-contrib-watch --save-dev
+npm install grunt-glsl-threejs --save-dev
