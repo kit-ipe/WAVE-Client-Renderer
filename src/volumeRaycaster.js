@@ -820,9 +820,6 @@
                 "z_max": me.getGeometryDimensions()["zmax"],
                 "dom_container_id": me.getDomContainerId(),
                 "auto_steps": me.isAutoStepsOn(),
-                "refl": me.getRefl(),
-                "sat": me.getSat(),
-                "sos": me.getSos()
             };
 
             return config;

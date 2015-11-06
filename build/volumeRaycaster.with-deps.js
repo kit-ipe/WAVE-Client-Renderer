@@ -471,11 +471,11 @@ var Core = function(conf) {
     this._slicemaps_textures         = [];
     this._opacity_factor             = conf.opacity_factor;
     this._color_factor               = conf.color_factor;
-    this._shader_name                = conf.shader_name;
+    this._shader_name                = conf.renderer_size != undefined ? "secondPass" : conf.shader_name;
     this._render_size                = conf.renderer_size != undefined ? ['*', '*'] : conf.render_size;
-    this._canvas_size                = conf.renderer_size != undefined ? ['*', '*'] : conf.renderer_canvas_size;
+    this._canvas_size                = conf.renderer_canvas_size;
     this._render_clear_color         = "#000";
- //   this._transfer_function_as_image = new Image();
+    this._transfer_function_as_image = new Image();
     this._volume_sizes               = [1024.0, 1024.0, 1024.0];
     this._geometry_dimensions        = {"xmin": 0.0, "xmax": 1.0, "ymin": 0.0, "ymax": 1.0, "zmin": 0.0, "zmax": 0.99};
     this._threshold_otsu_index       = 0;
@@ -483,11 +483,11 @@ var Core = function(conf) {
     this._threshold_yen_index        = 0;
     this._threshold_li_index         = 0;
   
-//    this._transfer_function_colors   = [
-//        {"pos": 0.25, "color": "#892c2c"},
-//        {"pos": 0.5, "color": "#00ff00"},
-//        {"pos": 0.75, "color": "#0000ff"}
-//    ]
+    this._transfer_function_colors   = [
+        {"pos": 0.25, "color": "#892c2c"},
+        {"pos": 0.5, "color": "#00ff00"},
+        {"pos": 0.75, "color": "#0000ff"}
+    ]
 
     this._dom_container_id           = conf.domContainerId != undefined ? conf.domContainerId : "container";
     this._dom_container              = {};
@@ -502,7 +502,7 @@ var Core = function(conf) {
         "position": {
             "x": 0, 
             "y": 0,
-            "z": this._canvas_size[0] > this._canvas_size[1] ? 1 : 2
+            "z": this._canvas_size[0] < this._canvas_size[1] ? 2 : 1
         }
     };
 
@@ -537,8 +537,9 @@ var Core = function(conf) {
     this._onWindowResizeFuncIndex_canvasSize = -1;
     this._onWindowResizeFuncIndex_renderSize = -1;
 
-
+    try{
     this._callback = conf.callback;
+    } catch(e){}
 };
 
 Core.prototype.init = function() {
@@ -605,7 +606,13 @@ Core.prototype.init = function() {
             minAtten:                        { type: "f", value: this.minAtten },
             maxAtten:                        { type: "f", value: this.maxAtten },
             minRefl:                         { type: "f", value: this.minRefl },
-            maxRefl:                         { type: "f", value: this.maxRefl }    
+            maxRefl:                         { type: "f", value: this.maxRefl },  
+          
+           uTransferFunction:               { type: "t",  value: this._transfer_function },
+           uColorVal:                       { type: "f", value: this._color_factor },
+           uAbsorptionModeIndex:            { type: "f", value: this._absorption_mode_index },
+           uMinGrayVal:                     { type: "f", value: this._gray_value[0] },
+           uMaxGrayVal:                     { type: "f", value: this._gray_value[1] }
         },
         side: THREE.BackSide,
         transparent: true
@@ -646,7 +653,7 @@ Core.prototype.init = function() {
         me.setRenderCanvasSize('*', '*');
     }, false);
 
-    //this.setTransferFunctionByColors(this._transfer_function_colors);
+    this.setTransferFunctionByColors(this._transfer_function_colors);
 
     this._render.setSize(this.getRenderSizeInPixels()[0], this.getRenderSizeInPixels()[1]); 
     this.setRenderCanvasSize(this.getCanvasSize()[0], this.getCanvasSize()[1]);
@@ -656,7 +663,6 @@ Core.prototype.init = function() {
 
 Core.prototype._secondPassSetUniformValue = function(key, value) {
     this._materialSecondPass.uniforms[key].value = value;
-
 };
 
 Core.prototype._setSlicemapsTextures = function(images) {
@@ -678,18 +684,17 @@ Core.prototype._setSlicemapsTextures = function(images) {
 };
 
 Core.prototype.setTransferFunctionByImage = function(image) {
-//    console.log("Core: setTransferFunctionByImage()");
-//    this._transfer_function_as_image = image;
-//    var transferTexture =  new THREE.Texture(image);
-//    transferTexture.wrapS = transferTexture.wrapT =  THREE.ClampToEdgeWrapping;
-//    transferTexture.magFilter = THREE.LinearFilter;
-//    transferTexture.minFilter = THREE.LinearFilter;
-//    transferTexture.flipY = true;
-//    transferTexture.needsUpdate = true;
-//
-//    this._secondPassSetUniformValue("uTransferFunction", transferTexture);
-//    this.onChangeTransferFunction.call(image);
+    console.log("Core: setTransferFunctionByImage()");
+    this._transfer_function_as_image = image;
+    var transferTexture =  new THREE.Texture(image);
+    transferTexture.wrapS = transferTexture.wrapT =  THREE.ClampToEdgeWrapping;
+    transferTexture.magFilter = THREE.LinearFilter;
+    transferTexture.minFilter = THREE.LinearFilter;
+    transferTexture.flipY = true;
+    transferTexture.needsUpdate = true;
 
+    this._secondPassSetUniformValue("uTransferFunction", transferTexture);
+    this.onChangeTransferFunction.call(image);
 };
 
 
@@ -744,37 +749,36 @@ Core.prototype.setMaxAtten = function(v) {
 }
 
 Core.prototype.setTransferFunctionByColors = function(colors) {
-//    console.log("Core: setTransferFunctionByColors()");
-//    this._transfer_function_colors = colors;
-//
-//    var canvas = document.createElement('canvas');
-//    canvas.width  = 512;
-//    canvas.height = 2;
-//
-//    var ctx = canvas.getContext('2d');
-//    
-//    var grd = ctx.createLinearGradient(0, 0, canvas.width -1 , canvas.height - 1);
-//
-//    for(var i=0; i<colors.length; i++) {
-//        grd.addColorStop(colors[i].pos, colors[i].color);
-//
-//    }
-//
-//    ctx.fillStyle = grd;
-//    ctx.fillRect(0,0,canvas.width ,canvas.height);
-//    var image = new Image();
-//    image.src = canvas.toDataURL();
-//    image.style.width = 20 + " px";
-//    image.style.height = 512 + " px";
-//
-//    var transferTexture = this.setTransferFunctionByImage(image);
-//
-//    this.onChangeTransferFunction.call(image);
+    console.log("Core: setTransferFunctionByColors()");
+    this._transfer_function_colors = colors;
 
+    var canvas = document.createElement('canvas');
+    canvas.width  = 512;
+    canvas.height = 2;
+
+    var ctx = canvas.getContext('2d');
+    
+    var grd = ctx.createLinearGradient(0, 0, canvas.width -1 , canvas.height - 1);
+
+    for(var i=0; i<colors.length; i++) {
+        grd.addColorStop(colors[i].pos, colors[i].color);
+
+    }
+
+    ctx.fillStyle = grd;
+    ctx.fillRect(0,0,canvas.width ,canvas.height);
+    var image = new Image();
+    image.src = canvas.toDataURL();
+    image.style.width = 20 + " px";
+    image.style.height = 512 + " px";
+
+    var transferTexture = this.setTransferFunctionByImage(image);
+
+    this.onChangeTransferFunction.call(image);
 };
 
 Core.prototype.getTransferFunctionAsImage = function() {
-//    return this._transfer_function_as_image;
+    return this._transfer_function_as_image;
 };
 
 Core.prototype._initGeometry = function(geometryDimensions, volumeSizes) {
@@ -862,8 +866,8 @@ Core.prototype.setSlicemapsImages = function(images, imagesPaths) {
 
 Core.prototype.setSteps = function(steps) {
     console.log("Core: setSteps(" + steps + ")");
-//    this._steps = steps;
-//    this._secondPassSetUniformValue("uSteps", this._steps);
+    this._steps = steps;
+    this._secondPassSetUniformValue("uSteps", this._steps);
 };
 
 Core.prototype.setSlicesRange = function(from, to) {
@@ -885,9 +889,9 @@ Core.prototype.setColorFactor = function(color_factor) {
 };
 
 Core.prototype.setAbsorptionMode = function(mode_index) {
-//    console.log("Core: setAbsorptionMode()");
-//    this._absorption_mode_index = mode_index;
-//    this._secondPassSetUniformValue("uAbsorptionModeIndex", this._absorption_mode_index);
+    console.log("Core: setAbsorptionMode()");
+    this._absorption_mode_index = mode_index;
+    this._secondPassSetUniformValue("uAbsorptionModeIndex", this._absorption_mode_index);
 };
 
 Core.prototype.setVolumeSize = function(width, height, depth) {
@@ -946,9 +950,9 @@ Core.prototype.setRowCol = function(row, col) {
 };
 
 Core.prototype.setGrayMinValue = function(value) {
-//    console.log("Core: setMinGrayValue()");
-//    this._gray_value[0] = value;
-//    this._secondPassSetUniformValue("uMinGrayVal", this._gray_value[0]);
+    console.log("Core: setMinGrayValue()");
+    this._gray_value[0] = value;
+    this._secondPassSetUniformValue("uMinGrayVal", this._gray_value[0]);
 };
 
 Core.prototype.applyThresholding = function(threshold_name) {
@@ -984,18 +988,18 @@ Core.prototype.setThresholdIndexes = function(otsu, isodata, yen, li) {
 };
 
 Core.prototype.setGrayMaxValue = function(value) {
-//    console.log("Core: setMaxGrayValue()");
-//    this._gray_value[1] = value;
-//    this._secondPassSetUniformValue("uMaxGrayVal", this._gray_value[1]);
+    console.log("Core: setMaxGrayValue()");
+    this._gray_value[1] = value;
+    this._secondPassSetUniformValue("uMaxGrayVal", this._gray_value[1]);
 };
 
 Core.prototype.draw = function(fps) {
     this.onPreDraw.call(fps.toFixed(3));
 
     this._render.render( this._sceneFirstPass, this._camera, this._rtTexture, true );
-    // this._render.render( this._sceneFirstPass, this._camera );
+     this._render.render( this._sceneFirstPass, this._camera );
 
-    //Render the second pass and perform the volume rendering.
+   // Render the second pass and perform the volume rendering.
     this._render.render( this._sceneSecondPass, this._camera );
 
     this.onPostDraw.call(fps.toFixed(3));
@@ -1116,7 +1120,7 @@ Core.prototype.getClearColor = function() {
 };
 
 Core.prototype.getTransferFunctionColors = function() {
-//    return this._transfer_function_colors;
+    return this._transfer_function_colors;
 };
 
 Core.prototype.getOpacityFactor = function() {
@@ -1128,7 +1132,7 @@ Core.prototype.getColorFactor = function() {
 };
 
 Core.prototype.getAbsorptionMode = function() {
- //   return this._absorption_mode_index;
+    return this._absorption_mode_index;
 };
 
 Core.prototype.getClearColor = function() {
@@ -1201,9 +1205,7 @@ window.VRC.Core.prototype._shaders.secondPass = {
 		"uAbsorptionModeIndex" : { type: "f", value: -1 },
 		"uSlicesOverX" : { type: "f", value: -1 },
 		"uSlicesOverY" : { type: "f", value: -1 },
-		"refl" : { type: "f", value: -1 },
-		"sat" : { type: "f", value: -1 },
-		"sos" : { type: "f", value: -1 },
+		"uSteps" : { type: "f", value: -1 },
 		"uAvailable_textures_number" : { type: "i", value: 0 },
 		}
 	]),
@@ -1220,8 +1222,15 @@ window.VRC.Core.prototype._shaders.secondPass = {
 		'    gl_Position = pos; ',
 		'} '].join("\n"),
 	fragmentShader: [
-		'precision mediump int; ',
-		'precision mediump float;',
+		'#ifdef GL_FRAGMENT_PRECISION_HIGH ',
+		' // highp is supported ',
+		' precision highp int; ',
+		' precision highp float; ',
+		'#else ',
+		' // high is not supported ',
+		' precision mediump int; ',
+		' precision mediump float; ',
+		'#endif ',
 		'varying vec4 frontColor; ',
 		'varying vec4 pos; ',
 		'uniform sampler2D uBackCoord; ',
@@ -1235,122 +1244,139 @@ window.VRC.Core.prototype._shaders.secondPass = {
 		'uniform float uAbsorptionModeIndex;',
 		'uniform float uSlicesOverX; ',
 		'uniform float uSlicesOverY; ',
-		'uniform float refl; ',
-		'uniform float sat; ',
-		'uniform float sos; ',
+		'uniform float uSteps; ',
 		'// uniform int uAvailable_textures_number;',
 		'//Acts like a texture3D using Z slices and trilinear filtering. ',
-		'vec3 getVolumeValue(vec3 volpos)',
+		'float getVolumeValue(vec3 volpos)',
 		'{',
 		'    float s1Original, s2Original, s1, s2; ',
 		'    float dx1, dy1; ',
+		'    // float dx2, dy2; ',
+		'    // float value; ',
 		'    vec2 texpos1,texpos2; ',
 		'    float slicesPerSprite = uSlicesOverX * uSlicesOverY; ',
-		'    s1Original = floor(volpos.z*uNumberOfSlices);     ',
-		'    int tex1Index = int(floor(s1Original / slicesPerSprite));    ',
+		'    s1Original = floor(volpos.z*uNumberOfSlices); ',
+		'    // s2Original = min(s1Original + 1.0, uNumberOfSlices);',
+		'    int tex1Index = int(floor(s1Original / slicesPerSprite));',
+		'    // int tex2Index = int(floor(s2Original / slicesPerSprite));',
 		'    s1 = mod(s1Original, slicesPerSprite);',
+		'    // s2 = mod(s2Original, slicesPerSprite);',
 		'    dx1 = fract(s1/uSlicesOverX);',
 		'    dy1 = floor(s1/uSlicesOverY)/uSlicesOverY;',
+		'    // dx2 = fract(s2/uSlicesOverX);',
+		'    // dy2 = floor(s2/uSlicesOverY)/uSlicesOverY;',
 		'    texpos1.x = dx1+(volpos.x/uSlicesOverX);',
 		'    texpos1.y = dy1+(volpos.y/uSlicesOverY);',
-		'    vec3 value = vec3(0.0,0.0,0.0); ',
-		'    ',
+		'    // texpos2.x = dx2+(volpos.x/uSlicesOverX);',
+		'    // texpos2.y = dy2+(volpos.y/uSlicesOverY);',
+		'    float value1 = 0.0, value2 = 0.0; ',
+		'    // bool value1Set = false, value2Set = false;',
+		'    // int numberOfSlicemaps = int( ceil(uNumberOfSlices / (uSlicesOverX * uSlicesOverY)) );',
 		'    <% for(var i=0; i < maxTexturesNumber; i++) { %>',
 		'        if( tex1Index == <%=i%> )',
 		'        {',
-		'            value = texture2D(uSliceMaps[<%=i%>],texpos1).xyz;',
+		'            value1 = texture2D(uSliceMaps[<%=i%>],texpos1).x;',
 		'        }',
 		'        <% if( i < maxTexturesNumber-1 ) { %>',
 		'            else',
 		'        <% } %>',
 		'    <% } %>',
-		'    return value;',
+		'    return value1;',
+		'    // for (int x = 0; x < gl_MaxTextureImageUnits-2; x++)',
+		'    // {',
+		'    //     if(x == numberOfSlicemaps)',
+		'    //     {',
+		'    //         break;',
+		'    //     }',
+		'    //     if(x == tex1Index) { ',
+		'    //         value1 = texture2D(uSliceMaps[x],texpos1).x; ',
+		'    //         value1Set = true; ',
+		'    //     } ',
+		'    //     if(x == tex2Index) { ',
+		'    //         value2 = texture2D(uSliceMaps[x],texpos2).x; ',
+		'    //         value2Set = true; ',
+		'    //     } ',
+		'    //     if(value1Set && value2Set) { ',
+		'    //         break; ',
+		'    //     } ',
+		'    // } ',
+		'    // return mix(value1, value2, fract(volpos.z*uNumberOfSlices)); ',
 		'} ',
-		'// x - R, y - G, z - B',
-		'// x - H, y - S, z - V',
-		'vec3 hsv2rgb(vec3 hsv) ',
-		'{',
-		'    float     hue, p, q, t, ff;',
-		'    int        i;    ',
-		'    ',
-		'    hsv.z+=refl;  ',
-		'    hsv.x*=360.0*sos;    ',
-		'    hsv.y*= sat;  ',
-		'  ',
-		'    hue=hsv.x >= 360.0?hsv.x-360.0:hsv.x;',
-		'    ',
-		'    hue /= 60.0;',
-		'    i = int(hue);',
-		'    ff = hue - float(i); ',
-		'    p = hsv.z * (1.0 - hsv.y);',
-		'    q = hsv.z * (1.0 - (hsv.y * ff));',
-		'    t = hsv.z * (1.0 - (hsv.y * (1.0 - ff)));',
-		'    if(i==0)',
-		'        return vec3(hsv.z,t,p);',
-		'    ',
-		'    else if(i==1)',
-		'      return vec3(q,hsv.z,p);',
-		'        ',
-		'    else if(i==2)     ',
-		'        return vec3(p,hsv.z,t);',
-		'        ',
-		'    else if(i==3)',
-		'        return vec3(p,q,hsv.z);',
-		'        ',
-		'    else if(i==4)',
-		'        return vec3(t,p,hsv.z);',
-		'        ',
-		'    else',
-		'        return vec3(hsv.z,p,q);',
-		'}',
 		'void main(void)',
 		'{',
-		' const int uStepsI = 144;',
-		' const float uStepsF = float(uStepsI);',
-		'    ',
 		' vec2 texC = ((pos.xy/pos.w) + 1.0) / 2.0; ',
 		' vec4 backColor = texture2D(uBackCoord,texC); ',
 		' vec3 dir = backColor.rgb - frontColor.rgb; ',
+		' //dir /= length(dir); ',
 		' vec4 vpos = frontColor; ',
-		' vec3 Step = dir/uStepsF; ',
+		'//      vec3 Step = dir/uSteps; ',
+		' vec3 Step = dir/uSteps; ',
 		' vec4 accum = vec4(0, 0, 0, 0); ',
 		' vec4 sample = vec4(0.0, 0.0, 0.0, 0.0); ',
 		' vec4 colorValue = vec4(0, 0, 0, 0); ',
-		'    ',
 		' float biggest_gray_value = 0.0; ',
 		' float opacityFactor = uOpacityVal; ',
 		' float lightFactor = uColorVal; ',
-		'  ',
-		' for(int i = 0; i < uStepsI; i++) ',
-		' {       ',
-		'     vec3 gray_val = getVolumeValue(vpos.xyz); ',
-		'     if(gray_val.z < uMinGrayVal || gray_val.z > uMaxGrayVal)  ',
-		'         colorValue = vec4(0.0);    ',
-		'     else { ',
-		'            if(biggest_gray_value < gray_val.z)  ',
-		'              biggest_gray_value = gray_val.z;    ',
-		'                                              ',
-		'                           ',
-		'            float xPosX = (gray_val.x - uMinGrayVal) / (uMaxGrayVal - uMinGrayVal); ',
-		'            float xPosY = (gray_val.y) / (0.6); //3 is max atten',
-		'            float xPosZ = (gray_val.z - uMinGrayVal) / (uMaxGrayVal - uMinGrayVal); ',
-		'            colorValue.xw = texture2D(uTransferFunction,vec2(xPosX,0.5)).xw;',
-		'            colorValue.y = texture2D(uTransferFunction,vec2(xPosY,0.5)).y;',
-		'            colorValue.z = texture2D(uTransferFunction,vec2(xPosZ,0.5)).z;',
-		'              ',
-		'            sample.a = colorValue.a * opacityFactor * (1.0 / uStepsF); ',
-		'            sample.rgb = (1.0 - accum.a) * hsv2rgb(colorValue.rgb) * sample.a * lightFactor; ',
-		'             ',
-		'            accum += sample; ',
-		'            if(accum.a>=1.0) ',
-		'               break; ',
-		'     }    ',
-		'   ',
+		' // const 4095 - just example of big number ',
+		' // It because expression i > uSteps impossible ',
+		' for(float i = 0.0; i < 4095.0; i+=1.0) ',
+		' { ',
+		' // It because expression i > uSteps impossible ',
+		'     if(i == uSteps) { ',
+		'         break; ',
+		'     } ',
+		'     float gray_val = getVolumeValue(vpos.xyz); ',
+		'     if(gray_val < uMinGrayVal || gray_val > uMaxGrayVal) { ',
+		'         colorValue = vec4(0.0); ',
+		'     } else { ',
+		'         if(biggest_gray_value < gray_val) { ',
+		'            biggest_gray_value = gray_val;',
+		'         } ',
+		'         if(uAbsorptionModeIndex == 0.0) ',
+		'         { ',
+		'             vec2 tf_pos; ',
+		'             tf_pos.x = (gray_val - uMinGrayVal) / (uMaxGrayVal - uMinGrayVal); ',
+		'             tf_pos.y = 0.5; ',
+		'             colorValue = texture2D(uTransferFunction,tf_pos);',
+		'             //colorValue = vec4(tf_pos.x, tf_pos.x, tf_pos.x, 1.0); ',
+		'             sample.a = colorValue.a * opacityFactor; ',
+		'             sample.rgb = colorValue.rgb * uColorVal; ',
+		'             accum += sample; ',
+		'             if(accum.a>=1.0) ',
+		'                break; ',
+		'         } ',
+		'         if(uAbsorptionModeIndex == 1.0) ',
+		'         { ',
+		'             vec2 tf_pos; ',
+		'             tf_pos.x = (gray_val - uMinGrayVal) / (uMaxGrayVal - uMinGrayVal); ',
+		'             tf_pos.y = 0.5; ',
+		'             colorValue = texture2D(uTransferFunction,tf_pos);',
+		'             //colorValue = vec4(tf_pos.x, tf_pos.x, tf_pos.x, 1.0); ',
+		'             sample.a = colorValue.a * opacityFactor * (1.0 / uSteps); ',
+		'             sample.rgb = (1.0 - accum.a) * colorValue.rgb * sample.a * lightFactor; ',
+		'             accum += sample; ',
+		'             if(accum.a>=1.0) ',
+		'                break; ',
+		'         } ',
+		'         if(uAbsorptionModeIndex == 2.0) ',
+		'         { ',
+		'             vec2 tf_pos; ',
+		'             tf_pos.x = (biggest_gray_value - uMinGrayVal) / (uMaxGrayVal - uMinGrayVal); ',
+		'             tf_pos.y = 0.5; ',
+		'             colorValue = texture2D(uTransferFunction,tf_pos);',
+		'             //colorValue = vec4(tf_pos.x, tf_pos.x, tf_pos.x, 1.0); ',
+		'             sample.a = colorValue.a * opacityFactor; ',
+		'             sample.rgb = colorValue.rgb * uColorVal; ',
+		'             accum = sample; ',
+		'         } ',
+		'     } ',
 		'     //advance the current position ',
-		'     vpos.xyz += Step;  ',
-		'   ',
-		'   if(vpos.x > 1.0 || vpos.y > 1.0 || vpos.z > 1.0 || vpos.x < 0.0 || vpos.y < 0.0 || vpos.z < 0.0)      ',
-		'         break;  ',
+		'     vpos.xyz += Step; ',
+		'     //break if the position is greater than <1, 1, 1> ',
+		'     if(vpos.x > 1.0 || vpos.y > 1.0 || vpos.z > 1.0 || vpos.x < 0.0 || vpos.y < 0.0 || vpos.z < 0.0) ',
+		'     { ',
+		'         break; ',
+		'     } ',
 		' } ',
 		' gl_FragColor = accum; ',
 		'}'].join("\n")
@@ -3817,9 +3843,6 @@ window.VRC.Core.prototype._shaders.secondPassSosMax = {
                 "z_max": me.getGeometryDimensions()["zmax"],
                 "dom_container_id": me.getDomContainerId(),
                 "auto_steps": me.isAutoStepsOn(),
-                "refl": me.getRefl(),
-                "sat": me.getSat(),
-                "sos": me.getSos()
             };
 
             return config;
