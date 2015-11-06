@@ -502,7 +502,7 @@ var Core = function(conf) {
         "position": {
             "x": 0, 
             "y": 0,
-            "z": this._canvas_size[0] < this._canvas_size[1] ? 2 : 1
+            "z": 2
         }
     };
 
@@ -537,8 +537,11 @@ var Core = function(conf) {
     this._onWindowResizeFuncIndex_canvasSize = -1;
     this._onWindowResizeFuncIndex_renderSize = -1;
 
-    try{
     this._callback = conf.callback;
+  
+    try{
+      if(this._canvas_size[0] > this._canvas_size[1])
+        this._camera_settings.position.z = 1;      
     } catch(e){}
 };
 
@@ -658,7 +661,10 @@ Core.prototype.init = function() {
     this._render.setSize(this.getRenderSizeInPixels()[0], this.getRenderSizeInPixels()[1]); 
     this.setRenderCanvasSize(this.getCanvasSize()[0], this.getCanvasSize()[1]);
     
-    this._callback();      
+  
+    try{
+     this._callback();   
+    } catch(e){}       
 };
 
 Core.prototype._secondPassSetUniformValue = function(key, value) {
