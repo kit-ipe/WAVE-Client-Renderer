@@ -23,7 +23,7 @@
         me._onLoadSlicemap              = new VRC.EventDispatcher();
         me._onLoadSlicemaps             = new VRC.EventDispatcher();
 
-        me._core = new VRC.Core( config['dom_container_id'] );
+        me._core = new VRC.Core( config );
         me._adaptationManager = new VRC.AdaptationManager();
 
         me.init = function() {
@@ -180,6 +180,11 @@
 
         };
 
+        me.setMode = function(conf){
+          me._core.setMode(conf);
+          me._needRedraw = true;
+        };
+      
         me.setOpacityFactor = function(opacity_factor) {
             me._core.setOpacityFactor(opacity_factor);
             me._needRedraw = true;
@@ -307,22 +312,22 @@
         };
 
         me.setRenderSize = function(width, height) {
-            var ctx = me._core._render.getContext()
-            var maxRenderbufferSize = ctx.getParameter(ctx.MAX_RENDERBUFFER_SIZE);
-            if(Math.max(width, height) > maxRenderbufferSize) {
-                console.warn("Size of canvas setted in " + maxRenderbufferSize + "x" + maxRenderbufferSize + ". Max render buffer size is " + maxRenderbufferSize + ".");
-                me._core.setRenderSize(maxRenderbufferSize, maxRenderbufferSize);
-
-            } else {
-                me._core.setRenderSize(width, height);
-
-            }
-
-            me._needRedraw = true;
+//            var ctx = me._core._render.getContext()
+//            var maxRenderbufferSize = ctx.getParameter(ctx.MAX_RENDERBUFFER_SIZE);
+//            if(Math.max(width, height) > maxRenderbufferSize) {
+//                console.warn("Size of canvas setted in " + maxRenderbufferSize + "x" + maxRenderbufferSize + ". Max render buffer size is " + maxRenderbufferSize + ".");
+//                me._core.setRenderSize(maxRenderbufferSize, maxRenderbufferSize);
+//
+//            } else {
+//                me._core.setRenderSize(width, height);
+//
+//            }
+//
+//            me._needRedraw = true;
 
         };
 
-        me.setRenderCanvasSize = function(width, height) {
+        me.setCanvasSize = function(width, height) {
             me._core.setRenderCanvasSize(width, height);
             me._needRedraw = true;
 
@@ -334,6 +339,54 @@
 
         };
 
+        me.setL = function(value) {
+            me._core.setL(value);
+            me._needRedraw = true;
+        };
+      
+        me.setS = function(value) {
+            me._core.setS(value);
+            me._needRedraw = true;
+        };
+      
+        me.setHMin = function(value) {
+            me._core.setHMin(value);
+            me._needRedraw = true;
+        };
+      
+        me.setHMax = function(value) {
+            me._core.setHMax(value);
+            me._needRedraw = true;
+        };
+      
+        me.setMinRefl = function(value) {
+            me._core.setMinRefl(value);
+            me._needRedraw = true;
+
+        };
+        me.setMinSos = function(value) {
+            me._core.setMinSos(value);
+            me._needRedraw = true;
+        };
+        me.setMinAtten = function(value) {
+            me._core.setMinAtten(value);
+            me._needRedraw = true;
+        };
+      
+       me.setMaxRefl = function(value) {
+            me._core.setMaxRefl(value);
+            me._needRedraw = true;
+
+        };
+        me.setMaxSos = function(value) {
+            me._core.setMaxSos(value);
+            me._needRedraw = true;
+        };
+        me.setMaxAtten = function(value) {
+            me._core.setMaxAtten(value);
+            me._needRedraw = true;
+        };
+      
         me.setRowCol = function(row, col) {
             me._core.setRowCol(row, col);
             me._needRedraw = true;
@@ -468,8 +521,8 @@
             }
             me._needRedraw = true;
 
-        };
-
+        };       
+        
         me.getGrayMaxValue = function() {
             return me._core.getGrayMaxValue();
         };
@@ -619,8 +672,7 @@
                         me.start();
                     }
 
-                );
-                
+                );                
             }
 
             if(config['slices_range'] != undefined) {
@@ -634,6 +686,9 @@
             if(config['row_col'] != undefined) {
                 me._core.setRowCol( config['row_col'][0], config['row_col'][1] );
             }
+            
+            if(config['test'] != undefined) 
+                me._core.setRowCol( config['test'], config['test'] );
 
             if(config['gray_min'] != undefined) {
                 me._core.setGrayMinValue( config['gray_min'] );
@@ -706,7 +761,6 @@
             if(config['render_canvas_size'] != undefined) {
                 me.setRenderCanvasSize( config['render_canvas_size'][0], config['render_canvas_size'][1] );
             }
-
             me._needRedraw = true;
         };
 
@@ -765,11 +819,10 @@
                 "z_min": me.getGeometryDimensions()["zmin"], 
                 "z_max": me.getGeometryDimensions()["zmax"],
                 "dom_container_id": me.getDomContainerId(),
-                "auto_steps": me.isAutoStepsOn()
+                "auto_steps": me.isAutoStepsOn(),
             };
 
             return config;
-
         };
 
         me.init();
