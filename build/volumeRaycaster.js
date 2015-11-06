@@ -286,7 +286,7 @@
 
         var me = {};
 
-        me.createBoxGeometry = function(geometryDimension, volumeSize) {
+        me.createBoxGeometry = function(geometryDimension, volumeSize, zFactor) {
             var vertexPositions = [
                 //front face first
                 [geometryDimension.xmin * volumeSize[0], geometryDimension.ymin * volumeSize[1], geometryDimension.zmax * volumeSize[2]],
@@ -406,7 +406,7 @@
                 var backCounter = vertexPositions.length - 1 - i;
                 var x = vertexPositions[backCounter][0];
                 var y = vertexPositions[backCounter][1];
-                var z = vertexPositions[backCounter][2]*0.56;
+                var z = vertexPositions[backCounter][2] * zFactor;
 
                 var r = vertexColors[backCounter][0];
                 var g = vertexColors[backCounter][1];
@@ -448,6 +448,8 @@
  */
 
 var Core = function(conf) {
+  
+    this.zFactor = conf.zFactor != undefined ? conf.zFactor : 1;
     this.l = conf.l;
     this.s = conf.s;
   
@@ -541,7 +543,7 @@ var Core = function(conf) {
   
     try{
       if(this._canvas_size[0] > this._canvas_size[1])
-        this._camera_settings.position.z = 1;      
+        this._camera_settings.position.z = 1; 
     } catch(e){}
 };
 
@@ -789,7 +791,7 @@ Core.prototype.getTransferFunctionAsImage = function() {
 
 Core.prototype._initGeometry = function(geometryDimensions, volumeSizes) {
     var geometryHelper = new VRC.GeometryHelper();
-    this._geometry = geometryHelper.createBoxGeometry(geometryDimensions, volumeSizes);
+    this._geometry = geometryHelper.createBoxGeometry(geometryDimensions, volumeSizes, this.zFactor);
 
     this._geometry.applyMatrix( new THREE.Matrix4().makeTranslation( -volumeSizes[0] / 2, -volumeSizes[1] / 2, -volumeSizes[2] / 2 ) );
     this._geometry.applyMatrix( new THREE.Matrix4().makeRotationX( this._geometry_settings["rotation"]["x"] ));
@@ -844,7 +846,7 @@ Core.prototype.setMode = function(conf){
 
 Core.prototype._setGeometry = function(geometryDimensions, volumeSizes) {
     var geometryHelper = new VRC.GeometryHelper();
-    var geometry      = geometryHelper.createBoxGeometry(geometryDimensions, volumeSizes);
+    var geometry      = geometryHelper.createBoxGeometry(geometryDimensions, volumeSizes, this.zFactor);
     var colorArray    = geometry.attributes.vertColor.array;
     var positionArray = geometry.attributes.position.array;
 
