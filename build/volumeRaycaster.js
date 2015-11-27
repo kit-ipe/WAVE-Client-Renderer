@@ -553,15 +553,10 @@ var Core = function(conf) {
 
     this._callback = conf.callback;
 
-    // I don't get this!!? [NTJ]
-    // If width larger than height, set z from 2 to 1
     try{
         if(this._canvas_size[0] > this._canvas_size[1])
             this._camera_settings.position.z = 2; 
     } catch(e){}
-
-    console.log("CHECK THIS");
-    console.log(this._render_size);
 };
 
 Core.prototype.init = function() {
@@ -3388,18 +3383,17 @@ window.VRC.Core.prototype._shaders.secondPassSosMax = {
         };
 
         me.setRenderSize = function(width, height) {
-//            var ctx = me._core._render.getContext()
-//            var maxRenderbufferSize = ctx.getParameter(ctx.MAX_RENDERBUFFER_SIZE);
-//            if(Math.max(width, height) > maxRenderbufferSize) {
-//                console.warn("Size of canvas setted in " + maxRenderbufferSize + "x" + maxRenderbufferSize + ". Max render buffer size is " + maxRenderbufferSize + ".");
-//                me._core.setRenderSize(maxRenderbufferSize, maxRenderbufferSize);
-//
-//            } else {
-//                me._core.setRenderSize(width, height);
-//
-//            }
-//
-//            me._needRedraw = true;
+            var ctx = me._core._render.getContext()
+            var maxRenderbufferSize = ctx.getParameter(ctx.MAX_RENDERBUFFER_SIZE);
+            if(Math.max(width, height) > maxRenderbufferSize) {
+                console.warn("Size of canvas setted in " + maxRenderbufferSize + "x" + maxRenderbufferSize + ". Max render buffer size is " + maxRenderbufferSize + ".");
+                me._core.setRenderSize(maxRenderbufferSize, maxRenderbufferSize);
+
+            } else {
+                me._core.setRenderSize(width, height);
+            }
+
+            me._needRedraw = true;
 
         };
 
