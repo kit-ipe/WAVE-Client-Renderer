@@ -326,7 +326,7 @@
 
         };
 
-        me.setCanvasSize = function(width, height) {
+        me.setRenderCanvasSize = function(width, height) {
             me._core.setRenderCanvasSize(width, height);
             me._needRedraw = true;
 
