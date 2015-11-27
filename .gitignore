@@ -11,3 +11,5 @@ node_modules
 *.gen.js
 /test/libs/threejs
 /test/libs/dat.gui
+*~
+build

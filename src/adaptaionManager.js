@@ -134,7 +134,7 @@
                 me._numberOfChanges--;
                 if(me._numberOfChanges == -5) {
                     me.decreaseSteps();
-                    console.log("FPS: " + fps + ", Number of steps: " + me.getSteps() );
+                    //console.log("FPS: " + fps + ", Number of steps: " + me.getSteps() );
                     me._numberOfChanges = 0;
 
                     me._core.setSteps( me.getSteps() );
@@ -145,7 +145,7 @@
                 me._numberOfChanges++;
                 if(me._numberOfChanges == 3) {
                     me.increaseSteps();
-                    console.log("FPS: " + fps + ", Number of steps: " + me.getSteps() );
+                    //console.log("FPS: " + fps + ", Number of steps: " + me.getSteps() );
                     me._numberOfChanges = 0;
                     me._core.setSteps( me.getSteps() );
                 }

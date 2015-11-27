@@ -245,7 +245,7 @@
                 me._numberOfChanges--;
                 if(me._numberOfChanges == -5) {
                     me.decreaseSteps();
-                    console.log("FPS: " + fps + ", Number of steps: " + me.getSteps() );
+                    //console.log("FPS: " + fps + ", Number of steps: " + me.getSteps() );
                     me._numberOfChanges = 0;
 
                     me._core.setSteps( me.getSteps() );
@@ -256,7 +256,7 @@
                 me._numberOfChanges++;
                 if(me._numberOfChanges == 3) {
                     me.increaseSteps();
-                    console.log("FPS: " + fps + ", Number of steps: " + me.getSteps() );
+                    //console.log("FPS: " + fps + ", Number of steps: " + me.getSteps() );
                     me._numberOfChanges = 0;
                     me._core.setSteps( me.getSteps() );
                 }
@@ -272,6 +272,7 @@
     namespace.AdaptationManager = AdaptationManager;
 
 })(window.VRC);
+
 /**
  * @classdesc
  * Core
@@ -449,6 +450,9 @@
 
 var Core = function(conf) {
   
+    // This section is getting out of hand,
+    // need to organize which are static or dynamic var
+    // also lack of comments ... [NTJ]
     this.zFactor = conf.zFactor != undefined ? conf.zFactor : 1;
     this.l = conf.l;
     this.s = conf.s;
@@ -464,38 +468,46 @@ var Core = function(conf) {
     this.maxSos = conf.maxSos;
     this.maxAtten = conf.maxAtten;
     
-    this._steps                      = 20;
-    this._slices_gap                 = [0,    '*'];
-    this._slicemap_row_col           = [16,   16];
-    this._gray_value                 = [0.0, 1.0];
-    this._slicemaps_images           = [];
-    this._slicemaps_paths            = [];
-    this._slicemaps_textures         = [];
-    this._opacity_factor             = conf.opacity_factor;
-    this._color_factor               = conf.color_factor;
-    this._shader_name                = conf.renderer_size != undefined ? "secondPass" : conf.shader_name;
-    this._render_size                = conf.renderer_size != undefined ? ['*', '*'] : conf.render_size;
-    this._canvas_size                = conf.renderer_canvas_size;
-    this._render_clear_color         = "#000";
+    this._steps = 20;
+    this._slices_gap = [0, '*'];
+    this._slicemap_row_col = [16, 16];
+    this._gray_value = [0.0, 1.0];
+    this._slicemaps_images = [];
+    this._slicemaps_paths = [];
+    this._slicemaps_textures = [];
+    this._opacity_factor = conf.opacity_factor != undefined ? conf.opacity_factor : 35;
+    this._color_factor = conf.color_factor != undefined ? conf.color_factor: 3;
+    this._shader_name = conf.shader_name == undefined ? "secondPass" : conf.shader_name;
+    // Config "renderer" map to "render"...this is so bad
+    this._render_size = conf.renderer_size != undefined ? ['*', '*'] : conf.render_size;
+    this._canvas_size = conf.renderer_canvas_size;
+    this._render_clear_color = "#000";
     this._transfer_function_as_image = new Image();
-    this._volume_sizes               = [1024.0, 1024.0, 1024.0];
-    this._geometry_dimensions        = {"xmin": 0.0, "xmax": 1.0, "ymin": 0.0, "ymax": 1.0, "zmin": 0.0, "zmax": 0.99};
-    this._threshold_otsu_index       = 0;
-    this._threshold_isodata_index    = 0;
-    this._threshold_yen_index        = 0;
-    this._threshold_li_index         = 0;
+    this._volume_sizes = [1024.0, 1024.0, 1024.0];
+    this._geometry_dimensions = {
+        "xmin": 0.0,
+        "xmax": 1.0,
+        "ymin": 0.0,
+        "ymax": 1.0,
+        "zmin": 0.0,
+        "zmax": 1.0
+    };
+    this._threshold_otsu_index = 0;
+    this._threshold_isodata_index = 0;
+    this._threshold_yen_index = 0;
+    this._threshold_li_index = 0;
   
-    this._transfer_function_colors   = [
+    this._transfer_function_colors = [
         {"pos": 0.25, "color": "#892c2c"},
         {"pos": 0.5, "color": "#00ff00"},
         {"pos": 0.75, "color": "#0000ff"}
-    ]
+    ];
 
-    this._dom_container_id           = conf.domContainerId != undefined ? conf.domContainerId : "container";
-    this._dom_container              = {};
-    this._render                     = {};
-    this._camera                     = {};
-    this._camera_settings            = {
+    this._dom_container_id = conf.domContainerId != undefined ? conf.domContainerId : "container";
+    this._dom_container = {};
+    this._render = {};
+    this._camera = {};
+    this._camera_settings = {
         "rotation": {
             x: 0.0,
             y: 0.0,
@@ -508,10 +520,10 @@ var Core = function(conf) {
         }
     };
 
-    this._rtTexture                  = {};
+    this._rtTexture = {};
 
-    this._geometry                   = {};
-    this._geometry_settings          = {
+    this._geometry = {};
+    this._geometry_settings = {
         "rotation": {
             x: 0.0,
             y: 0.0,
@@ -519,32 +531,37 @@ var Core = function(conf) {
         }
     };
 
-    this._materialFirstPass          = {};
-    this._materialSecondPass         = {};
+    this._materialFirstPass = {};
+    this._materialSecondPass = {};
 
-    this._sceneFirstPass             = {};
-    this._sceneSecondPass            = {};
+    this._sceneFirstPass = {};
+    this._sceneSecondPass = {};
 
-    this._meshFirstPass              = {};
-    this._meshSecondPass             = {};
+    this._meshFirstPass = {};
+    this._meshSecondPass = {};
 
-    this.onPreDraw                   = new VRC.EventDispatcher();
-    this.onPostDraw                  = new VRC.EventDispatcher();
-    this.onResizeWindow              = new VRC.EventDispatcher();
-    this.onCameraChange              = new VRC.EventDispatcher();
-    this.onCameraChangeStart         = new VRC.EventDispatcher();
-    this.onCameraChangeEnd           = new VRC.EventDispatcher();
-    this.onChangeTransferFunction    = new VRC.EventDispatcher();
+    this.onPreDraw = new VRC.EventDispatcher();
+    this.onPostDraw = new VRC.EventDispatcher();
+    this.onResizeWindow = new VRC.EventDispatcher();
+    this.onCameraChange = new VRC.EventDispatcher();
+    this.onCameraChangeStart = new VRC.EventDispatcher();
+    this.onCameraChangeEnd = new VRC.EventDispatcher();
+    this.onChangeTransferFunction = new VRC.EventDispatcher();
 
     this._onWindowResizeFuncIndex_canvasSize = -1;
     this._onWindowResizeFuncIndex_renderSize = -1;
 
     this._callback = conf.callback;
-  
+
+    // I don't get this!!? [NTJ]
+    // If width larger than height, set z from 2 to 1
     try{
-      if(this._canvas_size[0] > this._canvas_size[1])
-        this._camera_settings.position.z = 1; 
+        if(this._canvas_size[0] > this._canvas_size[1])
+            this._camera_settings.position.z = 2; 
     } catch(e){}
+
+    console.log("CHECK THIS");
+    console.log(this._render_size);
 };
 
 Core.prototype.init = function() {
@@ -552,8 +569,9 @@ Core.prototype.init = function() {
     this._container = this.getDOMContainer();
 
     this._render = new THREE.WebGLRenderer({ alpha : true });  
-    
-    this._render.setClearColor( this._render_clear_color, 0 );
+    this._render.setSize(this.getRenderSizeInPixels()[0],
+                         this.getRenderSizeInPixels()[1]);
+    this._render.setClearColor(this._render_clear_color, 0);
 
     this._container.appendChild( this._render.domElement );
 
@@ -567,7 +585,7 @@ Core.prototype.init = function() {
     this._camera.rotation.z = this._camera_settings["rotation"]["z"];
 
     this._controls = new THREE.OrbitControls( this._camera, this._render.domElement );
-    this._controls.center.set( 0.0, 0.0, -0.5 );
+    this._controls.center.set( 0.0, 0.0, 0.0 );
 
     this._rtTexture = new THREE.WebGLRenderTarget( this.getRenderSizeInPixels()[0], this.getRenderSizeInPixels()[1], { minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, format: THREE.RGBAFormat} );
     this._rtTexture.wrapS = this._rtTexture.wrapT = THREE.ClampToEdgeWrapping;
@@ -579,7 +597,7 @@ Core.prototype.init = function() {
             vertColor: {type: 'c', value: [] }
         },
         side: THREE.FrontSide,
-        transparent: false
+        transparent: true
     } );
     
     this._materialSecondPass = new THREE.ShaderMaterial( {
@@ -659,7 +677,8 @@ Core.prototype.init = function() {
 
     this.setTransferFunctionByColors(this._transfer_function_colors);
 
-    this._render.setSize(this.getRenderSizeInPixels()[0], this.getRenderSizeInPixels()[1]); 
+    this.setRenderSize(this.getRenderSize()[0], this.getRenderSize()[1]);
+    //this._render.setSize(this.getRenderSizeInPixels()[0], this.getRenderSizeInPixels()[1]); 
     this.setRenderCanvasSize(this.getCanvasSize()[0], this.getCanvasSize()[1]);
     
   
@@ -704,6 +723,31 @@ Core.prototype.setTransferFunctionByImage = function(image) {
 
     this._secondPassSetUniformValue("uTransferFunction", texture);
     this.onChangeTransferFunction.call(image);
+};
+
+Core.prototype.setRenderSize = function(width, height) {
+    console.log("Core: setRenderSize()");
+    this._render_size = [width, height];
+    
+    if( (this._render_size[0] == '*' || this._render_size[1] == '*') && !this.onResizeWindow.isStart(this._onWindowResizeFuncIndex_renderSize) ) {
+        this.onResizeWindow.start(this._onWindowResizeFuncIndex_renderSize);
+    }
+
+    if( (this._render_size[0] != '*' || this._render_size[1] != '*') && this.onResizeWindow.isStart(this._onWindowResizeFuncIndex_renderSize) ) {
+        this.onResizeWindow.stop(this._onWindowResizeFuncIndex_renderSize);
+
+    }
+
+    var width = this.getRenderSizeInPixels()[0];
+    var height = this.getRenderSizeInPixels()[1];
+
+    this._camera.aspect = width / height;
+    this._camera.updateProjectionMatrix();
+
+    console.log("Should work");
+    this._render.setSize(width, height);
+
+    this.setRenderCanvasSize(this.getCanvasSize()[0], this.getCanvasSize()[1]);
 };
 
 
@@ -874,7 +918,7 @@ Core.prototype.setSlicemapsImages = function(images, imagesPaths) {
 };
 
 Core.prototype.setSteps = function(steps) {
-    console.log("Core: setSteps(" + steps + ")");
+    //console.log("Core: setSteps(" + steps + ")");
     this._steps = steps;
     this._secondPassSetUniformValue("uSteps", this._steps);
 };
