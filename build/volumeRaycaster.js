@@ -479,7 +479,7 @@ var Core = function(conf) {
     this._color_factor = conf.color_factor != undefined ? conf.color_factor: 3;
     this._shader_name = conf.shader_name == undefined ? "secondPass" : conf.shader_name;
     // Config "renderer" map to "render"...this is so bad
-    this._render_size = conf.renderer_size != undefined ? ['*', '*'] : conf.render_size;
+    this._render_size = conf.renderer_size == undefined ? ['*', '*'] : conf.renderer_size;
     this._canvas_size = conf.renderer_canvas_size;
     this._render_clear_color = "#000";
     this._transfer_function_as_image = new Image();
