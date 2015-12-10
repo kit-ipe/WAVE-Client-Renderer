@@ -34,7 +34,7 @@ module.exports = function(grunt) {
                 src: [
                 './libs/three.min.js',
                 './libs/OrbitControls.js',
-                
+                './libs/TrackballControls.js',
                 './src/raycasterNamespace.js',
                 './src/dispatcher.js',
                 './src/adaptaionManager.js',

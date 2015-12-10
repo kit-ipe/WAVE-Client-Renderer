@@ -579,8 +579,26 @@ Core.prototype.init = function() {
     this._camera.rotation.y = this._camera_settings["rotation"]["y"];
     this._camera.rotation.z = this._camera_settings["rotation"]["z"];
 
+
+    /*
     this._controls = new THREE.OrbitControls( this._camera, this._render.domElement );
     this._controls.center.set( 0.0, 0.0, 0.0 );
+    */
+
+    //this._controls = new THREE.TrackballControls( this._camera, this._render.domElement );
+    //this._controls.enabled = false;
+    //this._controls.center.set( 0.0, 0.0, 0.0 );
+
+    this._controls = new THREE.TrackballControls(this._camera, this._render.domElement);
+    this._controls.rotateSpeed = 10.0;
+    this._controls.zoomSpeed = 0.2;
+    this._controls.panSpeed = 0.8;
+
+    this._controls.noZoom = false;
+    this._controls.noPan = false;
+
+    this._controls.staticMoving = true;
+    this._controls.dynamicDampingFactor = 0.3;
 
     this._rtTexture = new THREE.WebGLRenderTarget( this.getRenderSizeInPixels()[0], this.getRenderSizeInPixels()[1], { minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, format: THREE.RGBAFormat} );
     this._rtTexture.wrapS = this._rtTexture.wrapT = THREE.ClampToEdgeWrapping;
@@ -651,14 +669,17 @@ Core.prototype.init = function() {
     }, false );
 
     this._controls.addEventListener("change", function() {
+        console.log("Controls Changes");
         me.onCameraChange.call();
     });
 
     this._controls.addEventListener("start", function() {
+        console.log("Controls Starts");
         me.onCameraChangeStart.call();
     });
 
     this._controls.addEventListener("end", function() {
+        console.log("Controls End");
         me.onCameraChangeEnd.call();
     });
 
@@ -678,7 +699,7 @@ Core.prototype.init = function() {
     
   
     try{
-     this._callback();   
+        this._callback();   
     } catch(e){}       
 };
 
@@ -739,7 +760,6 @@ Core.prototype.setRenderSize = function(width, height) {
     this._camera.aspect = width / height;
     this._camera.updateProjectionMatrix();
 
-    console.log("Should work");
     this._render.setSize(width, height);
 
     this.setRenderCanvasSize(this.getCanvasSize()[0], this.getCanvasSize()[1]);
@@ -1044,14 +1064,13 @@ Core.prototype.setGrayMaxValue = function(value) {
 Core.prototype.draw = function(fps) {
     this.onPreDraw.call(fps.toFixed(3));
 
+    this._controls.update();
     this._render.render( this._sceneFirstPass, this._camera, this._rtTexture, true );
-     this._render.render( this._sceneFirstPass, this._camera );
+    this._render.render( this._sceneFirstPass, this._camera );
 
-   // Render the second pass and perform the volume rendering.
+    // Render the second pass and perform the volume rendering.
     this._render.render( this._sceneSecondPass, this._camera );
-
     this.onPostDraw.call(fps.toFixed(3));
-
 };
 
 Core.prototype.getDOMContainer = function() {
@@ -3103,9 +3122,16 @@ window.VRC.Core.prototype._shaders.secondPassSosMax = {
 
             me.addCallback("onCameraChange", function() {
                 me._needRedraw = true;
-
+            });
+            
+            me.addCallback("onCameraChangeStart", function() {
+                me._needRedraw = true;
             });
 
+            me.addCallback("onCameraChangeEnd", function() {
+                me._needRedraw = false;
+            });
+            
             var frames = 0;
 
             function animate() {
@@ -3122,7 +3148,7 @@ window.VRC.Core.prototype._shaders.secondPassSosMax = {
                     me._core.draw(fps);
                     frames--;
 
-                    me._needRedraw = false;
+                    //me._needRedraw = false;
                 }
 
             };

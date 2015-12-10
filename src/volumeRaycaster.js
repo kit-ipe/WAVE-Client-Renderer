@@ -32,9 +32,16 @@
 
             me.addCallback("onCameraChange", function() {
                 me._needRedraw = true;
-
+            });
+            
+            me.addCallback("onCameraChangeStart", function() {
+                me._needRedraw = true;
             });
 
+            me.addCallback("onCameraChangeEnd", function() {
+                me._needRedraw = false;
+            });
+            
             var frames = 0;
 
             function animate() {
@@ -51,7 +58,7 @@
                     me._core.draw(fps);
                     frames--;
 
-                    me._needRedraw = false;
+                    //me._needRedraw = false;
                 }
 
             };
