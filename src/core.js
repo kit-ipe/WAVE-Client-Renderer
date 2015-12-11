@@ -149,9 +149,9 @@ Core.prototype.init = function() {
     //this._controls.center.set( 0.0, 0.0, 0.0 );
 
     this._controls = new THREE.TrackballControls(this._camera, this._render.domElement);
-    this._controls.rotateSpeed = 10.0;
-    this._controls.zoomSpeed = 0.2;
-    this._controls.panSpeed = 0.8;
+    this._controls.rotateSpeed = 50.0;
+    this._controls.zoomSpeed = 3.0;
+    this._controls.panSpeed = 12.0;
 
     this._controls.noZoom = false;
     this._controls.noPan = false;

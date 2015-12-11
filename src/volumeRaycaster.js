@@ -55,6 +55,7 @@
                     var delta = me._clock.getDelta();
                     var fps = 1 / delta;
 
+                    console.log("Drawing");
                     me._core.draw(fps);
                     frames--;
 
