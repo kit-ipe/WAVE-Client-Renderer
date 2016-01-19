@@ -17,6 +17,7 @@
         me._needRedraw = true;
 
         me._isStart = false;
+        me._isChange = false;
 
         me._clock = new THREE.Clock();
 
@@ -30,36 +31,51 @@
             me._core.init();
             me._adaptationManager.init( me._core );
 
+            var frames = 0;
+
             me.addCallback("onCameraChange", function() {
                 me._needRedraw = true;
+                me.isChange = true;
             });
             
             me.addCallback("onCameraChangeStart", function() {
                 me._needRedraw = true;
+                me.isChange = true;
             });
 
             me.addCallback("onCameraChangeEnd", function() {
                 me._needRedraw = false;
+                me.isChange = false;
             });
             
-            var frames = 0;
+            
+            var counter = 0;
 
             function animate() {
 
                 requestAnimationFrame( animate );
                 if(me._needRedraw) {
                     frames = 10;
+                    if (!me.isChange) {
+                      me._needRedraw = false;
+                      counter = 0;
+                    }
                 }
 
                 if(frames > 0 && me._isStart) {
                     var delta = me._clock.getDelta();
                     var fps = 1 / delta;
 
-                    console.log("Drawing");
+                    console.log("Drawing " + frames + " Counter: " + counter);
                     me._core.draw(fps);
                     frames--;
+                    counter++;
 
-                    //me._needRedraw = false;
+                    // timeout counter
+                    if (counter > 500) {
+                      me.isChange = false;
+                      counter = 0;  
+                    }
                 }
 
             };
@@ -340,6 +356,14 @@
 
         };
 
+
+        me.setAxis = function() {
+            me._core.setAxis();
+            me._needRedraw = true;
+
+        };
+
+
         me.setBackgroundColor = function(color) {
             me._core.setBackgroundColor(color);
             me._needRedraw = true;
@@ -426,6 +450,11 @@
             me._core.setGrayMaxValue(value);
             me._needRedraw = true;
 
+        };
+
+        me.Axis = function() {
+            me._core.setAxis();
+            me._needRedraw = true;
         };
 
         me.applyThresholding = function(threshold_name) {
@@ -651,7 +680,13 @@
         };
 
         me.isAutoStepsOn = function() {
+            console.log("Check");
+            console.log(me._adaptationManager.isRun());
             return me._adaptationManager.isRun();
+        };
+
+        me.setAxis = function() {
+            return me._core.setAxis();
         };
 
         me.draw = function() {
@@ -757,6 +792,10 @@
                 me.setAutoStepsOn( config['auto_steps'] );
             }
 
+            if(config['axis'] != undefined) {
+                me.setAxis( config['axis'] );
+            }
+
             if(config['absorption_mode'] != undefined) {
                 me._core.setAbsorptionMode( config['absorption_mode'] );
             }
@@ -827,6 +866,7 @@
                 "z_max": me.getGeometryDimensions()["zmax"],
                 "dom_container_id": me.getDomContainerId(),
                 "auto_steps": me.isAutoStepsOn(),
+                "axis": true,
             };
 
             return config;

@@ -148,6 +148,8 @@ Core.prototype.init = function() {
     //this._controls.enabled = false;
     //this._controls.center.set( 0.0, 0.0, 0.0 );
 
+    this.isAxisOn = false;
+
     this._controls = new THREE.TrackballControls(this._camera, this._render.domElement);
     this._controls.rotateSpeed = 50.0;
     this._controls.zoomSpeed = 3.0;
@@ -622,6 +624,13 @@ Core.prototype.setGrayMaxValue = function(value) {
     console.log("Core: setMaxGrayValue()");
     this._gray_value[1] = value;
     this._secondPassSetUniformValue("uMaxGrayVal", this._gray_value[1]);
+};
+
+Core.prototype.setAxis = function(value) {
+    console.log("Core: setAxis()");
+    console.log("Axis status: " + this.isAxisOn);
+    //this._gray_value[1] = value;
+    //this._secondPassSetUniformValue("uMaxGrayVal", this._gray_value[1]);
 };
 
 Core.prototype.draw = function(fps) {
