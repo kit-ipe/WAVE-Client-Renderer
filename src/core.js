@@ -222,11 +222,11 @@ Core.prototype.init = function() {
     this._meshFirstPass = new THREE.Mesh( this._geometry, this._materialFirstPass );
     this._meshSecondPass = new THREE.Mesh( this._geometry, this._materialSecondPass );
 
-    axes = buildAxes(0.5);
+    this._axes = buildAxes(0.5);
 
     this._sceneFirstPass.add(this._meshFirstPass);
     this._sceneSecondPass.add(this._meshSecondPass);
-    this._sceneSecondPass.add(axes);
+    //this._sceneSecondPass.add(this._axes);
     
 
     window.addEventListener( 'resize', function() {
@@ -629,8 +629,21 @@ Core.prototype.setGrayMaxValue = function(value) {
 Core.prototype.setAxis = function(value) {
     console.log("Core: setAxis()");
     console.log("Axis status: " + this.isAxisOn);
-    //this._gray_value[1] = value;
-    //this._secondPassSetUniformValue("uMaxGrayVal", this._gray_value[1]);
+
+    if (this.isAxisOn) {
+        this._sceneSecondPass.remove(this._axes);
+        this.isAxisOn = false;
+    } else {
+        this._sceneSecondPass.add(this._axes);
+        this.isAxisOn = true;
+    }
+
+    this._controls.update();
+    this._render.render( this._sceneFirstPass, this._camera, this._rtTexture, true );
+    this._render.render( this._sceneFirstPass, this._camera );
+
+    // Render the second pass and perform the volume rendering.
+    this._render.render( this._sceneSecondPass, this._camera );
 };
 
 Core.prototype.draw = function(fps) {

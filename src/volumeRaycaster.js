@@ -360,7 +360,6 @@
         me.setAxis = function() {
             me._core.setAxis();
             me._needRedraw = true;
-
         };
 
 

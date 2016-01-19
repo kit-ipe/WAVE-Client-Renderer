@@ -589,6 +589,8 @@ Core.prototype.init = function() {
     //this._controls.enabled = false;
     //this._controls.center.set( 0.0, 0.0, 0.0 );
 
+    this.isAxisOn = false;
+
     this._controls = new THREE.TrackballControls(this._camera, this._render.domElement);
     this._controls.rotateSpeed = 50.0;
     this._controls.zoomSpeed = 3.0;
@@ -661,11 +663,11 @@ Core.prototype.init = function() {
     this._meshFirstPass = new THREE.Mesh( this._geometry, this._materialFirstPass );
     this._meshSecondPass = new THREE.Mesh( this._geometry, this._materialSecondPass );
 
-    axes = buildAxes(0.5);
+    this._axes = buildAxes(0.5);
 
     this._sceneFirstPass.add(this._meshFirstPass);
     this._sceneSecondPass.add(this._meshSecondPass);
-    this._sceneSecondPass.add(axes);
+    //this._sceneSecondPass.add(this._axes);
     
 
     window.addEventListener( 'resize', function() {
@@ -1063,6 +1065,26 @@ Core.prototype.setGrayMaxValue = function(value) {
     console.log("Core: setMaxGrayValue()");
     this._gray_value[1] = value;
     this._secondPassSetUniformValue("uMaxGrayVal", this._gray_value[1]);
+};
+
+Core.prototype.setAxis = function(value) {
+    console.log("Core: setAxis()");
+    console.log("Axis status: " + this.isAxisOn);
+
+    if (this.isAxisOn) {
+        this._sceneSecondPass.remove(this._axes);
+        this.isAxisOn = false;
+    } else {
+        this._sceneSecondPass.add(this._axes);
+        this.isAxisOn = true;
+    }
+
+    this._controls.update();
+    this._render.render( this._sceneFirstPass, this._camera, this._rtTexture, true );
+    this._render.render( this._sceneFirstPass, this._camera );
+
+    // Render the second pass and perform the volume rendering.
+    this._render.render( this._sceneSecondPass, this._camera );
 };
 
 Core.prototype.draw = function(fps) {
@@ -3261,6 +3283,7 @@ window.VRC.Core.prototype._shaders.secondPassSosMax = {
         me._needRedraw = true;
 
         me._isStart = false;
+        me._isChange = false;
 
         me._clock = new THREE.Clock();
 
@@ -3274,36 +3297,51 @@ window.VRC.Core.prototype._shaders.secondPassSosMax = {
             me._core.init();
             me._adaptationManager.init( me._core );
 
+            var frames = 0;
+
             me.addCallback("onCameraChange", function() {
                 me._needRedraw = true;
+                me.isChange = true;
             });
             
             me.addCallback("onCameraChangeStart", function() {
                 me._needRedraw = true;
+                me.isChange = true;
             });
 
             me.addCallback("onCameraChangeEnd", function() {
                 me._needRedraw = false;
+                me.isChange = false;
             });
             
-            var frames = 0;
+            
+            var counter = 0;
 
             function animate() {
 
                 requestAnimationFrame( animate );
                 if(me._needRedraw) {
                     frames = 10;
+                    if (!me.isChange) {
+                      me._needRedraw = false;
+                      counter = 0;
+                    }
                 }
 
                 if(frames > 0 && me._isStart) {
                     var delta = me._clock.getDelta();
                     var fps = 1 / delta;
 
-                    console.log("Drawing");
+                    console.log("Drawing " + frames + " Counter: " + counter);
                     me._core.draw(fps);
                     frames--;
+                    counter++;
 
-                    //me._needRedraw = false;
+                    // timeout counter
+                    if (counter > 500) {
+                      me.isChange = false;
+                      counter = 0;  
+                    }
                 }
 
             };
@@ -3584,6 +3622,13 @@ window.VRC.Core.prototype._shaders.secondPassSosMax = {
 
         };
 
+
+        me.setAxis = function() {
+            me._core.setAxis();
+            me._needRedraw = true;
+        };
+
+
         me.setBackgroundColor = function(color) {
             me._core.setBackgroundColor(color);
             me._needRedraw = true;
@@ -3670,6 +3715,11 @@ window.VRC.Core.prototype._shaders.secondPassSosMax = {
             me._core.setGrayMaxValue(value);
             me._needRedraw = true;
 
+        };
+
+        me.Axis = function() {
+            me._core.setAxis();
+            me._needRedraw = true;
         };
 
         me.applyThresholding = function(threshold_name) {
@@ -3895,7 +3945,13 @@ window.VRC.Core.prototype._shaders.secondPassSosMax = {
         };
 
         me.isAutoStepsOn = function() {
+            console.log("Check");
+            console.log(me._adaptationManager.isRun());
             return me._adaptationManager.isRun();
+        };
+
+        me.setAxis = function() {
+            return me._core.setAxis();
         };
 
         me.draw = function() {
@@ -4001,6 +4057,10 @@ window.VRC.Core.prototype._shaders.secondPassSosMax = {
                 me.setAutoStepsOn( config['auto_steps'] );
             }
 
+            if(config['axis'] != undefined) {
+                me.setAxis( config['axis'] );
+            }
+
             if(config['absorption_mode'] != undefined) {
                 me._core.setAbsorptionMode( config['absorption_mode'] );
             }
@@ -4071,6 +4131,7 @@ window.VRC.Core.prototype._shaders.secondPassSosMax = {
                 "z_max": me.getGeometryDimensions()["zmax"],
                 "dom_container_id": me.getDomContainerId(),
                 "auto_steps": me.isAutoStepsOn(),
+                "axis": true,
             };
 
             return config;
