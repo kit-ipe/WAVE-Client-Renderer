@@ -335,21 +335,6 @@
             me._needRedraw = true;
         };
 
-        me.setRenderSize = function(width, height) {
-            var ctx = me._core._render.getContext()
-            var maxRenderbufferSize = ctx.getParameter(ctx.MAX_RENDERBUFFER_SIZE);
-            if(Math.max(width, height) > maxRenderbufferSize) {
-                console.warn("Size of canvas setted in " + maxRenderbufferSize + "x" + maxRenderbufferSize + ". Max render buffer size is " + maxRenderbufferSize + ".");
-                me._core.setRenderSize(maxRenderbufferSize, maxRenderbufferSize);
-
-            } else {
-                me._core.setRenderSize(width, height);
-            }
-
-            me._needRedraw = true;
-
-        };
-
         me.setRenderCanvasSize = function(width, height) {
             me._core.setRenderCanvasSize(width, height);
             me._needRedraw = true;
@@ -799,9 +784,9 @@
                 me._core.setAbsorptionMode( config['absorption_mode'] );
             }
 
-            if(config['render_size'] != undefined) {
-                me.setRenderSize( config['render_size'][0], config['render_size'][1] );
-            }
+            //if(config['render_size'] != undefined) {
+            //    me._render.setSize( config['render_size'][0], config['render_size'][1] );
+            //}
 
             if(config['render_canvas_size'] != undefined) {
                 me.setRenderCanvasSize( config['render_canvas_size'][0], config['render_canvas_size'][1] );

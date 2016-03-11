@@ -248,18 +248,13 @@ Core.prototype.init = function() {
         me.onCameraChangeEnd.call();
     });
 
-    this._onWindowResizeFuncIndex_renderSize = this.onResizeWindow.add(function() {
-        me.setRenderSize('*', '*');
-    }, false);
-
     this._onWindowResizeFuncIndex_canvasSize = this.onResizeWindow.add(function() {
         me.setRenderCanvasSize('*', '*');
     }, false);
 
     this.setTransferFunctionByColors(this._transfer_function_colors);
 
-    this.setRenderSize(this.getRenderSize()[0], this.getRenderSize()[1]);
-    //this._render.setSize(this.getRenderSizeInPixels()[0], this.getRenderSizeInPixels()[1]); 
+    this._render.setSize(this.getRenderSizeInPixels()[0], this.getRenderSizeInPixels()[1]); 
     this.setRenderCanvasSize(this.getCanvasSize()[0], this.getCanvasSize()[1]);
     
   
@@ -305,31 +300,6 @@ Core.prototype.setTransferFunctionByImage = function(image) {
     this._secondPassSetUniformValue("uTransferFunction", texture);
     this.onChangeTransferFunction.call(image);
 };
-
-Core.prototype.setRenderSize = function(width, height) {
-    console.log("Core: setRenderSize()");
-    this._render_size = [width, height];
-    
-    if( (this._render_size[0] == '*' || this._render_size[1] == '*') && !this.onResizeWindow.isStart(this._onWindowResizeFuncIndex_renderSize) ) {
-        this.onResizeWindow.start(this._onWindowResizeFuncIndex_renderSize);
-    }
-
-    if( (this._render_size[0] != '*' || this._render_size[1] != '*') && this.onResizeWindow.isStart(this._onWindowResizeFuncIndex_renderSize) ) {
-        this.onResizeWindow.stop(this._onWindowResizeFuncIndex_renderSize);
-
-    }
-
-    var width = this.getRenderSizeInPixels()[0];
-    var height = this.getRenderSizeInPixels()[1];
-
-    this._camera.aspect = width / height;
-    this._camera.updateProjectionMatrix();
-
-    this._render.setSize(width, height);
-
-    this.setRenderCanvasSize(this.getCanvasSize()[0], this.getCanvasSize()[1]);
-};
-
 
 Core.prototype.setL = function(v) {
     this.l = v;
