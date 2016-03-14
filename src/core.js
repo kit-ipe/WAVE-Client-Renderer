@@ -15,6 +15,8 @@ var Core = function(conf) {
     this.zFactor = conf.zFactor != undefined ? conf.zFactor : 1;
     this.l = conf.l;
     this.s = conf.s;
+    this.screwThreshold = conf.screwThreshold;
+    this.jointThreshold = conf.s;
   
     this.hMin = conf.hMin;
     this.hMax = conf.hMax;
@@ -36,7 +38,7 @@ var Core = function(conf) {
     this._slicemaps_textures = [];
     this._opacity_factor = conf.opacity_factor != undefined ? conf.opacity_factor : 35;
     this._color_factor = conf.color_factor != undefined ? conf.color_factor: 3;
-    this._shader_name = conf.shader_name == undefined ? "secondPass" : conf.shader_name;
+    this._shader_name = conf.shader_name == undefined ? "secondPassAstor" : conf.shader_name;
     // Config "renderer" map to "render"...this is so bad
     this._render_size = conf.renderer_size == undefined ? ['*', '*'] : conf.renderer_size;
     this._canvas_size = conf.renderer_canvas_size;
@@ -192,6 +194,8 @@ Core.prototype.init = function() {
             uOpacityVal:                     { type: "f", value: this._opacity_factor },
             darkness:                        { type: "f", value: this._color_factor },            
             
+            screwThreshold:                  { type: "f", value: this.screwThreshold },
+            jointThreshold:                  { type: "f", value: this.jointThreshold },
             l:                               { type: "f", value: this.l },
             s:                               { type: "f", value: this.s },
             hMin:                            { type: "f", value: this.hMin },
@@ -300,6 +304,16 @@ Core.prototype.setTransferFunctionByImage = function(image) {
     this._secondPassSetUniformValue("uTransferFunction", texture);
     this.onChangeTransferFunction.call(image);
 };
+
+Core.prototype.setScrewThreshold = function(v) {
+    this.screwThreshold = v;
+    this._secondPassSetUniformValue("screwThreshold", this.screwThreshold);
+}
+
+Core.prototype.setJointThreshold = function(v) {
+    this.jointThreshold = v;
+    this._secondPassSetUniformValue("jointThreshold", this.jointThreshold);
+}
 
 Core.prototype.setL = function(v) {
     this.l = v;

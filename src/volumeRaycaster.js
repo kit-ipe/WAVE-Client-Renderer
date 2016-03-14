@@ -353,6 +353,15 @@
             me._needRedraw = true;
 
         };
+        me.setScrewThreshold = function(value) {
+            me._core.setScrewThreshold(value);
+            me._needRedraw = true;
+        };
+        
+        me.setJointThreshold = function(value) {
+            me._core.setJointThreshold(value);
+            me._needRedraw = true;
+        };
 
         me.setL = function(value) {
             me._core.setL(value);
