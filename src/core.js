@@ -39,7 +39,7 @@ var Core = function(conf) {
     this._slicemaps_textures = [];
     this._opacity_factor = conf.opacity_factor != undefined ? conf.opacity_factor : 35;
     this._color_factor = conf.color_factor != undefined ? conf.color_factor: 3;
-    this._shader_name = conf.shader_name == undefined ? "secondPassAstor" : conf.shader_name;
+    this._shader_name = conf.shader_name == undefined ? "secondPassTrilinear" : conf.shader_name;
     // Config "renderer" map to "render"...this is so bad
     this._render_size = conf.renderer_size == undefined ? ['*', '*'] : conf.renderer_size;
     this._canvas_size = conf.renderer_canvas_size;
