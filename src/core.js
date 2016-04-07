@@ -35,6 +35,7 @@ var Core = function(conf) {
     this._gray_value = [0.0, 1.0];
     this._slicemaps_images = [];
     this._slicemaps_paths = [];
+    this._slicemaps_width = [];
     this._slicemaps_textures = [];
     this._opacity_factor = conf.opacity_factor != undefined ? conf.opacity_factor : 35;
     this._color_factor = conf.color_factor != undefined ? conf.color_factor: 3;
@@ -188,6 +189,7 @@ Core.prototype.init = function() {
             uSliceMaps:                      { type: "tv", value: this._slicemaps_textures }, 
 
             uSteps:                          { type: "f", value: this._steps },
+            uSlicemapWidth:                  { type: "f", value: this._slicemaps_width},
             uNumberOfSlices:                 { type: "f", value: this.getSlicesRange()[1] },
             uSlicesOverX:                    { type: "f", value: this._slicemap_row_col[0] },
             uSlicesOverY:                    { type: "f", value: this._slicemap_row_col[1] },
@@ -231,7 +233,36 @@ Core.prototype.init = function() {
     this._sceneFirstPass.add(this._meshFirstPass);
     this._sceneSecondPass.add(this._meshSecondPass);
     //this._sceneSecondPass.add(this._axes);
-    
+      
+////FramesPerSecond
+    /**
+     * @author mrdoob / http://mrdoob.com/
+     */
+//FPS-Start
+        var stats = new Stats();
+        stats.setMode( 0 ); // 0: fps, 1: ms, 2: mb
+
+        // align top-left
+        stats.domElement.style.position = 'absolute';
+        stats.domElement.style.left = '0px';
+        stats.domElement.style.top = '0px';
+
+        document.body.appendChild( stats.domElement );
+
+        var update = function () {
+
+            stats.begin();
+
+            // monitored code goes here
+
+            stats.end();
+
+            requestAnimationFrame( update );
+
+        };
+
+        requestAnimationFrame( update );
+//FPS-End
 
     window.addEventListener( 'resize', function() {
         me.onResizeWindow.call();
@@ -426,6 +457,7 @@ Core.prototype.setMode = function(conf){
             uSliceMaps:                      { type: "tv", value: this._slicemaps_textures }, 
           
             uNumberOfSlices:                 { type: "f", value: this.getSlicesRange()[1] },
+            uSlicemapWidth:                  { type: "f", value: this._slicemaps_width},
             uSlicesOverX:                    { type: "f", value: this._slicemap_row_col[0] },
             uSlicesOverY:                    { type: "f", value: this._slicemap_row_col[1] },
             uOpacityVal:                     { type: "f", value: this._opacity_factor },
@@ -479,6 +511,8 @@ Core.prototype.setSlicemapsImages = function(images, imagesPaths) {
     this._slicemaps_paths = imagesPaths != undefined ? imagesPaths : this._slicemaps_paths;
     this._setSlicemapsTextures(images);
     this._secondPassSetUniformValue("uSliceMaps", this._slicemaps_textures);
+    this._slicemaps_width = images[0].width;
+    this._secondPassSetUniformValue("uSlicemapWidth", this._slicemaps_width);
 };
 
 Core.prototype.setSteps = function(steps) {
