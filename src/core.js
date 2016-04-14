@@ -39,7 +39,7 @@ var Core = function(conf) {
     this._slicemaps_textures = [];
     this._opacity_factor = conf.opacity_factor != undefined ? conf.opacity_factor : 35;
     this._color_factor = conf.color_factor != undefined ? conf.color_factor: 3;
-    this._shader_name = conf.shader_name == undefined ? "secondPassTrilinear" : conf.shader_name;
+    this._shader_name = conf.shader_name == undefined ? "secondPassBilinearComplicated" : conf.shader_name;
     // Config "renderer" map to "render"...this is so bad
     this._render_size = conf.renderer_size == undefined ? ['*', '*'] : conf.renderer_size;
     this._canvas_size = conf.renderer_canvas_size;
@@ -234,14 +234,12 @@ Core.prototype.init = function() {
     this._sceneSecondPass.add(this._meshSecondPass);
     //this._sceneSecondPass.add(this._axes);
       
-////FramesPerSecond
-    /**
-     * @author mrdoob / http://mrdoob.com/
-     */
-//FPS-Start
+       // FramesPerSecond
+       /**
+         * @author mrdoob / http://mrdoob.com/
+         */
         var stats = new Stats();
-        stats.setMode( 0 ); // 0: fps, 1: ms, 2: mb
-
+        stats.setMode(0); // 0: fps, 1: ms, 2: mb
         // align top-left
         stats.domElement.style.position = 'absolute';
         stats.domElement.style.left = '0px';
@@ -250,19 +248,12 @@ Core.prototype.init = function() {
         document.body.appendChild( stats.domElement );
 
         var update = function () {
-
             stats.begin();
-
-            // monitored code goes here
-
             stats.end();
-
             requestAnimationFrame( update );
-
         };
 
         requestAnimationFrame( update );
-//FPS-End
 
     window.addEventListener( 'resize', function() {
         me.onResizeWindow.call();
