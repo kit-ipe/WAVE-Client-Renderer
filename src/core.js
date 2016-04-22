@@ -4,14 +4,11 @@
  * 
  * @class Core
  * @this {Core}
- * @author sogimu@nxt.ru Aleksandr Lizin aka sogimu
+ * @maintainer nicholas.jerome@kit.edu
  */
 
 var Core = function(conf) {
   
-    // This section is getting out of hand,
-    // need to organize which are static or dynamic var
-    // also lack of comments ... [NTJ]
     this.zFactor = conf.zFactor != undefined ? conf.zFactor : 1;
     this.l = conf.l;
     this.s = conf.s;
@@ -39,7 +36,7 @@ var Core = function(conf) {
     this._slicemaps_textures = [];
     this._opacity_factor = conf.opacity_factor != undefined ? conf.opacity_factor : 35;
     this._color_factor = conf.color_factor != undefined ? conf.color_factor: 3;
-    this._shader_name = conf.shader_name == undefined ? "secondPassBilinearComplicated" : conf.shader_name;
+    this._shader_name = conf.shader_name == undefined ? "secondPass" : conf.shader_name;
     // Config "renderer" map to "render"...this is so bad
     this._render_size = conf.renderer_size == undefined ? ['*', '*'] : conf.renderer_size;
     this._canvas_size = conf.renderer_canvas_size;
@@ -65,7 +62,7 @@ var Core = function(conf) {
         {"pos": 0.75, "color": "#0000ff"}
     ];
 
-    this._dom_container_id = conf.domContainerId != undefined ? conf.domContainerId : "container";
+    this._dom_container_id = conf.dom_container != undefined ? conf.dom_container : "container";
     this._dom_container = {};
     this._render = {};
     this._camera = {};
