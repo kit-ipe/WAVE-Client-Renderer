@@ -152,7 +152,8 @@
             var bufferPositions = new Float32Array(positions);
             geometry.addAttribute( 'position', new THREE.BufferAttribute( bufferPositions, 3 ) );
             geometry.addAttribute( 'vertColor', new THREE.BufferAttribute(new Float32Array(colors), 4));
-            geometry.computeBoundingSphere();
+            //geometry.computeBoundingSphere();
+            geometry.computeBoundingBox();
 
             return geometry;
         }
