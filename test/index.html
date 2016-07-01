@@ -1,24 +1,22 @@
 <html lang="en">
 	<head>
-		<title>Lidar - WebGL Volume Rendering</title>
+		<title>Breast2 - WebGL Volume Rendering</title>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
  
 		<script src="./libs/threejs/build/three.min.js"></script>
-		<script src="./libs/OrbitControls.js"></script>
+        <script src="./libs/TrackballControls.js"></script>
 		<script src="./libs/dat.gui/dat.gui.min.js"></script>
 		<script src="./libs/dat.gui.helper.js"></script>
 		<script src="./libs/embeddedjs/ejs.js"></script>
-<!-- 
-	 	<script src="../build/volumeRaycaster.min.js"></script>
- -->	 	
-
+		<script src="./libs/dat.gui/stats.min.js"></script> <!-- FPS -->
+        <!-- 
+	 	<script src="../../tomo_raycaster2/build/volumeRaycaster.min.js"></script>
+        -->	 	
 	 	<script src="./volumeRaycaster.js"></script>
-
-<!-- 
- 		<script src="../build/volumeRaycaster.with-deps.min.js"></script>
- -->
- 
+        <!-- 
+ 		<script src="../../tomo_raycaster2/build/volumeRaycaster.with-deps.min.js"></script>
+        -->
  	</head>
 	<body>
 		<div id="container">
@@ -27,37 +25,38 @@
 		<img id="transferFunctionImg"/>
 
 		<script>
-			window.onload = function() {
-				try {
-					var config = {
-						"dom_container_id": "container",
-						"render_size": [128, 128],
-						"render_canvas_size": [256, 256],
-						"auto_steps": true
-					};
 
-					rcl2 = new VRC.VolumeRaycaster(config);
-
-					rcl2.uploadConfig("slicemap-config-9x9-4096x4096-BILINEAR.json");
-
-					rcl2.addCallback("onLoadSlicemaps", function() {
-						InitGUI( rcl2.getConfig(), rcl2 );
-												
-						rcl2.addCallback("onPostDraw", function() {
-							UpdateGUI( rcl2.getConfig() );
-						});
-
-					});
-
-				}
-
-				catch (e) {
-					alert(e);
-				}
+			config1 = {
+				"dom_container_id": "container",
+				"slicemaps_paths": [
+					'breast_model.png'
+				],
+				"slices_range": [0, '*'],
+				"gray_min": 0.1,
+				"gray_max": 0.6,
+				"row_col": [16, 16],
+				"steps": 100,
+				"renderer_size": [512, 512],
+				"renderer_canvas_size": ['*', '*'],
+				"absorption_mode": 1,
+				"opacity_factor": 35,
+				"color_factor": 3,
+				"x_min": 0.0,
+				"x_max": 1.0,
+				"auto_steps": true,
+				"tf_colors": [
+	                {"pos": 0.25,"color": "#7CFF79"},
+	                {"pos": 0.5, "color": "#FF9400"},
+	                {"pos": 1.0, "color": "#7F0000"},
+	            ]
 
 			};
+
+			rcl2 = new VRC.VolumeRaycaster(config1);
+
+			InitGUI(rcl2.getConfig(), rcl2);
 			
 		</script>
 
 	</body>
-</html>	
+</html>

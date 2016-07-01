@@ -1,8 +1,8 @@
 {
-  "name": "tomo_raycaster2",
-  "version": "0.1.0",
+  "name": "tomoraycaster",
+  "version": "0.6.0",
   "devDependencies": {
-    "grunt": "^1.0.1",
+    "grunt": "^0.4.5",
     "grunt-contrib-concat": "^1.0.1",
     "grunt-contrib-uglify": "^1.0.1",
     "grunt-contrib-watch": "^1.0.0",

@@ -80,7 +80,7 @@ var InitGUI = function(config, rcl2) {
 		rcl2.setSteps(value);
 	});
 
-	var number_slices_controller = gui.add(guiControls, 'number_slices', 1, 2048, 1).listen();
+	var number_slices_controller = gui.add(guiControls, 'number_slices', 1, rcl2.getSlicesRange()[1], 1).listen();
 	number_slices_controller.onFinishChange(function(value) {
 		rcl2.setSlicesRange(0, value);
 	});

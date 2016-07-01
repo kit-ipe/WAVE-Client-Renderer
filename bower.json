@@ -1,11 +1,13 @@
 {
-  "name": "tomo_raycaster2",
-  "version": "0.54.4",
-  "homepage": "https://github.com/kit-ipe/tomo_raycaster2",
+  "name": "tomo_raycaster",
+  "version": "0.6.0",
+  "homepage": "https://github.com/kit-ipe/tomoraycaster",
   "authors": [
-    "Aleksandr Lizin <sogimu@nxt.ru>"
+    "Aleksandr Lizin <sogimu@nxt.ru>",
+    "Nicholas Tan Jerome <nicholas.jerome@kit.edu",
+    "Michael Zapf <michael.zapf@kit.edu",
   ],
-  "description": "JavaScrip framework for client side raycasting",
+  "description": "JavaScript framework for client side raycasting",
   "main": "build/volumeRaycaster.js",
   "moduleType": [
     "globals",
