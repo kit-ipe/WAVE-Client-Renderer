@@ -8,7 +8,7 @@
  */
 
 var Core = function(conf) {
-  
+    // USCT Parameters  
     this.zFactor = conf.zFactor != undefined ? conf.zFactor : 1;
     this.l = conf.l;
     this.s = conf.s;
@@ -25,7 +25,8 @@ var Core = function(conf) {
     this.maxRefl = conf.maxRefl;
     this.maxSos = conf.maxSos;
     this.maxAtten = conf.maxAtten;
-    
+
+    // General Parameters
     this._steps = 20;
     this._slices_gap = [0, '*'];
     this._slicemap_row_col = [16, 16];
@@ -37,7 +38,6 @@ var Core = function(conf) {
     this._opacity_factor = conf.opacity_factor != undefined ? conf.opacity_factor : 35;
     this._color_factor = conf.color_factor != undefined ? conf.color_factor: 3;
     this._shader_name = conf.shader_name == undefined ? "secondPassDefault" : conf.shader_name;
-    // Config "renderer" map to "render"...this is so bad
     this._render_size = conf.renderer_size == undefined ? ['*', '*'] : conf.renderer_size;
     this._canvas_size = conf.renderer_canvas_size;
     this._render_clear_color = "#000";
@@ -112,7 +112,7 @@ var Core = function(conf) {
 
     this._callback = conf.callback;
 
-    try{
+    try {
         if(this._canvas_size[0] > this._canvas_size[1])
             this._camera_settings.position.z = 2; 
     } catch(e){}
@@ -137,16 +137,6 @@ Core.prototype.init = function() {
     this._camera.rotation.x = this._camera_settings["rotation"]["x"];
     this._camera.rotation.y = this._camera_settings["rotation"]["y"];
     this._camera.rotation.z = this._camera_settings["rotation"]["z"];
-
-
-    /*
-    this._controls = new THREE.OrbitControls( this._camera, this._render.domElement );
-    this._controls.center.set( 0.0, 0.0, 0.0 );
-    */
-
-    //this._controls = new THREE.TrackballControls( this._camera, this._render.domElement );
-    //this._controls.enabled = false;
-    //this._controls.center.set( 0.0, 0.0, 0.0 );
 
     this.isAxisOn = false;
 
@@ -220,37 +210,32 @@ Core.prototype.init = function() {
     this._sceneFirstPass = new THREE.Scene();
     this._sceneSecondPass = new THREE.Scene();
 
-    this._initGeometry( this.getGeometryDimensions(), this.getVolumeSizeNormalized() );
-    
+    // Created mesh for both passes using geometry helper
+    this._initGeometry( this.getGeometryDimensions(), this.getVolumeSizeNormalized() );    
     this._meshFirstPass = new THREE.Mesh( this._geometry, this._materialFirstPass );
     this._meshSecondPass = new THREE.Mesh( this._geometry, this._materialSecondPass );
 
-    this._axes = buildAxes(0.5);
-
+    //this._axes = buildAxes(0.5);
     this._sceneFirstPass.add(this._meshFirstPass);
     this._sceneSecondPass.add(this._meshSecondPass);
     //this._sceneSecondPass.add(this._axes);
+
       
-       // FramesPerSecond
-       /**
-         * @author mrdoob / http://mrdoob.com/
-         */
-        var stats = new Stats();
-        stats.setMode(0); // 0: fps, 1: ms, 2: mb
-        // align top-left
-        stats.domElement.style.position = 'absolute';
-        stats.domElement.style.left = '0px';
-        stats.domElement.style.top = '0px';
+    // FramesPerSecond
+    var stats = new Stats();
+    stats.setMode(0); // 0: fps, 1: ms, 2: mb
+    stats.domElement.style.position = 'absolute';
+    stats.domElement.style.left = '0px';
+    stats.domElement.style.top = '0px';
+    document.body.appendChild( stats.domElement );
 
-        document.body.appendChild( stats.domElement );
-
-        var update = function () {
-            stats.begin();
-            stats.end();
-            requestAnimationFrame( update );
-        };
-
+    var update = function () {
+        stats.begin();
+        stats.end();
         requestAnimationFrame( update );
+    };
+
+    requestAnimationFrame( update );
 
     window.addEventListener( 'resize', function() {
         me.onResizeWindow.call();
@@ -280,15 +265,16 @@ Core.prototype.init = function() {
     this._render.setSize(this.getRenderSizeInPixels()[0], this.getRenderSizeInPixels()[1]); 
     this.setRenderCanvasSize(this.getCanvasSize()[0], this.getCanvasSize()[1]);
     
-  
     try{
         this._callback();   
     } catch(e){}       
 };
 
+
 Core.prototype._secondPassSetUniformValue = function(key, value) {
     this._materialSecondPass.uniforms[key].value = value;
 };
+
 
 Core.prototype._setSlicemapsTextures = function(images) {
     var textures = [];
@@ -304,10 +290,9 @@ Core.prototype._setSlicemapsTextures = function(images) {
 
         textures.push(texture);
     };
-
     this._slicemaps_textures = textures;
-
 };
+
 
 Core.prototype.setTransferFunctionByImage = function(image) {
     console.log("Core: setTransferFunctionByImage()");
@@ -324,65 +309,78 @@ Core.prototype.setTransferFunctionByImage = function(image) {
     this.onChangeTransferFunction.call(image);
 };
 
+
 Core.prototype.setScrewThreshold = function(v) {
     this.screwThreshold = v;
     this._secondPassSetUniformValue("screwThreshold", this.screwThreshold);
 }
+
 
 Core.prototype.setJointThreshold = function(v) {
     this.jointThreshold = v;
     this._secondPassSetUniformValue("jointThreshold", this.jointThreshold);
 }
 
+
 Core.prototype.setL = function(v) {
     this.l = v;
     this._secondPassSetUniformValue("l", this.l);
 }
+
 
 Core.prototype.setS = function(v) {
     this.s = v;
     this._secondPassSetUniformValue("s", this.s);
 }
 
+
 Core.prototype.setHMin = function(v) {
     this.hMin = v;
     this._secondPassSetUniformValue("hMin", this.hMin);
 }
+
 
 Core.prototype.setHMax = function(v) {
     this.hMax = v;
     this._secondPassSetUniformValue("hMax", this.hMax);
 }
 
+
 Core.prototype.setMaxRefl = function(v) {
     this.maxRefl = v;
     this._secondPassSetUniformValue("maxRefl", this.maxRefl);
 }
+
 
 Core.prototype.setMaxSos = function(v) {
     this.maxSos = v;
     this._secondPassSetUniformValue("maxSos", this.maxSos);
 }
 
+
 Core.prototype.setMinAtten = function(v) {
     this.minAtten = v;
     this._secondPassSetUniformValue("minAtten", this.minAtten);
 }
+
 
 Core.prototype.setMinRefl = function(v) {
     this.minRefl = v;
     this._secondPassSetUniformValue("minRefl", this.minRefl);
 }
 
+
 Core.prototype.setMinSos = function(v) {
     this.minSos = v;
     this._secondPassSetUniformValue("minSos", this.minSos);
 }
 
+
 Core.prototype.setMaxAtten = function(v) {
     this.maxAtten = v;
     this._secondPassSetUniformValue("maxAtten", this.maxAtten);
 }
+
 
 Core.prototype.setTransferFunctionByColors = function(colors) {
     console.log("Core: setTransferFunctionByColors()");
@@ -398,7 +396,6 @@ Core.prototype.setTransferFunctionByColors = function(colors) {
 
     for(var i=0; i<colors.length; i++) {
         grd.addColorStop(colors[i].pos, colors[i].color);
-
     }
 
     ctx.fillStyle = grd;
@@ -413,9 +410,11 @@ Core.prototype.setTransferFunctionByColors = function(colors) {
     this.onChangeTransferFunction.call(image);
 };
 
+
 Core.prototype.getTransferFunctionAsImage = function() {
     return this._transfer_function_as_image;
 };
+
 
 Core.prototype._initGeometry = function(geometryDimensions, volumeSizes) {
     var geometryHelper = new VRC.GeometryHelper();
@@ -426,11 +425,10 @@ Core.prototype._initGeometry = function(geometryDimensions, volumeSizes) {
     this._geometry.applyMatrix( new THREE.Matrix4().makeRotationY( this._geometry_settings["rotation"]["y"] ));
     this._geometry.applyMatrix( new THREE.Matrix4().makeRotationZ( this._geometry_settings["rotation"]["z"] ));
     this._geometry.doubleSided = true;
-
 };
 
-Core.prototype.setMode = function(conf){
-  
+
+Core.prototype.setMode = function(conf) {  
   this._shader_name =  conf.shader_name;
   
   this._materialSecondPass = new THREE.ShaderMaterial( {
@@ -473,6 +471,7 @@ Core.prototype.setMode = function(conf){
   this._sceneSecondPass.add( this._meshSecondPass );
 }
 
+
 Core.prototype._setGeometry = function(geometryDimensions, volumeSizes) {
     var geometryHelper = new VRC.GeometryHelper();
     var geometry      = geometryHelper.createBoxGeometry(geometryDimensions, volumeSizes, this.zFactor);
@@ -493,6 +492,7 @@ Core.prototype._setGeometry = function(geometryDimensions, volumeSizes) {
     this._geometry.doubleSided = true;
 };
 
+
 Core.prototype.setSlicemapsImages = function(images, imagesPaths) {
     console.log("Core: setSlicemapsImages()");
     this._slicemaps_images = images;
@@ -503,11 +503,13 @@ Core.prototype.setSlicemapsImages = function(images, imagesPaths) {
     this._secondPassSetUniformValue("uSlicemapWidth", this._slicemaps_width);
 };
 
+
 Core.prototype.setSteps = function(steps) {
     //console.log("Core: setSteps(" + steps + ")");
     this._steps = steps;
     this._secondPassSetUniformValue("uSteps", this._steps);
 };
+
 
 Core.prototype.setSlicesRange = function(from, to) {
     console.log("Core: setSlicesRange()");
@@ -515,11 +517,13 @@ Core.prototype.setSlicesRange = function(from, to) {
     this._secondPassSetUniformValue("uNumberOfSlices", this.getSlicesRange()[1])
 };
 
+
 Core.prototype.setOpacityFactor = function(opacity_factor) {
     console.log("Core: setOpacityFactor()");
     this._opacity_factor = opacity_factor;
     this._secondPassSetUniformValue("uOpacityVal", this._opacity_factor);
 };
+
 
 Core.prototype.setColorFactor = function(color_factor) {
     console.log("Core: setColorFactor()");
@@ -527,11 +531,13 @@ Core.prototype.setColorFactor = function(color_factor) {
     this._secondPassSetUniformValue("darkness", this._color_factor);
 };
 
+
 Core.prototype.setAbsorptionMode = function(mode_index) {
     console.log("Core: setAbsorptionMode()");
     this._absorption_mode_index = mode_index;
     this._secondPassSetUniformValue("uAbsorptionModeIndex", this._absorption_mode_index);
 };
+
 
 Core.prototype.setVolumeSize = function(width, height, depth) {
     console.log("Core: setVolumeSize()");
@@ -541,8 +547,8 @@ Core.prototype.setVolumeSize = function(width, height, depth) {
     var normalizedVolumeSizes = [this.getVolumeSize()[0] / maxSize,  this.getVolumeSize()[1] / maxSize, this.getVolumeSize()[2] / maxSize];
 
     this._setGeometry(this.getGeometryDimensions(), normalizedVolumeSizes);
-
 };
+
 
 Core.prototype.setGeometryDimensions = function(geometryDimension) {
     console.log("Core: setGeometryDimension()");
@@ -550,6 +556,7 @@ Core.prototype.setGeometryDimensions = function(geometryDimension) {
 
     this._setGeometry(this._geometry_dimensions, this.getVolumeSizeNormalized());
 };
+
 
 Core.prototype.setRenderCanvasSize = function(width, height) {
     console.log("Core: setRenderCanvasSize()");
@@ -572,14 +579,15 @@ Core.prototype.setRenderCanvasSize = function(width, height) {
 
     this._camera.aspect = width / height;
     this._camera.updateProjectionMatrix();
-
 };
+
 
 Core.prototype.setBackgroundColor = function(color) {
     console.log("Core: setBackgroundColor()");
     this._render_clear_color = color;
     this._render.setClearColor(color);
 };
+
 
 Core.prototype.setRowCol = function(row, col) {
     console.log("Core: setRowCol()");
@@ -588,11 +596,13 @@ Core.prototype.setRowCol = function(row, col) {
     this._secondPassSetUniformValue("uSlicesOverY", this._slicemap_row_col[1]);
 };
 
+
 Core.prototype.setGrayMinValue = function(value) {
     console.log("Core: setMinGrayValue()");
     this._gray_value[0] = value;
     this._secondPassSetUniformValue("uMinGrayVal", this._gray_value[0]);
 };
+
 
 Core.prototype.applyThresholding = function(threshold_name) {
     console.log("Core: applyThresholding()");
@@ -614,8 +624,8 @@ Core.prototype.applyThresholding = function(threshold_name) {
         }; break;
 
     }
-
 };
+
 
 Core.prototype.setThresholdIndexes = function(otsu, isodata, yen, li) {
     console.log("Core: setThresholdIndexes()");
@@ -626,11 +636,13 @@ Core.prototype.setThresholdIndexes = function(otsu, isodata, yen, li) {
 
 };
 
+
 Core.prototype.setGrayMaxValue = function(value) {
     console.log("Core: setMaxGrayValue()");
     this._gray_value[1] = value;
     this._secondPassSetUniformValue("uMaxGrayVal", this._gray_value[1]);
 };
+
 
 Core.prototype.setAxis = function(value) {
     console.log("Core: setAxis()");
@@ -652,6 +664,7 @@ Core.prototype.setAxis = function(value) {
     this._render.render( this._sceneSecondPass, this._camera );
 };
 
+
 Core.prototype.draw = function(fps) {
     this.onPreDraw.call(fps.toFixed(3));
 
@@ -664,10 +677,12 @@ Core.prototype.draw = function(fps) {
     this.onPostDraw.call(fps.toFixed(3));
 };
 
+
 Core.prototype.getDOMContainer = function() {
     return document.getElementById(this._dom_container_id);
 
 };
+
 
 Core.prototype.getRenderSize  = function() {
     var width = this._render_size[0];
@@ -675,6 +690,7 @@ Core.prototype.getRenderSize  = function() {
 
     return [width, height];
 };
+
 
 Core.prototype.getRenderSizeInPixels  = function() {
     var width = this.getRenderSize()[0];
@@ -690,12 +706,14 @@ Core.prototype.getRenderSizeInPixels  = function() {
     return [width, height];
 };
 
+
 Core.prototype.getCanvasSize = function() {
     var width = this._canvas_size[0];
     var height = this._canvas_size[1];
 
     return [width, height];
 };
+
 
 Core.prototype.getCanvasSizeInPixels = function() {
     var width = this.getCanvasSize()[0];
@@ -711,27 +729,31 @@ Core.prototype.getCanvasSizeInPixels = function() {
         height = window.innerHeight
         || document.documentElement.clientHeight
         || document.body.clientHeight;
-
     }
 
     return [width, height];
 };
 
+
 Core.prototype.getSteps = function() {
     return this._steps;
 };
+
 
 Core.prototype.getSlicemapsImages = function() {
     return this._slicemaps_images;
 };
 
+
 Core.prototype.getSlicemapsPaths = function() {
     return this._slicemaps_paths;
 };
 
+
 Core.prototype.getRowCol = function() {
     return this._slicemap_row_col;
 };
+
 
 Core.prototype.getSlicesRange  = function() {
     var from = this._slices_gap[0];
@@ -743,15 +765,16 @@ Core.prototype.getSlicesRange  = function() {
     return [from, to];
 };
 
+
 Core.prototype.getVolumeSize = function() {
     return this._volume_sizes;
-
 };
+
 
 Core.prototype.getMaxStepsNumber = function() {
     return Math.min( this.getVolumeSize()[0], this.getVolumeSize()[1] );
-
 };
+
 
 Core.prototype.getVolumeSizeNormalized = function() {
     var maxSize = Math.max(this.getVolumeSize()[0], this.getVolumeSize()[1], this.getVolumeSize()[2]);
@@ -760,46 +783,57 @@ Core.prototype.getVolumeSizeNormalized = function() {
     return normalizedVolumeSizes;
 };
 
+
 Core.prototype.getGeometryDimensions = function() {
     return this._geometry_dimensions;
 
 };
 
+
 Core.prototype.getGrayMinValue = function() {
     return this._gray_value[0];
 };
+
 
 Core.prototype.getGrayMaxValue = function() {
     return this._gray_value[1]; 
 }; 
 
+
 Core.prototype.getClearColor = function() {
     return this._render_clear_color;
 };
+
 
 Core.prototype.getTransferFunctionColors = function() {
     return this._transfer_function_colors;
 };
 
+
 Core.prototype.getOpacityFactor = function() {
     return this._opacity_factor;
 };
+
 
 Core.prototype.getColorFactor = function() {  
     return this._color_factor;
 };
 
+
 Core.prototype.getAbsorptionMode = function() {
     return this._absorption_mode_index;
 };
+
 
 Core.prototype.getClearColor = function() {
     return this._render_clear_color;
 };
 
+
 Core.prototype.getDomContainerId = function() {
     return this._dom_container_id;
 };
+
 
 Core.prototype.getMaxTexturesNumber = function() {
     var number_used_textures = 6;
@@ -807,15 +841,18 @@ Core.prototype.getMaxTexturesNumber = function() {
     return gl.getParameter(gl.MAX_TEXTURE_IMAGE_UNITS) - number_used_textures;
 };
 
+
 Core.prototype.getMaxTextureSize = function() {
     var gl = this._render.getContext()
     return gl.getParameter(gl.MAX_TEXTURE_SIZE);
 };
 
+
 Core.prototype.getMaxFramebuferSize = function() {
     var gl = this._render.getContext()
     return gl.getParameter(gl.MAX_RENDERBUFFER_SIZE);
 };
+
 
 Core.prototype._shaders = {
     // Here will be inserted shaders withhelp of grunt
@@ -825,7 +862,7 @@ Core.prototype._shaders = {
 function buildAxes( length ) {
     var axes = new THREE.Object3D();
 
-    //axis move with the camera position not with geometry position!
+    // This is just intended as a building block for drawing axis
     axes.add( buildAxis( new THREE.Vector3( -length, -length, -length ), new THREE.Vector3( (length*3.0), -length, -length ), 0xFF0000, false ) ); // +X //red
     axes.add( buildAxis( new THREE.Vector3( -length, -length, -length ), new THREE.Vector3( (-length*2.0), -length, -length ), 0xFF0000, true ) ); // -X
     axes.add( buildAxis( new THREE.Vector3( -length, -length, -length ), new THREE.Vector3( -length, (length*3.0), -length ), 0x00FF00, false ) ); // +Y //green
@@ -854,5 +891,6 @@ function buildAxis( src, dst, colorHex, dashed ) {
 
     return axis;
 }
+
 
 window.VRC.Core = Core;

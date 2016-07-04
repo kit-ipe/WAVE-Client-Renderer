@@ -451,7 +451,7 @@
  */
 
 var Core = function(conf) {
-  
+    // USCT Parameters  
     this.zFactor = conf.zFactor != undefined ? conf.zFactor : 1;
     this.l = conf.l;
     this.s = conf.s;
@@ -468,7 +468,8 @@ var Core = function(conf) {
     this.maxRefl = conf.maxRefl;
     this.maxSos = conf.maxSos;
     this.maxAtten = conf.maxAtten;
-    
+
+    // General Parameters
     this._steps = 20;
     this._slices_gap = [0, '*'];
     this._slicemap_row_col = [16, 16];
@@ -480,7 +481,6 @@ var Core = function(conf) {
     this._opacity_factor = conf.opacity_factor != undefined ? conf.opacity_factor : 35;
     this._color_factor = conf.color_factor != undefined ? conf.color_factor: 3;
     this._shader_name = conf.shader_name == undefined ? "secondPassDefault" : conf.shader_name;
-    // Config "renderer" map to "render"...this is so bad
     this._render_size = conf.renderer_size == undefined ? ['*', '*'] : conf.renderer_size;
     this._canvas_size = conf.renderer_canvas_size;
     this._render_clear_color = "#000";
@@ -555,7 +555,7 @@ var Core = function(conf) {
 
     this._callback = conf.callback;
 
-    try{
+    try {
         if(this._canvas_size[0] > this._canvas_size[1])
             this._camera_settings.position.z = 2; 
     } catch(e){}
@@ -580,16 +580,6 @@ Core.prototype.init = function() {
     this._camera.rotation.x = this._camera_settings["rotation"]["x"];
     this._camera.rotation.y = this._camera_settings["rotation"]["y"];
     this._camera.rotation.z = this._camera_settings["rotation"]["z"];
-
-
-    /*
-    this._controls = new THREE.OrbitControls( this._camera, this._render.domElement );
-    this._controls.center.set( 0.0, 0.0, 0.0 );
-    */
-
-    //this._controls = new THREE.TrackballControls( this._camera, this._render.domElement );
-    //this._controls.enabled = false;
-    //this._controls.center.set( 0.0, 0.0, 0.0 );
 
     this.isAxisOn = false;
 
@@ -663,37 +653,32 @@ Core.prototype.init = function() {
     this._sceneFirstPass = new THREE.Scene();
     this._sceneSecondPass = new THREE.Scene();
 
-    this._initGeometry( this.getGeometryDimensions(), this.getVolumeSizeNormalized() );
-    
+    // Created mesh for both passes using geometry helper
+    this._initGeometry( this.getGeometryDimensions(), this.getVolumeSizeNormalized() );    
     this._meshFirstPass = new THREE.Mesh( this._geometry, this._materialFirstPass );
     this._meshSecondPass = new THREE.Mesh( this._geometry, this._materialSecondPass );
 
-    this._axes = buildAxes(0.5);
-
+    //this._axes = buildAxes(0.5);
     this._sceneFirstPass.add(this._meshFirstPass);
     this._sceneSecondPass.add(this._meshSecondPass);
     //this._sceneSecondPass.add(this._axes);
+
       
-       // FramesPerSecond
-       /**
-         * @author mrdoob / http://mrdoob.com/
-         */
-        var stats = new Stats();
-        stats.setMode(0); // 0: fps, 1: ms, 2: mb
-        // align top-left
-        stats.domElement.style.position = 'absolute';
-        stats.domElement.style.left = '0px';
-        stats.domElement.style.top = '0px';
+    // FramesPerSecond
+    var stats = new Stats();
+    stats.setMode(0); // 0: fps, 1: ms, 2: mb
+    stats.domElement.style.position = 'absolute';
+    stats.domElement.style.left = '0px';
+    stats.domElement.style.top = '0px';
+    document.body.appendChild( stats.domElement );
 
-        document.body.appendChild( stats.domElement );
-
-        var update = function () {
-            stats.begin();
-            stats.end();
-            requestAnimationFrame( update );
-        };
-
+    var update = function () {
+        stats.begin();
+        stats.end();
         requestAnimationFrame( update );
+    };
+
+    requestAnimationFrame( update );
 
     window.addEventListener( 'resize', function() {
         me.onResizeWindow.call();
@@ -723,15 +708,16 @@ Core.prototype.init = function() {
     this._render.setSize(this.getRenderSizeInPixels()[0], this.getRenderSizeInPixels()[1]); 
     this.setRenderCanvasSize(this.getCanvasSize()[0], this.getCanvasSize()[1]);
     
-  
     try{
         this._callback();   
     } catch(e){}       
 };
 
+
 Core.prototype._secondPassSetUniformValue = function(key, value) {
     this._materialSecondPass.uniforms[key].value = value;
 };
+
 
 Core.prototype._setSlicemapsTextures = function(images) {
     var textures = [];
@@ -747,10 +733,9 @@ Core.prototype._setSlicemapsTextures = function(images) {
 
         textures.push(texture);
     };
-
     this._slicemaps_textures = textures;
-
 };
+
 
 Core.prototype.setTransferFunctionByImage = function(image) {
     console.log("Core: setTransferFunctionByImage()");
@@ -767,65 +752,78 @@ Core.prototype.setTransferFunctionByImage = function(image) {
     this.onChangeTransferFunction.call(image);
 };
 
+
 Core.prototype.setScrewThreshold = function(v) {
     this.screwThreshold = v;
     this._secondPassSetUniformValue("screwThreshold", this.screwThreshold);
 }
+
 
 Core.prototype.setJointThreshold = function(v) {
     this.jointThreshold = v;
     this._secondPassSetUniformValue("jointThreshold", this.jointThreshold);
 }
 
+
 Core.prototype.setL = function(v) {
     this.l = v;
     this._secondPassSetUniformValue("l", this.l);
 }
+
 
 Core.prototype.setS = function(v) {
     this.s = v;
     this._secondPassSetUniformValue("s", this.s);
 }
 
+
 Core.prototype.setHMin = function(v) {
     this.hMin = v;
     this._secondPassSetUniformValue("hMin", this.hMin);
 }
+
 
 Core.prototype.setHMax = function(v) {
     this.hMax = v;
     this._secondPassSetUniformValue("hMax", this.hMax);
 }
 
+
 Core.prototype.setMaxRefl = function(v) {
     this.maxRefl = v;
     this._secondPassSetUniformValue("maxRefl", this.maxRefl);
 }
+
 
 Core.prototype.setMaxSos = function(v) {
     this.maxSos = v;
     this._secondPassSetUniformValue("maxSos", this.maxSos);
 }
 
+
 Core.prototype.setMinAtten = function(v) {
     this.minAtten = v;
     this._secondPassSetUniformValue("minAtten", this.minAtten);
 }
+
 
 Core.prototype.setMinRefl = function(v) {
     this.minRefl = v;
     this._secondPassSetUniformValue("minRefl", this.minRefl);
 }
 
+
 Core.prototype.setMinSos = function(v) {
     this.minSos = v;
     this._secondPassSetUniformValue("minSos", this.minSos);
 }
 
+
 Core.prototype.setMaxAtten = function(v) {
     this.maxAtten = v;
     this._secondPassSetUniformValue("maxAtten", this.maxAtten);
 }
+
 
 Core.prototype.setTransferFunctionByColors = function(colors) {
     console.log("Core: setTransferFunctionByColors()");
@@ -841,7 +839,6 @@ Core.prototype.setTransferFunctionByColors = function(colors) {
 
     for(var i=0; i<colors.length; i++) {
         grd.addColorStop(colors[i].pos, colors[i].color);
-
     }
 
     ctx.fillStyle = grd;
@@ -856,9 +853,11 @@ Core.prototype.setTransferFunctionByColors = function(colors) {
     this.onChangeTransferFunction.call(image);
 };
 
+
 Core.prototype.getTransferFunctionAsImage = function() {
     return this._transfer_function_as_image;
 };
+
 
 Core.prototype._initGeometry = function(geometryDimensions, volumeSizes) {
     var geometryHelper = new VRC.GeometryHelper();
@@ -869,11 +868,10 @@ Core.prototype._initGeometry = function(geometryDimensions, volumeSizes) {
     this._geometry.applyMatrix( new THREE.Matrix4().makeRotationY( this._geometry_settings["rotation"]["y"] ));
     this._geometry.applyMatrix( new THREE.Matrix4().makeRotationZ( this._geometry_settings["rotation"]["z"] ));
     this._geometry.doubleSided = true;
-
 };
 
-Core.prototype.setMode = function(conf){
-  
+
+Core.prototype.setMode = function(conf) {  
   this._shader_name =  conf.shader_name;
   
   this._materialSecondPass = new THREE.ShaderMaterial( {
@@ -916,6 +914,7 @@ Core.prototype.setMode = function(conf){
   this._sceneSecondPass.add( this._meshSecondPass );
 }
 
+
 Core.prototype._setGeometry = function(geometryDimensions, volumeSizes) {
     var geometryHelper = new VRC.GeometryHelper();
     var geometry      = geometryHelper.createBoxGeometry(geometryDimensions, volumeSizes, this.zFactor);
@@ -936,6 +935,7 @@ Core.prototype._setGeometry = function(geometryDimensions, volumeSizes) {
     this._geometry.doubleSided = true;
 };
 
+
 Core.prototype.setSlicemapsImages = function(images, imagesPaths) {
     console.log("Core: setSlicemapsImages()");
     this._slicemaps_images = images;
@@ -946,11 +946,13 @@ Core.prototype.setSlicemapsImages = function(images, imagesPaths) {
     this._secondPassSetUniformValue("uSlicemapWidth", this._slicemaps_width);
 };
 
+
 Core.prototype.setSteps = function(steps) {
     //console.log("Core: setSteps(" + steps + ")");
     this._steps = steps;
     this._secondPassSetUniformValue("uSteps", this._steps);
 };
+
 
 Core.prototype.setSlicesRange = function(from, to) {
     console.log("Core: setSlicesRange()");
@@ -958,11 +960,13 @@ Core.prototype.setSlicesRange = function(from, to) {
     this._secondPassSetUniformValue("uNumberOfSlices", this.getSlicesRange()[1])
 };
 
+
 Core.prototype.setOpacityFactor = function(opacity_factor) {
     console.log("Core: setOpacityFactor()");
     this._opacity_factor = opacity_factor;
     this._secondPassSetUniformValue("uOpacityVal", this._opacity_factor);
 };
+
 
 Core.prototype.setColorFactor = function(color_factor) {
     console.log("Core: setColorFactor()");
@@ -970,11 +974,13 @@ Core.prototype.setColorFactor = function(color_factor) {
     this._secondPassSetUniformValue("darkness", this._color_factor);
 };
 
+
 Core.prototype.setAbsorptionMode = function(mode_index) {
     console.log("Core: setAbsorptionMode()");
     this._absorption_mode_index = mode_index;
     this._secondPassSetUniformValue("uAbsorptionModeIndex", this._absorption_mode_index);
 };
+
 
 Core.prototype.setVolumeSize = function(width, height, depth) {
     console.log("Core: setVolumeSize()");
@@ -984,8 +990,8 @@ Core.prototype.setVolumeSize = function(width, height, depth) {
     var normalizedVolumeSizes = [this.getVolumeSize()[0] / maxSize,  this.getVolumeSize()[1] / maxSize, this.getVolumeSize()[2] / maxSize];
 
     this._setGeometry(this.getGeometryDimensions(), normalizedVolumeSizes);
-
 };
+
 
 Core.prototype.setGeometryDimensions = function(geometryDimension) {
     console.log("Core: setGeometryDimension()");
@@ -993,6 +999,7 @@ Core.prototype.setGeometryDimensions = function(geometryDimension) {
 
     this._setGeometry(this._geometry_dimensions, this.getVolumeSizeNormalized());
 };
+
 
 Core.prototype.setRenderCanvasSize = function(width, height) {
     console.log("Core: setRenderCanvasSize()");
@@ -1015,14 +1022,15 @@ Core.prototype.setRenderCanvasSize = function(width, height) {
 
     this._camera.aspect = width / height;
     this._camera.updateProjectionMatrix();
-
 };
+
 
 Core.prototype.setBackgroundColor = function(color) {
     console.log("Core: setBackgroundColor()");
     this._render_clear_color = color;
     this._render.setClearColor(color);
 };
+
 
 Core.prototype.setRowCol = function(row, col) {
     console.log("Core: setRowCol()");
@@ -1031,11 +1039,13 @@ Core.prototype.setRowCol = function(row, col) {
     this._secondPassSetUniformValue("uSlicesOverY", this._slicemap_row_col[1]);
 };
 
+
 Core.prototype.setGrayMinValue = function(value) {
     console.log("Core: setMinGrayValue()");
     this._gray_value[0] = value;
     this._secondPassSetUniformValue("uMinGrayVal", this._gray_value[0]);
 };
+
 
 Core.prototype.applyThresholding = function(threshold_name) {
     console.log("Core: applyThresholding()");
@@ -1057,8 +1067,8 @@ Core.prototype.applyThresholding = function(threshold_name) {
         }; break;
 
     }
-
 };
+
 
 Core.prototype.setThresholdIndexes = function(otsu, isodata, yen, li) {
     console.log("Core: setThresholdIndexes()");
@@ -1069,11 +1079,13 @@ Core.prototype.setThresholdIndexes = function(otsu, isodata, yen, li) {
 
 };
 
+
 Core.prototype.setGrayMaxValue = function(value) {
     console.log("Core: setMaxGrayValue()");
     this._gray_value[1] = value;
     this._secondPassSetUniformValue("uMaxGrayVal", this._gray_value[1]);
 };
+
 
 Core.prototype.setAxis = function(value) {
     console.log("Core: setAxis()");
@@ -1095,6 +1107,7 @@ Core.prototype.setAxis = function(value) {
     this._render.render( this._sceneSecondPass, this._camera );
 };
 
+
 Core.prototype.draw = function(fps) {
     this.onPreDraw.call(fps.toFixed(3));
 
@@ -1107,10 +1120,12 @@ Core.prototype.draw = function(fps) {
     this.onPostDraw.call(fps.toFixed(3));
 };
 
+
 Core.prototype.getDOMContainer = function() {
     return document.getElementById(this._dom_container_id);
 
 };
+
 
 Core.prototype.getRenderSize  = function() {
     var width = this._render_size[0];
@@ -1118,6 +1133,7 @@ Core.prototype.getRenderSize  = function() {
 
     return [width, height];
 };
+
 
 Core.prototype.getRenderSizeInPixels  = function() {
     var width = this.getRenderSize()[0];
@@ -1133,12 +1149,14 @@ Core.prototype.getRenderSizeInPixels  = function() {
     return [width, height];
 };
 
+
 Core.prototype.getCanvasSize = function() {
     var width = this._canvas_size[0];
     var height = this._canvas_size[1];
 
     return [width, height];
 };
+
 
 Core.prototype.getCanvasSizeInPixels = function() {
     var width = this.getCanvasSize()[0];
@@ -1154,27 +1172,31 @@ Core.prototype.getCanvasSizeInPixels = function() {
         height = window.innerHeight
         || document.documentElement.clientHeight
         || document.body.clientHeight;
-
     }
 
     return [width, height];
 };
 
+
 Core.prototype.getSteps = function() {
     return this._steps;
 };
+
 
 Core.prototype.getSlicemapsImages = function() {
     return this._slicemaps_images;
 };
 
+
 Core.prototype.getSlicemapsPaths = function() {
     return this._slicemaps_paths;
 };
 
+
 Core.prototype.getRowCol = function() {
     return this._slicemap_row_col;
 };
+
 
 Core.prototype.getSlicesRange  = function() {
     var from = this._slices_gap[0];
@@ -1186,15 +1208,16 @@ Core.prototype.getSlicesRange  = function() {
     return [from, to];
 };
 
+
 Core.prototype.getVolumeSize = function() {
     return this._volume_sizes;
-
 };
+
 
 Core.prototype.getMaxStepsNumber = function() {
     return Math.min( this.getVolumeSize()[0], this.getVolumeSize()[1] );
-
 };
+
 
 Core.prototype.getVolumeSizeNormalized = function() {
     var maxSize = Math.max(this.getVolumeSize()[0], this.getVolumeSize()[1], this.getVolumeSize()[2]);
@@ -1203,46 +1226,57 @@ Core.prototype.getVolumeSizeNormalized = function() {
     return normalizedVolumeSizes;
 };
 
+
 Core.prototype.getGeometryDimensions = function() {
     return this._geometry_dimensions;
 
 };
 
+
 Core.prototype.getGrayMinValue = function() {
     return this._gray_value[0];
 };
+
 
 Core.prototype.getGrayMaxValue = function() {
     return this._gray_value[1]; 
 }; 
 
+
 Core.prototype.getClearColor = function() {
     return this._render_clear_color;
 };
+
 
 Core.prototype.getTransferFunctionColors = function() {
     return this._transfer_function_colors;
 };
 
+
 Core.prototype.getOpacityFactor = function() {
     return this._opacity_factor;
 };
+
 
 Core.prototype.getColorFactor = function() {  
     return this._color_factor;
 };
 
+
 Core.prototype.getAbsorptionMode = function() {
     return this._absorption_mode_index;
 };
+
 
 Core.prototype.getClearColor = function() {
     return this._render_clear_color;
 };
 
+
 Core.prototype.getDomContainerId = function() {
     return this._dom_container_id;
 };
+
 
 Core.prototype.getMaxTexturesNumber = function() {
     var number_used_textures = 6;
@@ -1250,15 +1284,18 @@ Core.prototype.getMaxTexturesNumber = function() {
     return gl.getParameter(gl.MAX_TEXTURE_IMAGE_UNITS) - number_used_textures;
 };
 
+
 Core.prototype.getMaxTextureSize = function() {
     var gl = this._render.getContext()
     return gl.getParameter(gl.MAX_TEXTURE_SIZE);
 };
 
+
 Core.prototype.getMaxFramebuferSize = function() {
     var gl = this._render.getContext()
     return gl.getParameter(gl.MAX_RENDERBUFFER_SIZE);
 };
+
 
 Core.prototype._shaders = {
     // Here will be inserted shaders withhelp of grunt
@@ -1268,12 +1305,13 @@ Core.prototype._shaders = {
 function buildAxes( length ) {
     var axes = new THREE.Object3D();
 
-    axes.add( buildAxis( new THREE.Vector3( 0, 0, -0.5 ), new THREE.Vector3( length, 0, -0.5 ), 0xFF0000, false ) ); // +X
-    //axes.add( buildAxis( new THREE.Vector3( 0, 0, 0 ), new THREE.Vector3( -length, 0, 0 ), 0xFF0000, true) ); // -X
-    //axes.add( buildAxis( new THREE.Vector3( 0, 0, 0 ), new THREE.Vector3( 0, length, 0 ), 0x00FF00, false ) ); // +Y
-    //axes.add( buildAxis( new THREE.Vector3( 0, 0, 0 ), new THREE.Vector3( 0, -length, 0 ), 0x00FF00, true ) ); // -Y
-    axes.add( buildAxis( new THREE.Vector3( 0, 0, 0 ), new THREE.Vector3( 0, 0, length ), 0x0000FF, false ) ); // +Z
-    axes.add( buildAxis( new THREE.Vector3( 0, 0, 0 ), new THREE.Vector3( 0, 0, -length ), 0x0000FF, true ) ); // -Z
+    // This is just intended as a building block for drawing axis
+    axes.add( buildAxis( new THREE.Vector3( -length, -length, -length ), new THREE.Vector3( (length*3.0), -length, -length ), 0xFF0000, false ) ); // +X //red
+    axes.add( buildAxis( new THREE.Vector3( -length, -length, -length ), new THREE.Vector3( (-length*2.0), -length, -length ), 0xFF0000, true ) ); // -X
+    axes.add( buildAxis( new THREE.Vector3( -length, -length, -length ), new THREE.Vector3( -length, (length*3.0), -length ), 0x00FF00, false ) ); // +Y //green
+    axes.add( buildAxis( new THREE.Vector3( -length, -length, -length ), new THREE.Vector3( -length, (-length*2.0), -length ), 0x00FF00, true ) ); // -Y
+    axes.add( buildAxis( new THREE.Vector3( -length, -length, -length ), new THREE.Vector3( -length, -length, (length*3.0) ), 0x0000FF, false ) ); // +Z //blue
+    axes.add( buildAxis( new THREE.Vector3( -length, -length, -length ), new THREE.Vector3( -length, -length, (-length*2.0) ), 0x0000FF, true ) ); // -Z
 
     return axes;
 }
@@ -1296,6 +1334,7 @@ function buildAxis( src, dst, colorHex, dashed ) {
 
     return axis;
 }
+
 
 window.VRC.Core = Core;
 
@@ -3781,6 +3820,212 @@ window.VRC.Core.prototype._shaders.secondPassNearest = {
 		' gl_FragColor = accum;',
 		'}'].join("\n")
 };
+window.VRC.Core.prototype._shaders.secondPassNearestNeighbor = {
+	uniforms: THREE.UniformsUtils.merge([
+		{
+		"uBackCoord" : { type: "t", value: null },
+		"uTransferFunction" : { type: "t", value: null },
+		"uSliceMaps" : { type: "tv", value: [] },
+		"uNumberOfSlices" : { type: "f", value: -1 },
+		"uMinGrayVal" : { type: "f", value: -1 },
+		"uMaxGrayVal" : { type: "f", value: -1 },
+		"uOpacityVal" : { type: "f", value: -1 },
+		"uColorVal" : { type: "f", value: -1 },
+		"uAbsorptionModeIndex" : { type: "f", value: -1 },
+		"uSlicesOverX" : { type: "f", value: -1 },
+		"uSlicesOverY" : { type: "f", value: -1 },
+		"uSlicemapWidth" : { type: "f", value: -1 },
+		}
+	]),
+	vertexShader: [
+		'precision mediump int;',
+		'precision mediump float;',
+		'attribute vec4 vertColor;',
+		'//see core.js -->',
+		'//attributes: {',
+		'//    vertColor: {type: \'c\', value: [] }',
+		'//},',
+		'varying vec4 frontColor;',
+		'varying vec4 pos;',
+		'void main(void)',
+		'{',
+		'    frontColor = vertColor;',
+		'    pos = projectionMatrix * modelViewMatrix * vec4(position, 1.0);',
+		'    gl_Position = pos;',
+		'}'].join("\n"),
+	fragmentShader: [
+		'#ifdef GL_FRAGMENT_PRECISION_HIGH',
+		' // highp is supported',
+		' precision highp int;',
+		' precision highp float;',
+		'#else',
+		' // high is not supported',
+		' precision mediump int;',
+		' precision mediump float;',
+		'#endif',
+		'varying vec4 frontColor;',
+		'varying vec4 pos;',
+		'uniform sampler2D uBackCoord;',
+		'uniform sampler2D uTransferFunction;',
+		'uniform sampler2D uSliceMaps[<%= maxTexturesNumber %>];',
+		'// returns total number of slices of all slicemaps',
+		'uniform float uNumberOfSlices;',
+		'uniform float uMinGrayVal;',
+		'uniform float uMaxGrayVal;',
+		'uniform float uOpacityVal;',
+		'uniform float uColorVal;',
+		'uniform float uAbsorptionModeIndex;',
+		'uniform float uSlicesOverX;',
+		'uniform float uSlicesOverY;',
+		'uniform float uSlicemapWidth;',
+		'float getVolumeValue(vec3 volpos)',
+		'{',
+		'    float sliceIndexInSlicemaps_lower, sliceIndex_lower;',
+		'    float dx_lower, dy_lower;',
+		'    float value1 = 0.0;',
+		'    vec2 texpos1, texpos1_frac;',
+		'    vec3 value1_vec;',
+		'    // matlab eps == pow(2.0,(-52.0))',
+		'    float eps = pow(2.0,(-17.0));',
+		'    // How many slices does 1 slicemap have?',
+		'    float slicesPerSlicemap = uSlicesOverX * uSlicesOverY;',
+		'    /** Determine index of current slice (with respect to total numbers of slices)',
+		'      * Accessing real data here only works with -1.0*eps:',
+		'      * sliceIndexInSlicemaps_lower = floor(((volpos.z-(0.5/uNumberOfSlices))*((uNumberOfSlices)-1.0*eps))+0.5);',
+		'      * but we get \'aliasing\' in form of one slice appearing at the front, therefore we use it currently without eps.',
+		'      * We also took care of this half pixel adaption (real mapping)',
+		'      */',
+		'    sliceIndexInSlicemaps_lower = floor(((volpos.z-(0.5/uNumberOfSlices))*((uNumberOfSlices-1.0)))+0.5);',
+		'    // Which Slicemap do we use? (Calculates current index of Slicemap)',
+		'    int texIndexOfSlicemap = int(floor(sliceIndexInSlicemaps_lower / slicesPerSlicemap));',
+		'    // What is the index of the slice in the current slicemap?',
+		'    sliceIndex_lower = mod(sliceIndexInSlicemaps_lower, slicesPerSlicemap);',
+		'    // Calculates x and y offset for the coordinates in the current slice',
+		'    dx_lower = fract(sliceIndex_lower/uSlicesOverX);',
+		'    dy_lower = floor(sliceIndex_lower/uSlicesOverY)/uSlicesOverY;',
+		'    // To prevent long coding lines:',
+		'    float sWidth = uSlicemapWidth;',
+		'    float sX = uSlicesOverX;',
+		'    float sY = uSlicesOverY;',
+		'    // Due to edge calculation problems, we adjust the volpos.x and .y',
+		'    if(volpos.x < (0.5/((sWidth/sX)-1.0))) {',
+		'        volpos.x = (0.5/((sWidth/sX)-1.0));',
+		'    } else',
+		'        if(volpos.x >= ((((sWidth/sX)-1.0)-0.5)/((sWidth/sX)-1.0))) {',
+		'          // subtracting -10.0*eps so that we never land exactly on the last slice',
+		'          volpos.x =  (((((sWidth/sX)-1.0)-0.5)/((sWidth/sX)-1.0))-10.0*eps);',
+		'          }',
+		'    if(volpos.y < (0.5/((sWidth/sY)-1.0))) {',
+		'        volpos.y = (0.5/((sWidth/sY)-1.0));',
+		'      } else',
+		'         if(volpos.y >= ((((sWidth/sY)-1.0)-0.5)/((sWidth/sY)-1.0))) {',
+		'           volpos.y =  (((((sWidth/sY)-1.0)-0.5)/((sWidth/sY)-1.0))-10.0*eps);',
+		'         }',
+		'    /** Calculating the current texture position of the x/y-coordiante with respect to its offset',
+		'      * Multipling volpos.x with (number of slices-1),... because of the',
+		'      * half pixel shift mapping.',
+		'      */',
+		'    texpos1.x = (dx_lower+(((volpos.x*((sWidth/sX)-1.0))/(sWidth/sX))/(sX)));',
+		'    texpos1.y = (dy_lower+(((volpos.y*((sWidth/sY)-1.0))/(sWidth/sY))/(sY)));',
+		'    // Nearest neighbor over x/y axis',
+		'    texpos1_frac.x =(0.5+floor(((texpos1.x+(0.5/(sWidth)))*4096.0)))/4096.0; //upscaling so that flooring is possible',
+		'    texpos1_frac.y =(0.5+floor(((texpos1.y+(0.5/(sWidth)))*4096.0)))/4096.0;',
+		'    <% for(var i=0; i < maxTexturesNumber; i++) { %>',
+		'        if( texIndexOfSlicemap == <%=i%> )',
+		'        {',
+		'          value1_vec = texture2D(uSliceMaps[<%=i%>],texpos1_frac).rgb;',
+		'          value1 = ((value1_vec.r + value1_vec.g + value1_vec.b)/3.0);',
+		'          value1 = texture2D(uSliceMaps[<%=i%>],texpos1_frac).x;',
+		'        }',
+		'        <% if( i < maxTexturesNumber-1 ) { %>',
+		'            else',
+		'        <% } %>',
+		'    <% } %>',
+		'    return value1;',
+		'}',
+		'void main(void)',
+		'{',
+		' int uStepsI;',
+		' float uStepsF;',
+		' vec2 texC = ((pos.xy/pos.w) + 1.0) / 2.0;',
+		' vec4 backColor = texture2D(uBackCoord,texC);',
+		' vec3 dir = backColor.rgb - frontColor.rgb;',
+		' vec4 vpos = frontColor;',
+		' float dir_length = length(dir);',
+		' uStepsF = ceil((dir_length)*(uNumberOfSlices-1.0));',
+		' vec3 Step = dir/uStepsF;',
+		' uStepsI = int(uStepsF);',
+		' vec4 accum = vec4(0, 0, 0, 0);',
+		' vec4 sample = vec4(0.0, 0.0, 0.0, 0.0);',
+		' vec4 colorValue = vec4(0, 0, 0, 0);',
+		' float biggest_gray_value = 0.0;',
+		' float opacityFactor = uOpacityVal;',
+		' float lightFactor = uColorVal;',
+		' for(int i = 0; i < 4096; i+=1)',
+		' {',
+		'     if(i == uStepsI) {',
+		'         break;',
+		'     }',
+		'     float gray_val = getVolumeValue(vpos.xyz);',
+		'     if(gray_val < uMinGrayVal || gray_val > uMaxGrayVal) {',
+		'         colorValue = vec4(0.0);',
+		'         accum=accum+colorValue;',
+		'         if(accum.a>=1.0)',
+		'            break;',
+		'     } else {',
+		'         if(biggest_gray_value < gray_val) {',
+		'            biggest_gray_value = gray_val;',
+		'         }',
+		'         if(uAbsorptionModeIndex == 0.0)',
+		'         {',
+		'           vec2 tf_pos;',
+		'           tf_pos.x = (gray_val - uMinGrayVal) / (uMaxGrayVal - uMinGrayVal);',
+		'           tf_pos.y = 0.5;',
+		'           colorValue = texture2D(uTransferFunction,tf_pos);',
+		'           //colorValue = vec4(tf_pos.x, tf_pos.x, tf_pos.x, 1.0);',
+		'           sample.a = colorValue.a * opacityFactor;',
+		'           sample.rgb = colorValue.rgb * uColorVal;',
+		'           accum += sample;',
+		'           if(accum.a>=1.0)',
+		'              break;',
+		'         }',
+		'         if(uAbsorptionModeIndex == 1.0)',
+		'         {',
+		'           vec2 tf_pos;',
+		'           // position of x is defined by the gray_value instead of a filtering',
+		'           tf_pos.x = gray_val;',
+		'           tf_pos.y = 0.5;',
+		'           // maximum distance in a cube',
+		'           float max_d = sqrt(3.0);',
+		'           colorValue = texture2D(uTransferFunction,tf_pos);',
+		'           //colorValue = vec4(tf_pos.x, tf_pos.x, tf_pos.x, 1.0);',
+		'           // alternative mode, this way the user can change the length of',
+		'           // the penetrating ray, by using the opacityFactor-switch in the  gui',
+		'           // -2.0 because of 1. and last slice:',
+		'           sample.a = 1.0/(1.0+uOpacityVal*(max_d*(uNumberOfSlices-2.0)));',
+		'           sample.rgb = colorValue.rgb * sample.a;',
+		'           accum += sample;',
+		'           if(accum.a>=1.0)',
+		'              break;',
+		'         }',
+		'         if(uAbsorptionModeIndex == 2.0)',
+		'         {',
+		'             vec2 tf_pos;',
+		'             tf_pos.x = (biggest_gray_value - uMinGrayVal) / (uMaxGrayVal - uMinGrayVal);',
+		'             tf_pos.y = 0.5;',
+		'             colorValue = texture2D(uTransferFunction,tf_pos);',
+		'             //colorValue = vec4(tf_pos.x, tf_pos.x, tf_pos.x, 1.0);',
+		'             sample.a = 1.0; //colorValue.a * opacityFactor;',
+		'             sample.rgb = colorValue.rgb; // * uColorVal;',
+		'             accum = sample;',
+		'         }',
+		'     }',
+		'     //advance the current position',
+		'     vpos.xyz += Step;',
+		' }',
+		' gl_FragColor = accum;',
+		'}'].join("\n")
+};
 window.VRC.Core.prototype._shaders.secondPassRB = {
 	uniforms: THREE.UniformsUtils.merge([
 		{
@@ -5117,6 +5362,293 @@ window.VRC.Core.prototype._shaders.secondPassTrilinearFix = {
 		'     {',
 		'         break;',
 		'     }',
+		' }',
+		' gl_FragColor = accum;',
+		'}'].join("\n")
+};
+window.VRC.Core.prototype._shaders.secondPassTrilinear_final = {
+	uniforms: THREE.UniformsUtils.merge([
+		{
+		"uBackCoord" : { type: "t", value: null },
+		"uTransferFunction" : { type: "t", value: null },
+		"uSliceMaps" : { type: "tv", value: [] },
+		"uNumberOfSlices" : { type: "f", value: -1 },
+		"uMinGrayVal" : { type: "f", value: -1 },
+		"uMaxGrayVal" : { type: "f", value: -1 },
+		"uOpacityVal" : { type: "f", value: -1 },
+		"uColorVal" : { type: "f", value: -1 },
+		"uAbsorptionModeIndex" : { type: "f", value: -1 },
+		"uSlicesOverX" : { type: "f", value: -1 },
+		"uSlicesOverY" : { type: "f", value: -1 },
+		"uSlicemapWidth" : { type: "f", value: -1 },
+		}
+	]),
+	vertexShader: [
+		'precision mediump int; ',
+		'precision mediump float; ',
+		'attribute vec4 vertColor; ',
+		'varying vec4 frontColor; ',
+		'varying vec4 pos; ',
+		'void main(void) ',
+		'{ ',
+		'    frontColor = vertColor; ',
+		'    pos = projectionMatrix * modelViewMatrix * vec4(position, 1.0); ',
+		'    gl_Position = pos; ',
+		'} '].join("\n"),
+	fragmentShader: [
+		'#ifdef GL_FRAGMENT_PRECISION_HIGH',
+		' // highp is supported',
+		' precision highp int;',
+		' precision highp float;',
+		'#else',
+		' // high is not supported',
+		' precision mediump int;',
+		' precision mediump float;',
+		'#endif',
+		'varying vec4 frontColor;',
+		'varying vec4 pos;',
+		'uniform sampler2D uBackCoord;',
+		'uniform sampler2D uTransferFunction;',
+		'uniform sampler2D uSliceMaps[<%= maxTexturesNumber %>];',
+		'// returns total number of slices of all slicemaps',
+		'uniform float uNumberOfSlices;',
+		'uniform float uMinGrayVal;',
+		'uniform float uMaxGrayVal;',
+		'uniform float uOpacityVal;',
+		'uniform float uColorVal;',
+		'uniform float uAbsorptionModeIndex;',
+		'uniform float uSlicesOverX;',
+		'uniform float uSlicesOverY;',
+		'uniform float uSlicemapWidth;',
+		'float getVolumeValue(vec3 volpos)',
+		'{',
+		'    float sliceIndexInSlicemaps_lower, sliceIndex_lower;',
+		'    float sliceIndexInSlicemaps_upper, sliceIndex_upper;',
+		'    float dx_lower, dy_lower;',
+		'    float dx_upper, dy_upper;',
+		'    // How many slices does 1 slicemap have?',
+		'    float slicesPerSlicemap = uSlicesOverX * uSlicesOverY;',
+		'    // matlab eps == pow(2.0,(-52.0))',
+		'    float eps = pow(2.0,(-17.0));',
+		'    /** Determine index of current slice (with respect to total numbers of slices)',
+		'      * Accessing real data here only works with -1.0*eps:',
+		'      * sliceIndexInSlicemaps_lower = floor(((volpos.z-(0.5/uNumberOfSlices))*((uNumberOfSlices)-1.0*eps))+0.5);',
+		'      * but we get \'aliasing\' in form of one slice appearing at the front, therefore we use it currently without eps.',
+		'      * We also took care of this half pixel adaption (real mapping)',
+		'      */',
+		'    sliceIndexInSlicemaps_lower = floor(((volpos.z-(0.5/uNumberOfSlices))*((uNumberOfSlices-1.0)))+0.5);',
+		'    sliceIndexInSlicemaps_upper = ceil(((volpos.z-(0.5/uNumberOfSlices))*((uNumberOfSlices-1.0)))+0.5);',
+		'    // Which Slicemap do we use? (Calculates current index of Slicemap)',
+		'    int texIndexOfSlicemap = int(floor(sliceIndexInSlicemaps_lower / slicesPerSlicemap));',
+		'    // What is the index of the slice in the current slicemap?',
+		'    sliceIndex_lower = mod(sliceIndexInSlicemaps_lower, slicesPerSlicemap);',
+		'    sliceIndex_upper = mod(sliceIndexInSlicemaps_upper, slicesPerSlicemap);',
+		'    // Calculates x and y offset for the coordinates in the current slice',
+		'    dx_lower = fract(sliceIndex_lower/uSlicesOverX);',
+		'    dy_lower = floor(sliceIndex_lower/uSlicesOverY)/uSlicesOverY;',
+		'    dx_upper = fract(sliceIndex_upper/uSlicesOverX);',
+		'    dy_upper = floor(sliceIndex_upper/uSlicesOverY)/uSlicesOverY;',
+		'    vec2 texpos1,texpos2;',
+		'    float sWidth = uSlicemapWidth;',
+		'    float sX = uSlicesOverX;',
+		'    float sY = uSlicesOverY;',
+		'    // Due to edge calculation problems, we adjust the volpos.x and .y',
+		'      if(volpos.x < (0.5/((sWidth/sX)-1.0))) {',
+		'          volpos.x = (0.5/((sWidth/sX)-1.0));',
+		'      } else',
+		'          if(volpos.x >= ((((sWidth/sX)-1.0)-0.5)/((sWidth/sX)-1.0))) {',
+		'              // subtracting -10.0*eps so that we never land exactly on the last slice',
+		'              volpos.x =  (((((sWidth/sX)-1.0)-0.5)/((sWidth/sX)-1.0))-10.0*eps) ;',
+		'          }',
+		'      if(volpos.y < (0.5/((sWidth/sY)-1.0))) {',
+		'          volpos.y = (0.5/((sWidth/sY)-1.0));',
+		'      } else',
+		'         if(volpos.y >= ((((sWidth/sY)-1.0)-0.5)/((sWidth/sY)-1.0))) {',
+		'             volpos.y =  (((((sWidth/sY)-1.0)-0.5)/((sWidth/sY)-1.0))-10.0*eps) ;',
+		'         }',
+		'    /** Calculating the current texture position of the x/y-coordiante with respect to its offset',
+		'      * Multipling volpos.x with (number of slices-1),... because of the',
+		'      * half pixel shift mapping.',
+		'      */',
+		'    texpos1.x = (dx_lower+(((volpos.x*((sWidth/sX)-1.0))/(sWidth/sX))/(sX)));',
+		'    texpos1.y = (dy_lower+(((volpos.y*((sWidth/sY)-1.0))/(sWidth/sY))/(sY)));',
+		'    texpos2.x = (dx_upper+(((volpos.x*((sWidth/sX)-1.0))/(sWidth/sX))/(sX)));',
+		'    texpos2.y = (dy_upper+(((volpos.y*((sWidth/sY)-1.0))/(sWidth/sY))/(sY)));',
+		'    // Trilinear interpolation variables',
+		'    float xpixel_1, xpixel_2, ypixel_1, ypixel_2;',
+		'    float lo_weightX_1, lo_weightX_2, lo_weightY_1, lo_weightY_2;',
+		'    float low_1, low_2, low_3, low_4;',
+		'    vec2 low_1_vec, low_2_vec, low_3_vec, low_4_vec;',
+		'    vec3 low_1_val, low_2_val, low_3_val, low_4_val;',
+		'    float low_sum;',
+		'    float xpixel_1_upper, xpixel_2_upper, ypixel_1_upper, ypixel_2_upper;',
+		'    float upp_1, upp_2, upp_3, upp_4;',
+		'    float up_weightX_1, up_weightX_2, up_weightY_1, up_weightY_2;',
+		'    vec2 upp_1_vec, upp_2_vec, upp_3_vec, upp_4_vec;',
+		'    vec3 upp_1_val, upp_2_val, upp_3_val, upp_4_val;',
+		'    float upp_sum;',
+		'    float weight_z_low, weight_z_upp;',
+		'    // Calculating z-axis weight',
+		'    weight_z_low = 1.0 - fract(volpos.z*(uNumberOfSlices-1.0));',
+		'    weight_z_upp = abs(1.0 - weight_z_low);',
+		'    float interp;',
+		'    <% for(var i=0; i < maxTexturesNumber; i++) { %>',
+		'        if( texIndexOfSlicemap == <%=i%> )',
+		'        {',
+		'          // Lower slice calculation of nearest 4 pixels and their weights',
+		'          xpixel_1 = (floor(((texpos1.x*sWidth)+0.5))+0.5);',
+		'          xpixel_2 = (floor(((texpos1.x*sWidth)+0.5))-0.5);',
+		'          ypixel_1 = (floor(((texpos1.y*sWidth)+0.5))+0.5);',
+		'          ypixel_2 = (floor(((texpos1.y*sWidth)+0.5))-0.5);',
+		'          lo_weightX_1 = 1.0-abs(xpixel_1-(texpos1.x*sWidth));',
+		'          lo_weightX_2 = 1.0-abs(xpixel_2-(texpos1.x*sWidth));',
+		'          lo_weightY_1 = 1.0-abs(ypixel_1-(texpos1.y*sWidth));',
+		'          lo_weightY_2 = 1.0-abs(ypixel_2-(texpos1.y*sWidth));',
+		'          // adjusting the coordinates to a mapping of 0...1, because of texture2D',
+		'          low_1_vec.x = (xpixel_1/sWidth);',
+		'          low_1_vec.y = (ypixel_1/sWidth);',
+		'          // calling the texture and saving the value',
+		'          low_1_val = texture2D(uSliceMaps[<%=i%>], low_1_vec).rgb;',
+		'          low_1 =  ((low_1_val.r + low_1_val.g + low_1_val.b)/3.0)*lo_weightX_1*lo_weightY_1;',
+		'          low_2_vec.x = (xpixel_2/sWidth);',
+		'          low_2_vec.y = (ypixel_1/sWidth);',
+		'          low_2_val = texture2D(uSliceMaps[<%=i%>], low_2_vec).rgb;',
+		'          low_2 =  ((low_2_val.r + low_2_val.g + low_2_val.b)/3.0)*lo_weightX_2*lo_weightY_1;',
+		'          low_3_vec.x = (xpixel_1/sWidth);',
+		'          low_3_vec.y = (ypixel_2/sWidth);',
+		'          low_3_val = texture2D(uSliceMaps[<%=i%>], low_3_vec).rgb;',
+		'          low_3 =  ((low_3_val.r + low_3_val.g + low_3_val.b)/3.0)*lo_weightX_1*lo_weightY_2;',
+		'          low_4_vec.x = (xpixel_2/sWidth);',
+		'          low_4_vec.y = (ypixel_2/sWidth);',
+		'          low_4_val = texture2D(uSliceMaps[<%=i%>], low_4_vec).rgb;',
+		'          low_4 =  ((low_4_val.r + low_4_val.g + low_4_val.b)/3.0)*lo_weightX_2*lo_weightY_2;',
+		'          low_sum = (low_1 + low_2 + low_3 + low_4)*weight_z_low;',
+		'          //Same procedure for upperslice',
+		'          xpixel_1_upper = (floor(((texpos2.x*sWidth)+0.5))+0.5);',
+		'          xpixel_2_upper = (floor(((texpos2.x*sWidth)+0.5))-0.5);',
+		'          ypixel_1_upper = (floor(((texpos2.y*sWidth)+0.5))+0.5);',
+		'          ypixel_2_upper = (floor(((texpos2.y*sWidth)+0.5))-0.5);',
+		'          up_weightX_1 = 1.0-abs(xpixel_1_upper-(texpos2.x*sWidth));',
+		'          up_weightX_2 = 1.0-abs(xpixel_2_upper-(texpos2.x*sWidth));',
+		'          up_weightY_1 = 1.0-abs(ypixel_1_upper-(texpos2.y*sWidth));',
+		'          up_weightY_2 = 1.0-abs(ypixel_2_upper-(texpos2.y*sWidth));',
+		'          upp_1_vec.x = (xpixel_1_upper/sWidth);',
+		'          upp_1_vec.y = (ypixel_1_upper/sWidth);',
+		'          upp_1_val = texture2D(uSliceMaps[<%=i%>], upp_1_vec).rgb;',
+		'          upp_1 =  ((upp_1_val.r + upp_1_val.g + upp_1_val.b)/3.0)*up_weightX_1*up_weightY_1;',
+		'          upp_2_vec.x = (xpixel_2_upper/sWidth);',
+		'          upp_2_vec.y = (ypixel_1_upper/sWidth);',
+		'          upp_2_val = texture2D(uSliceMaps[<%=i%>], upp_2_vec).rgb;',
+		'          upp_2 =  ((upp_2_val.r + upp_2_val.g + upp_2_val.b)/3.0)*up_weightX_2*up_weightY_1;',
+		'          upp_3_vec.x = (xpixel_1_upper/sWidth);',
+		'          upp_3_vec.y = (ypixel_2_upper/sWidth);',
+		'          upp_3_val = texture2D(uSliceMaps[<%=i%>], upp_3_vec).rgb;',
+		'          upp_3 =  ((upp_3_val.r + upp_3_val.g + upp_3_val.b)/3.0)*up_weightX_1*up_weightY_2;',
+		'          upp_4_vec.x = (xpixel_2_upper/sWidth);',
+		'          upp_4_vec.y = (ypixel_2_upper/sWidth);',
+		'          upp_4_val = texture2D(uSliceMaps[<%=i%>], upp_4_vec).rgb;',
+		'          upp_4 =  ((upp_4_val.r + upp_4_val.g + upp_4_val.b)/3.0)*up_weightX_2*up_weightY_2;',
+		'          upp_sum = (upp_1 + upp_2 + upp_3 + upp_4)*weight_z_upp;',
+		'          interp = low_sum+upp_sum;',
+		'        }',
+		'        <% if( i < maxTexturesNumber-1 ) { %>',
+		'            else',
+		'        <% } %>',
+		'    <% } %>',
+		'    return interp;',
+		'}',
+		'void main(void)',
+		'{',
+		' int uStepsI;',
+		' float uStepsF;',
+		' vec2 texC = ((pos.xy/pos.w) + 1.0) / 2.0;',
+		' vec4 backColor = texture2D(uBackCoord,texC);',
+		' vec3 dir = backColor.rgb - frontColor.rgb;',
+		' vec4 vpos = frontColor;',
+		' float dir_length = length(dir);',
+		' uStepsF = ceil((dir_length)*(uNumberOfSlices-1.0)); // Schrittanzahl',
+		' vec3 Step = dir/uStepsF;',
+		' uStepsI = int(uStepsF); // Schrittanzahl',
+		' vec4 accum = vec4(0, 0, 0, 0);',
+		' vec4 sample = vec4(0.0, 0.0, 0.0, 0.0);',
+		' vec4 colorValue = vec4(0, 0, 0, 0);',
+		' float biggest_gray_value = 0.0;',
+		' float opacityFactor = uOpacityVal;',
+		' float lightFactor = uColorVal;',
+		' for(int i = 0; i < 4096; i+=1)',
+		' {',
+		'     if(i == uStepsI) {',
+		'         break;',
+		'     }',
+		'     float gray_val = getVolumeValue(vpos.xyz);',
+		'     if(gray_val < uMinGrayVal || gray_val > uMaxGrayVal) {',
+		'         // colorValue = vec4(0.0,0.0,0.0,((gray_val*(1.0/uOpacityVal)/(sqrt(3)*(uNumberOfSlices-1.0)))));',
+		'         colorValue = vec4(0.0,0.0,0.0,0.0);',
+		'         accum=accum+colorValue;',
+		'         if(accum.a>=1.0)',
+		'            break;',
+		'     } else {',
+		'         if(biggest_gray_value < gray_val) {',
+		'            biggest_gray_value = gray_val;',
+		'         }',
+		'         if(uAbsorptionModeIndex == 0.0)',
+		'         {',
+		'             vec2 tf_pos;',
+		'             tf_pos.x = (gray_val - uMinGrayVal) / (uMaxGrayVal - uMinGrayVal);',
+		'             tf_pos.y = 0.5;',
+		'             colorValue = texture2D(uTransferFunction,tf_pos);',
+		'             // colorValue = vec4(tf_pos.x, tf_pos.x, tf_pos.x, 1.0);',
+		'             sample.a = colorValue.a * opacityFactor;',
+		'             sample.rgb = colorValue.rgb * uColorVal;',
+		'             accum += sample;',
+		'             if(accum.a>=1.0)',
+		'                break;',
+		'         }',
+		'         if(uAbsorptionModeIndex == 1.0)',
+		'         {',
+		'             vec2 tf_pos;',
+		'             tf_pos.x = gray_val;',
+		'             // because this is a filtering function, which we dont want:',
+		'             // (gray_val - uMinGrayVal) / (uMaxGrayVal - uMinGrayVal);',
+		'             tf_pos.y = 0.5;',
+		'             colorValue = texture2D(uTransferFunction,tf_pos);',
+		'             // colorValue = vec4(tf_pos.x, tf_pos.x, tf_pos.x, 1.0);',
+		'             // maximum distance in a cube',
+		'             float max_d = sqrt(3.0);',
+		'             // alternative mode:',
+		'             // each pixel same opactiy value (1.0)',
+		'             // -2.0 because of 1. and last slice',
+		'             sample.a = 1.0/(1.0+uOpacityVal*(max_d*(uNumberOfSlices-2.0)));// (step_length/dir_length); //colorValue.a * (1.0 / uStepsF);  //* opacityFactor;',
+		'             // each pixel\'s gropactiy is depending on the gray_val',
+		'             // sample.a = gray_val * 1.0/(1.0+uOpacityVal*(max_d*(uNumberOfSlices-2.0))));// (step_length/dir_length); //colorValue.a * (1.0 / uStepsF);  //* opacityFactor; //opacity schätzung über grauwwert (bildinhalt)',
+		'             //sample.a = gray_val*(1.0/uOpacityVal);',
+		'             sample.rgb = colorValue.rgb * sample.a; //(1.0 - accum.a) ; //* lightFactor;',
+		'             //sample.a = colorValue.a * opacityFactor * (1.0 / uStepsF);',
+		'             //sample.rgb = (1.0 - accum.a) * colorValue.rgb * sample.a * lightFactor;',
+		'             accum += sample;',
+		'             if(accum.a>=1.0)',
+		'                break;',
+		'         }',
+		'         if(uAbsorptionModeIndex == 2.0)',
+		'         {',
+		'             vec2 tf_pos;',
+		'             tf_pos.x = (biggest_gray_value - uMinGrayVal) / (uMaxGrayVal - uMinGrayVal);',
+		'             tf_pos.y = 0.5;',
+		'             colorValue = texture2D(uTransferFunction,tf_pos);',
+		'             //colorValue = vec4(tf_pos.x, tf_pos.x, tf_pos.x, 1.0);',
+		'             sample.a = 1.0; //colorValue.a * opacityFactor;',
+		'             sample.rgb = colorValue.rgb; // * uColorVal;',
+		'             accum = sample;',
+		'         }',
+		'     }',
+		'     //advance the current position',
+		'     vpos.xyz += Step;',
+		'      //break if the position is greater than <1, 1, 1>',
+		'      //if(vpos.x > 1.0-eps || vpos.y > 1.0-eps || vpos.z > 1.0-eps || vpos.x < 0.0+eps || vpos.y < 0.0+eps || vpos.z < 0.0+eps)',
+		'      //vpos.x > backColor.r || vpos.y > backColor.g ||vpos.z > backColor.b ||',
+		'      //{',
+		'      //    break;',
+		'      //}',
 		' }',
 		' gl_FragColor = accum;',
 		'}'].join("\n")
