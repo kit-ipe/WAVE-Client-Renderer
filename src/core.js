@@ -73,9 +73,9 @@ var Core = function(conf) {
             z: 0.0
         },
         "position": {
-            "x": 0, 
-            "y": 0,
-            "z": 2
+            "x": 1, 
+            "y": 1,
+            "z": 3
         }
     };
 
@@ -129,7 +129,12 @@ Core.prototype.init = function() {
 
     this._container.appendChild( this._render.domElement );
 
-    this._camera = new THREE.PerspectiveCamera( 45, this.getRenderSizeInPixels()[0] / this.getRenderSizeInPixels()[1], 0.01, 11 );
+    this._camera = new THREE.PerspectiveCamera(
+        45, 
+        this.getRenderSizeInPixels()[0] / this.getRenderSizeInPixels()[1],
+        0.01,
+        11
+    );
     this._camera.position.x = this._camera_settings["position"]["x"];
     this._camera.position.y = this._camera_settings["position"]["y"];
     this._camera.position.z = this._camera_settings["position"]["z"];
@@ -141,9 +146,9 @@ Core.prototype.init = function() {
     this.isAxisOn = false;
 
     this._controls = new THREE.TrackballControls(this._camera, this._render.domElement);
-    this._controls.rotateSpeed = 50.0;
-    this._controls.zoomSpeed = 3.0;
-    this._controls.panSpeed = 12.0;
+    this._controls.rotateSpeed = 2.0;
+    this._controls.zoomSpeed = 2.0;
+    this._controls.panSpeed = 2.0;
 
     this._controls.noZoom = false;
     this._controls.noPan = false;
@@ -219,16 +224,62 @@ Core.prototype.init = function() {
     this._sceneFirstPass.add(this._meshFirstPass);
     this._sceneSecondPass.add(this._meshSecondPass);
     //this._sceneSecondPass.add(this._axes);
-
+    
+    var mesh = new THREE.Mesh(
+        new THREE.BoxGeometry( 1, 1, 1 ),
+        new THREE.MeshNormalMaterial()
+    );
+    this._wireframe = new THREE.BoxHelper( mesh );
+    this._wireframe.material.color.set( 0xe3e3e3 );
+    this._sceneSecondPass.add( this._wireframe );
+    
+    /*
+    var mesh2 = new THREE.Mesh(
+        new THREE.BoxGeometry( 0.5, 0.5, 0.5 ),
+        new THREE.MeshNormalMaterial()
+    );
+    this._wireframe2 = new THREE.BoxHelper( mesh2 );
+    this._wireframe2.material.color.set( 0xff0000 );
+    this._wireframe2.position.set( -0.8, -0.5, 0.5 );
+    this._sceneSecondPass.add( this._wireframe2 );
+    */
+    
+    var xdir = new THREE.Vector3( 1, 0, 0 );
+    var xorigin = new THREE.Vector3( -0.8, -0.5, 0.5 );
+    var xlength = 0.2;
+    var xhex = 0xff0000;
+    var xarrowHelper = new THREE.ArrowHelper( xdir, xorigin, xlength, xhex );
+    this._sceneSecondPass.add( xarrowHelper );
+    
+    var ydir = new THREE.Vector3( 0, 1, 0 );
+    var yorigin = new THREE.Vector3( -0.8, -0.5, 0.5 );
+    var ylength = 0.2;
+    var yhex = 0x00ff00;
+    var yarrowHelper = new THREE.ArrowHelper( ydir, yorigin, ylength, yhex );
+    this._sceneSecondPass.add( yarrowHelper );
+    
+    var zdir = new THREE.Vector3( 0, 0, 1 );
+    var zorigin = new THREE.Vector3( -0.8, -0.5, 0.5 );
+    var zlength = 0.2;
+    var zhex = 0x0000ff;
+    var zarrowHelper = new THREE.ArrowHelper( zdir, zorigin, zlength, zhex );
+    this._sceneSecondPass.add( zarrowHelper );
+    //scene.add( arrowHelper );
+    
+    /*
+    // alternate method
+    var helper = new THREE.EdgesHelper( mesh, 0xff0000 );
+    scene.add( helper );
+    */
       
     // FramesPerSecond
     var stats = new Stats();
     stats.setMode(0); // 0: fps, 1: ms, 2: mb
     stats.domElement.style.position = 'absolute';
-    stats.domElement.style.left = '0px';
-    stats.domElement.style.top = '0px';
+    stats.domElement.style.right = '10px';
+    stats.domElement.style.top = '10px';
     document.body.appendChild( stats.domElement );
-
+    
     var update = function () {
         stats.begin();
         stats.end();
@@ -269,6 +320,8 @@ Core.prototype.init = function() {
         this._callback();   
     } catch(e){}       
 };
+
+
 
 
 Core.prototype._secondPassSetUniformValue = function(key, value) {
@@ -643,6 +696,30 @@ Core.prototype.setGrayMaxValue = function(value) {
     this._secondPassSetUniformValue("uMaxGrayVal", this._gray_value[1]);
 };
 
+Core.prototype.addWireframe = function() {
+    console.log("Core: addFrame()");
+    this._sceneSecondPass.add( this._wireframe );
+
+    this._controls.update();
+    this._render.render( this._sceneFirstPass, this._camera, this._rtTexture, true );
+    this._render.render( this._sceneFirstPass, this._camera );
+
+    // Render the second pass and perform the volume rendering.
+    this._render.render( this._sceneSecondPass, this._camera );
+};
+
+Core.prototype.removeWireframe = function() {
+    console.log("Core: removeFrame()");
+    this._sceneSecondPass.remove( this._wireframe );
+
+    this._controls.update();
+    this._render.render( this._sceneFirstPass, this._camera, this._rtTexture, true );
+    this._render.render( this._sceneFirstPass, this._camera );
+
+    // Render the second pass and perform the volume rendering.
+    this._render.render( this._sceneSecondPass, this._camera );
+};
+
 
 Core.prototype.setAxis = function(value) {
     console.log("Core: setAxis()");
@@ -674,6 +751,14 @@ Core.prototype.draw = function(fps) {
 
     // Render the second pass and perform the volume rendering.
     this._render.render( this._sceneSecondPass, this._camera );
+
+    var vector = this._camera.getWorldDirection();
+    theta = Math.atan2(vector.x,vector.z);
+    theta = theta + 3.142; // add/minux pi to inverse
+    var degree = theta * (180/3.142);
+    //66console.log(degree);
+    compassDraw(degree);
+    
     this.onPostDraw.call(fps.toFixed(3));
 };
 

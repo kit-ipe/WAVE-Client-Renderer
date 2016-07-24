@@ -346,6 +346,16 @@
             me._core.setAxis();
             me._needRedraw = true;
         };
+        
+        me.removeWireframe = function() {
+            me._core.removeWireframe();
+            me._needRedraw = true;
+        };
+        
+        me.addWireframe = function() {
+            me._core.addWireframe();
+            me._needRedraw = true;
+        };
 
 
         me.setBackgroundColor = function(color) {
