@@ -565,7 +565,7 @@ Core.prototype.init = function() {
     var me = this;
     this._container = this.getDOMContainer();
 
-    this._render = new THREE.WebGLRenderer({ alpha : true });  
+    this._render = new THREE.WebGLRenderer({ antialias: true, alpha : true });  
     this._render.setSize(this.getRenderSizeInPixels()[0],
                          this.getRenderSizeInPixels()[1]);
     this._render.setClearColor(this._render_clear_color, 0);
