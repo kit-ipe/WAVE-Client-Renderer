@@ -2,7 +2,8 @@ precision mediump int;
 precision mediump float;
 
 varying vec4 frontColor; 
-varying vec4 pos; 
+varying vec4 pos;
+varying vec4 worldPosition;
 
 uniform sampler2D uBackCoord; 
 uniform sampler2D uSliceMaps[<%= maxTexturesNumber %>];
@@ -151,65 +152,22 @@ vec3 getNormal(vec3 at)
     <% } %>
     // we need to get interpolation of 2 x points
 
-    x0 = ((weight * (x10 - x00)) + x00) * 256.0;
-    x1 = ((weight * (x11 - x01)) + x01) * 256.0;
+    x0 = ((weight * (x10 - x00)) + x00);
+    x1 = ((weight * (x11 - x01)) + x01);
     
-    y0 = ((weight * (y10 - y00)) + y00) * 256.0;
-    y1 = ((weight * (y11 - y01)) + y01) * 256.0;
+    y0 = ((weight * (y10 - y00)) + y00);
+    y1 = ((weight * (y11 - y01)) + y01);
     
     weight_z0 = (at.z - (1.0/256.0)) - floor(at.z);
     weight_z1 = (at.z + (1.0/256.0)) - floor(at.z);
     z0 = ((weight_z0 * (z11 - z00)) + z00);
     z1 = ((weight_z1 * (z11 - z00)) + z00);
 
-    vec3 n = vec3(x1 - x0 , y1 - y0 , 0);
+    vec3 n = vec3(x0 - x1 , y0 - y1 , z0 - z1);
     return n;
 }
 
 
-// returns intensity of reflected ambient lighting
-vec3 ambientLighting()
-{
-    const vec3 u_matAmbientReflectance = vec3(1.0, 1.0, 1.0);
-    const vec3 u_lightAmbientIntensity = vec3(0.6, 0.3, 0.0);
-    
-    return u_matAmbientReflectance * u_lightAmbientIntensity;
-}
-
-// returns intensity of diffuse reflection
-vec3 diffuseLighting(in vec3 N, in vec3 L)
-{
-    const vec3 u_matDiffuseReflectance = vec3(1, 1, 1);
-    const vec3 u_lightDiffuseIntensity = vec3(1.0, 0.5, 0);
-    
-    // calculation as for Lambertian reflection
-    float diffuseTerm = dot(N, L);
-    if (diffuseTerm > 1.0) {
-        diffuseTerm = 1.0;
-    } else if (diffuseTerm < 0.0) {
-        diffuseTerm = 0.0;
-    }
-    return u_matDiffuseReflectance * u_lightDiffuseIntensity * diffuseTerm;
-}
-
-// returns intensity of specular reflection
-vec3 specularLighting(in vec3 N, in vec3 L, in vec3 V)
-{
-    float specularTerm = 0.0;
-    const vec3 u_lightSpecularIntensity = vec3(0, 1, 0);
-    const vec3 u_matSpecularReflectance = vec3(1, 1, 1);
-    const float u_matShininess = 256.0;
-
-   // calculate specular reflection only if
-   // the surface is oriented to the light source
-   if(dot(N, L) > 0.0)
-   {
-      // half vector
-      vec3 H = normalize(L + V);
-      specularTerm = pow(dot(N, H), u_matShininess);
-   }
-   return u_matSpecularReflectance * u_lightSpecularIntensity * specularTerm;
-}
 
 void main(void)
 {
@@ -244,26 +202,40 @@ void main(void)
             //colorValue.x = gray_val.x;
             colorValue.w = 0.1;
             
-            // normalize vectors after interpolation
-            vec3 lightPos = vec3(2.0,4.0,5.0);
-            vec3 L = normalize(lightPos - vpos.xyz);
-            vec3 V = normalize( cameraPosition - vpos.xyz );
-            vec3 N = normalize(getNormal(vpos.xyz));
+            vec3 light_position = vec3(2.0, 4.0, 5.0);
+            vec3 L = normalize( light_position - worldPosition.xyz);//light direction
+            vec3 V = normalize( cameraPosition - worldPosition.xyz);
+            
+            float LdotN = dot(L, normalize(getNormal(vpos.xyz)));
+            if (LdotN < 0.0) {
+                LdotN = 0.0;
+            }
+            
+            float material_kd = 0.2;
+            float material_ks = 0.05;
+            float material_shininess = 0.6;
+            
+            float diffuse = material_kd * LdotN;
+            float specular = 0.0;
+            if(LdotN > 0.0) {
+                //choose H or R to see the difference
+                vec3 R = -normalize(reflect(L, normalize(getNormal(vpos.xyz))));//Reflection
+                float token1 = dot(R,V);
+                if (token1 < 0.0) {
+                    token1 = 0.0;
+                }
+                specular = material_ks * pow(token1, material_shininess);
+ 
+                //Blinn-Phong
+                // vec3 H = normalize(L + V );//Halfway
+                //specular = material_ks * pow(max(0, dot(H, normalize(getNormal(vpos.xyz)))), material_shininess);
+            }
+            float light = diffuse + specular;
+            vec4 out_color = vec4(light,light, light,1.0);
 
-            // get Blinn-Phong reflectance components
-            vec3 Iamb = ambientLighting();
-            vec3 Idif = diffuseLighting(N, L);
-            vec3 Ispe = specularLighting(N, L, V);
-
-            // diffuse color of the object from texture
-            //vec3 diffuseColor = texture(u_diffuseTexture, o_texcoords).rgb;
-        
-            vec3 mycolor = (Iamb + Idif + Ispe);
-            //vec3 mycolor = colorValue.xxx * (Iamb + Ispe);
-        
-            sample.rgb = (1.0 - accum.a) * mycolor * sample.a;
-            //sample.rgb = (1.0 - accum.a) * colorValue.xxx * sample.a;
             sample.a = colorValue.a * opacityFactor * (1.0 / uStepsF);
+            //sample.rgb = (1.0 - accum.a) * colorValue.xxx * sample.a;
+            sample.rgb = out_color.rgb * colorValue.rgb;
             accum += sample; 
 
             if(accum.a>=1.0) 
