@@ -162,16 +162,55 @@ vec3 getNormal(vec3 at)
     z0 = ((weight_z0 * (z11 - z00)) + z00);
     z1 = ((weight_z1 * (z11 - z00)) + z00);
 
-    vec3 n = vec3(x0 - x1 , y0 - y1 , z0 - z1);
+    vec3 n = vec3(x1 - x0 , y1 - y0 , z1 - z0);
     return n;
 }
 
 
-const vec3 lightPos = vec3(2.0,2.0,2.0);
-const vec3 ambientColor = vec3(0.5, 0.0, 0.0);
-const vec3 diffuseColor = vec3(0.5, 0.0, 0.0);
-const vec3 specColor = vec3(1.0, 1.0, 1.0);
 
+// returns intensity of reflected ambient lighting
+vec3 ambientLighting()
+{
+    const vec3 u_matAmbientReflectance = vec3(1.0, 1.0, 1.0);
+    const vec3 u_lightAmbientIntensity = vec3(0.6, 0.3, 0.0);
+    
+    return u_matAmbientReflectance * u_lightAmbientIntensity;
+}
+
+// returns intensity of diffuse reflection
+vec3 diffuseLighting(in vec3 N, in vec3 L)
+{
+    const vec3 u_matDiffuseReflectance = vec3(1, 1, 1);
+    const vec3 u_lightDiffuseIntensity = vec3(1.0, 0.5, 0);
+    
+    // calculation as for Lambertian reflection
+    float diffuseTerm = dot(N, L);
+    if (diffuseTerm > 1.0) {
+        diffuseTerm = 1.0;
+    } else if (diffuseTerm < 0.0) {
+        diffuseTerm = 0.0;
+    }
+    return u_matDiffuseReflectance * u_lightDiffuseIntensity * diffuseTerm;
+}
+
+// returns intensity of specular reflection
+vec3 specularLighting(in vec3 N, in vec3 L, in vec3 V)
+{
+    float specularTerm = 0.0;
+    const vec3 u_lightSpecularIntensity = vec3(0, 1, 0);
+    const vec3 u_matSpecularReflectance = vec3(1, 1, 1);
+    const float u_matShininess = 256.0;
+
+   // calculate specular reflection only if
+   // the surface is oriented to the light source
+   if(dot(N, L) > 0.0)
+   {
+      // half vector
+      vec3 H = normalize(L + V);
+      specularTerm = pow(dot(N, H), u_matShininess);
+   }
+   return u_matSpecularReflectance * u_lightSpecularIntensity * specularTerm;
+}
 
 void main(void)
 {
@@ -206,27 +245,25 @@ void main(void)
             //colorValue.x = gray_val.x;
             colorValue.w = 0.1;
             
-            vec3 normal = normalize(getNormal(vpos.xyz));
-            vec3 lightDir = normalize(lightPos - vpos.xyz);
+            // normalize vectors after interpolation
+            vec3 lightPos = vec3(2.0,4.0,5.0);
+            vec3 L = normalize(lightPos - vpos.xyz);
+            vec3 V = normalize(cameraPosition - vpos.xyz);
+            vec3 N = normalize(getNormal(vpos.xyz));
 
-            float lambertian = max(dot(lightDir,normal), 0.0);
-            float specular = 0.0;
+            // get Blinn-Phong reflectance components
+            vec3 Iamb = ambientLighting();
+            vec3 Idif = diffuseLighting(N, L);
+            vec3 Ispe = specularLighting(N, L, V);
 
-            //if(lambertian > 0.0) {
-            //vec3 viewDir = normalize(-vpos.xyz);
-            vec3 viewDir = normalize(cameraPosition-vpos.xyz);
-            // this is blinn phong
-            vec3 halfDir = normalize(lightDir + viewDir);
-            float specAngle = max(dot(halfDir, normal), 0.0);
-            specular = pow(specAngle, 128.0);
-            //}
-                      
-            vec3 mycolor = colorValue.xxx * ambientColor + lambertian * diffuseColor + specular * specColor;
-            sample.a = colorValue.a * opacityFactor * (1.0 / uStepsF);
-            //sample.rgb = (1.0 - accum.a) * colorValue.xxx * sample.a;
+            // diffuse color of the object from texture
+            //vec3 diffuseColor = texture(u_diffuseTexture, o_texcoords).rgb;
+        
+            vec3 mycolor = colorValue.xxx * (Iamb + Idif + Ispe);
+        
             sample.rgb = (1.0 - accum.a) * mycolor * sample.a;
-            //sample.rgb = normalize(getNormal(vpos.xyz));
-            
+            //sample.rgb = (1.0 - accum.a) * colorValue.xxx * sample.a;
+            sample.a = colorValue.a * opacityFactor * (1.0 / uStepsF);
             accum += sample; 
 
             if(accum.a>=1.0) 
