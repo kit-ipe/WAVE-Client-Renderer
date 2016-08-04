@@ -106,139 +106,88 @@ vec3 getNormal(vec3 at)
     float w0 = (at.z - (1.0/144.0)) - floor(at.z);
     float w2 = (at.z + (1.0/144.0)) - floor(at.z);
     
-    float xl00, xl01, xl02, xl10, xl11, xl12;
-    float xh00, xh01, xh02, xh10, xh11, xh12;
-    float yl00, yl01, yl02, yl10, yl11, yl12;
-    float ylc0, ylc1, ylc2, yhc0, yhc1, yhc2;
-    float yh00, yh01, yh02, yh10, yh11, yh12;
+    
     float fx, fy, fz;
+    
+    float L0, L1, L2, L3, L4, L5, L6, L7, L8;
+    float H0, H1, H2, H3, H4, H5, H6, H7, H8;
 
     <% for(var i=0; i < maxTexturesNumber; i++) { %>
         if( iTexLowerIndex == <%=i%> )
         {
             texpos1.x = dx1+((at.x - 1.0/144.0)/uSlicesOverX);
             texpos1.y = dy1+((at.y + 1.0/144.0)/uSlicesOverY);
-            xl00 = texture2D(uSliceMaps[<%=i%>],texpos1).x;
+            L0 = texture2D(uSliceMaps[<%=i%>],texpos1).x;
         
-            texpos1.x = dx1+((at.x - 1.0/144.0)/uSlicesOverX);
-            texpos1.y = dy1+(at.y/uSlicesOverY);
-            xl01 = texture2D(uSliceMaps[<%=i%>],texpos1).x;
-
-            texpos1.x = dx1+((at.x - 1.0/144.0)/uSlicesOverX);
-            texpos1.y = dy1+((at.y - 1.0/144.0)/uSlicesOverY);
-            xl02 = texture2D(uSliceMaps[<%=i%>],texpos1).x;
-
+            texpos1.x = dx1+((at.x + 0.0/144.0)/uSlicesOverX);
+            texpos1.y = dy1+((at.y + 1.0/144.0)/uSlicesOverY);
+            L1 = texture2D(uSliceMaps[<%=i%>],texpos1).x;
+            
             texpos1.x = dx1+((at.x + 1.0/144.0)/uSlicesOverX);
             texpos1.y = dy1+((at.y + 1.0/144.0)/uSlicesOverY);
-            xl10 = texture2D(uSliceMaps[<%=i%>],texpos1).x;
+            L2 = texture2D(uSliceMaps[<%=i%>],texpos1).x;
+            
+            texpos1.x = dx1+((at.x - 1.0/144.0)/uSlicesOverX);
+            texpos1.y = dy1+((at.y + 0.0/144.0)/uSlicesOverY);
+            L3 = texture2D(uSliceMaps[<%=i%>],texpos1).x;
         
+            texpos1.x = dx1+((at.x + 0.0/144.0)/uSlicesOverX);
+            texpos1.y = dy1+((at.y + 0.0/144.0)/uSlicesOverY);
+            L4 = texture2D(uSliceMaps[<%=i%>],texpos1).x;
+            
             texpos1.x = dx1+((at.x + 1.0/144.0)/uSlicesOverX);
-            texpos1.y = dy1+(at.y/uSlicesOverY);
-            xl11 = texture2D(uSliceMaps[<%=i%>],texpos1).x;
-
+            texpos1.y = dy1+((at.y + 0.0/144.0)/uSlicesOverY);
+            L5 = texture2D(uSliceMaps[<%=i%>],texpos1).x;
+            
+            texpos1.x = dx1+((at.x - 1.0/144.0)/uSlicesOverX);
+            texpos1.y = dy1+((at.y - 1.0/144.0)/uSlicesOverY);
+            L6 = texture2D(uSliceMaps[<%=i%>],texpos1).x;
+        
+            texpos1.x = dx1+((at.x + 0.0/144.0)/uSlicesOverX);
+            texpos1.y = dy1+((at.y - 1.0/144.0)/uSlicesOverY);
+            L7 = texture2D(uSliceMaps[<%=i%>],texpos1).x;
+            
             texpos1.x = dx1+((at.x + 1.0/144.0)/uSlicesOverX);
             texpos1.y = dy1+((at.y - 1.0/144.0)/uSlicesOverY);
-            xl12 = texture2D(uSliceMaps[<%=i%>],texpos1).x;
+            L8 = texture2D(uSliceMaps[<%=i%>],texpos1).x;
             
-            // y lower slice reference points
-            texpos1.x = dx1+((at.x - 1.0/144.0) / uSlicesOverX);
-            texpos1.y = dy1+((at.y + 1.0/144.0) / uSlicesOverY);
-            yl00 = texture2D(uSliceMaps[<%=i%>],texpos1).x;
-            
-            texpos1.x = dx1+(at.x/uSlicesOverX);
-            texpos1.y = dy1+((at.y + 1.0/144.0) /uSlicesOverY);
-            yl01 = texture2D(uSliceMaps[<%=i%>],texpos1).x;
-            
-            texpos1.x = dx1+((at.x + 1.0/144.0) / uSlicesOverX);
-            texpos1.y = dy1+((at.y + 1.0/144.0) / uSlicesOverY);
-            yl02 = texture2D(uSliceMaps[<%=i%>],texpos1).x;
-
-            texpos1.x = dx1+((at.x + 1.0/144.0) / uSlicesOverX);
-            texpos1.y = dy1+(at.y / uSlicesOverY);
-            ylc0 = texture2D(uSliceMaps[<%=i%>],texpos1).x;
-            
-            texpos1.x = dx1+(at.x/uSlicesOverX);
-            texpos1.y = dy1+(at.y /uSlicesOverY);
-            ylc1 = texture2D(uSliceMaps[<%=i%>],texpos1).x;
-            
-            texpos1.x = dx1+((at.x - 1.0/144.0) / uSlicesOverX);
-            texpos1.y = dy1+(at.y / uSlicesOverY);
-            ylc2 = texture2D(uSliceMaps[<%=i%>],texpos1).x;
-
-
-            texpos1.x = dx1+((at.x - 1.0/144.0) / uSlicesOverX);
-            texpos1.y = dy1+((at.y - 1.0/144.0) / uSlicesOverY);
-            yl10 = texture2D(uSliceMaps[<%=i%>],texpos1).x;
-            
-            texpos1.x = dx1+(at.x/uSlicesOverX);
-            texpos1.y = dy1+((at.y - 1.0/144.0) /uSlicesOverY);
-            yl11 = texture2D(uSliceMaps[<%=i%>],texpos1).x;
-            
-            texpos1.x = dx1+((at.x + 1.0/144.0) / uSlicesOverX);
-            texpos1.y = dy1+((at.y - 1.0/144.0) / uSlicesOverY);
-            yl12 = texture2D(uSliceMaps[<%=i%>],texpos1).x;
         }
         if( iTexUpperIndex == <%=i%> ) {
             texpos1.x = dx2+((at.x - 1.0/144.0)/uSlicesOverX);
             texpos1.y = dy2+((at.y + 1.0/144.0)/uSlicesOverY);
-            xh00 = texture2D(uSliceMaps[<%=i%>],texpos1).x;
+            H0 = texture2D(uSliceMaps[<%=i%>],texpos1).x;
         
-            texpos1.x = dx2+((at.x - 1.0/144.0)/uSlicesOverX);
-            texpos1.y = dy2+(at.y/uSlicesOverY);
-            xh01 = texture2D(uSliceMaps[<%=i%>],texpos1).x;
-
-            texpos1.x = dx2+((at.x - 1.0/144.0)/uSlicesOverX);
-            texpos1.y = dy2+((at.y - 1.0/144.0)/uSlicesOverY);
-            xh02 = texture2D(uSliceMaps[<%=i%>],texpos1).x;
-
+            texpos1.x = dx2+((at.x + 0.0/144.0)/uSlicesOverX);
+            texpos1.y = dy2+((at.y + 1.0/144.0)/uSlicesOverY);
+            H1 = texture2D(uSliceMaps[<%=i%>],texpos1).x;
+            
             texpos1.x = dx2+((at.x + 1.0/144.0)/uSlicesOverX);
             texpos1.y = dy2+((at.y + 1.0/144.0)/uSlicesOverY);
-            xh10 = texture2D(uSliceMaps[<%=i%>],texpos1).x;
+            H2 = texture2D(uSliceMaps[<%=i%>],texpos1).x;
+            
+            texpos1.x = dx2+((at.x - 1.0/144.0)/uSlicesOverX);
+            texpos1.y = dy2+((at.y + 0.0/144.0)/uSlicesOverY);
+            H3 = texture2D(uSliceMaps[<%=i%>],texpos1).x;
         
+            texpos1.x = dx2+((at.x + 0.0/144.0)/uSlicesOverX);
+            texpos1.y = dy2+((at.y + 0.0/144.0)/uSlicesOverY);
+            H4 = texture2D(uSliceMaps[<%=i%>],texpos1).x;
+            
             texpos1.x = dx2+((at.x + 1.0/144.0)/uSlicesOverX);
-            texpos1.y = dy2+(at.y/uSlicesOverY);
-            xh11 = texture2D(uSliceMaps[<%=i%>],texpos1).x;
-
+            texpos1.y = dy2+((at.y + 0.0/144.0)/uSlicesOverY);
+            H5 = texture2D(uSliceMaps[<%=i%>],texpos1).x;
+            
+            texpos1.x = dx2+((at.x - 1.0/144.0)/uSlicesOverX);
+            texpos1.y = dy2+((at.y - 1.0/144.0)/uSlicesOverY);
+            H6 = texture2D(uSliceMaps[<%=i%>],texpos1).x;
+        
+            texpos1.x = dx2+((at.x + 0.0/144.0)/uSlicesOverX);
+            texpos1.y = dy2+((at.y - 1.0/144.0)/uSlicesOverY);
+            H7 = texture2D(uSliceMaps[<%=i%>],texpos1).x;
+            
             texpos1.x = dx2+((at.x + 1.0/144.0)/uSlicesOverX);
             texpos1.y = dy2+((at.y - 1.0/144.0)/uSlicesOverY);
-            xh12 = texture2D(uSliceMaps[<%=i%>],texpos1).x;
-
-            // y upper slice reference points
-            texpos1.x = dx2+((at.x - 1.0/144.0) / uSlicesOverX);
-            texpos1.y = dy2+((at.y + 1.0/144.0) / uSlicesOverY);
-            yh00 = texture2D(uSliceMaps[<%=i%>],texpos1).x;
-            
-            texpos1.x = dx2+(at.x/uSlicesOverX);
-            texpos1.y = dy2+((at.y + 1.0/144.0) /uSlicesOverY);
-            yh01 = texture2D(uSliceMaps[<%=i%>],texpos1).x;
-            
-            texpos1.x = dx2+((at.x + 1.0/144.0) / uSlicesOverX);
-            texpos1.y = dy2+((at.y + 1.0/144.0) / uSlicesOverY);
-            yh02 = texture2D(uSliceMaps[<%=i%>],texpos1).x;
-            
-            texpos1.x = dx2+((at.x - 1.0/144.0) / uSlicesOverX);
-            texpos1.y = dy2+(at.y / uSlicesOverY);
-            yhc0 = texture2D(uSliceMaps[<%=i%>],texpos1).x;
-            
-            texpos1.x = dx2+(at.x/uSlicesOverX);
-            texpos1.y = dy2+(at.y /uSlicesOverY);
-            yhc1 = texture2D(uSliceMaps[<%=i%>],texpos1).x;
-            
-            texpos1.x = dx2+((at.x + 1.0/144.0) / uSlicesOverX);
-            texpos1.y = dy2+(at.y / uSlicesOverY);
-            yhc2 = texture2D(uSliceMaps[<%=i%>],texpos1).x;
-
-            texpos1.x = dx2+((at.x - 1.0/144.0) / uSlicesOverX);
-            texpos1.y = dy2+((at.y - 1.0/144.0) / uSlicesOverY);
-            yh10 = texture2D(uSliceMaps[<%=i%>],texpos1).x;
-            
-            texpos1.x = dx2+(at.x/uSlicesOverX);
-            texpos1.y = dy2+((at.y - 1.0/144.0) /uSlicesOverY);
-            yh11 = texture2D(uSliceMaps[<%=i%>],texpos1).x;
-            
-            texpos1.x = dx2+((at.x + 1.0/144.0) / uSlicesOverX);
-            texpos1.y = dy2+((at.y - 1.0/144.0) / uSlicesOverY);
-            yh12 = texture2D(uSliceMaps[<%=i%>],texpos1).x;
+            H8 = texture2D(uSliceMaps[<%=i%>],texpos1).x;
         }
 
     <% } %>
@@ -249,89 +198,132 @@ vec3 getNormal(vec3 at)
     // -1 -3 -1   0  0  0   1  3  1
     // -3 -6 -3   0  0  0   3  6  3
     // -1 -3 -1   0  0  0   1  3  1
-    
-    fx =  ((w0 * (xh00 - xl00)) + xl00) * -1.0;
-    fx += ((w1 * (xh00 - xl00)) + xl00) * -3.0;
-    fx += ((w2 * (xh00 - xl00)) + xl00) * -1.0;
-    
-    fx += ((w0 * (xh01 - xl01)) + xl01) * -3.0;
-    fx += ((w1 * (xh01 - xl01)) + xl01) * -6.0;
-    fx += ((w2 * (xh01 - xl01)) + xl01) * -3.0;
-    
-    fx += ((w0 * (xh02 - xl02)) + xl02) * -1.0;
-    fx += ((w1 * (xh02 - xl02)) + xl02) * -3.0;
-    fx += ((w2 * (xh02 - xl02)) + xl02) * -1.0;
-    
-    fx += ((w0 * (xh10 - xl10)) + xl10) * 1.0;
-    fx += ((w1 * (xh10 - xl10)) + xl10) * 3.0;
-    fx += ((w2 * (xh10 - xl10)) + xl10) * 1.0;
-    
-    fx += ((w0 * (xh11 - xl11)) + xl11) * 3.0;
-    fx += ((w1 * (xh11 - xl11)) + xl11) * 6.0;
-    fx += ((w2 * (xh11 - xl11)) + xl11) * 3.0;
-    
-    fx += ((w0 * (xh12 - xl12)) + xl12) * 1.0;
-    fx += ((w1 * (xh12 - xl12)) + xl12) * 3.0;
-    fx += ((w2 * (xh12 - xl12)) + xl12) * 1.0;
-    
+
     // y direction
     //  1  3  1   3  6  3   1  3  1
     //  0  0  0   0  0  0   0  0  0
     // -1 -3 -1  -3 -6 -3  -1 -3 -1
-    
-    fy =  ((w0 * (yh00 - yl00)) + yl00) * 1.0;
-    fy += ((w1 * (yh00 - yl00)) + yl00) * 3.0;
-    fy += ((w2 * (yh00 - yl00)) + yl00) * 1.0;
-    
-    fy += ((w0 * (yh02 - yl02)) + yl02) * -1.0;
-    fy += ((w1 * (yh02 - yl02)) + yl02) * -3.0;
-    fy += ((w2 * (yh02 - yl02)) + yl02) * -1.0;
-    
-    fy += ((w0 * (yhc0 - ylc0)) + ylc0) * 3.0;
-    fy += ((w1 * (yhc0 - ylc0)) + ylc0) * 6.0;
-    fy += ((w2 * (yhc0 - ylc0)) + ylc0) * 3.0;
-    
-    fy += ((w0 * (yhc2 - ylc2)) + ylc2) * -3.0;
-    fy += ((w1 * (yhc2 - ylc2)) + ylc2) * -6.0;
-    fy += ((w2 * (yhc2 - ylc2)) + ylc2) * -3.0;
-
-    fy += ((w0 * (yh10 - yl10)) + yl10) * 1.0;
-    fy += ((w1 * (yh10 - yl10)) + yl10) * 3.0;
-    fy += ((w2 * (yh10 - yl10)) + yl10) * 1.0;
-    
-    fy += ((w0 * (yh12 - yl12)) + yl12) * -1.0;
-    fy += ((w1 * (yh12 - yl12)) + yl12) * -3.0;
-    fy += ((w2 * (yh12 - yl12)) + yl12) * -1.0;
 
     // z direction
     // -1  0  1   -3  0  3   -1  0  1
     // -3  0  3   -6  0  6   -3  0  3
     // -1  0  1   -3  0  3   -1  0  1
-    fz =  ((w0 * (yh00 - yl00)) + yl00) * -1.0;
-    fz += ((w0 * (yhc0 - ylc0)) + ylc0) * -3.0;
-    fz += ((w0 * (yh10 - yl10)) + yl10) * -1.0;
     
-    fz += ((w0 * (yh02 - yl02)) + yl02) * 1.0;
-    fz += ((w0 * (yhc2 - ylc2)) + ylc2) * 3.0;
-    fz += ((w0 * (yh12 - yl12)) + yl12) * 1.0;
+    fx =  ((w0 * (H0 - L0)) + L0) * -1.0;
+    fx += ((w1 * (H0 - L0)) + L0) * -3.0;
+    fx += ((w2 * (H0 - L0)) + L0) * -1.0;
     
-    fz += ((w1 * (yh00 - yl00)) + yl00) * -3.0;
-    fz += ((w1 * (yhc0 - ylc0)) + ylc0) * -6.0;
-    fz += ((w1 * (yh10 - yl10)) + yl10) * -3.0;
+    fx += ((w0 * (H3 - L3)) + L3) * -3.0;
+    fx += ((w1 * (H3 - L3)) + L3) * -6.0;
+    fx += ((w2 * (H3 - L3)) + L3) * -3.0;
     
-    fz += ((w1 * (yh02 - yl02)) + yl02) * 3.0;
-    fz += ((w1 * (yhc2 - ylc2)) + ylc2) * 6.0;
-    fz += ((w1 * (yh12 - yl12)) + yl12) * 3.0;
+    fx += ((w0 * (H6 - L6)) + L6) * -1.0;
+    fx += ((w1 * (H6 - L6)) + L6) * -3.0;
+    fx += ((w2 * (H6 - L6)) + L6) * -1.0;
     
-    fz += ((w2 * (yh00 - yl00)) + yl00) * -1.0;
-    fz += ((w2 * (yhc0 - ylc0)) + ylc0) * -3.0;
-    fz += ((w2 * (yh10 - yl10)) + yl10) * -1.0;
+    fx += ((w0 * (H1 - L1)) + L1) * 0.0;
+    fx += ((w1 * (H1 - L1)) + L1) * 0.0;
+    fx += ((w2 * (H1 - L1)) + L1) * 0.0;
     
-    fz += ((w2 * (yh02 - yl02)) + yl02) * 1.0;
-    fz += ((w2 * (yhc2 - ylc2)) + ylc2) * 3.0;
-    fz += ((w2 * (yh12 - yl12)) + yl12) * 1.0;
+    fx += ((w0 * (H4 - L4)) + L4) * 0.0;
+    fx += ((w1 * (H4 - L4)) + L4) * 0.0;
+    fx += ((w2 * (H4 - L4)) + L4) * 0.0;
+    
+    fx += ((w0 * (H7 - L7)) + L7) * 0.0;
+    fx += ((w1 * (H7 - L7)) + L7) * 0.0;
+    fx += ((w2 * (H7 - L7)) + L7) * 0.0;
+    
+    fx += ((w0 * (H2 - L2)) + L2) * 1.0;
+    fx += ((w1 * (H2 - L2)) + L2) * 3.0;
+    fx += ((w2 * (H2 - L2)) + L2) * 1.0;
+    
+    fx += ((w0 * (H5 - L5)) + L5) * 3.0;
+    fx += ((w1 * (H5 - L5)) + L5) * 6.0;
+    fx += ((w2 * (H5 - L5)) + L5) * 3.0;
+    
+    fx += ((w0 * (H8 - L8)) + L8) * 1.0;
+    fx += ((w1 * (H8 - L8)) + L8) * 3.0;
+    fx += ((w2 * (H8 - L8)) + L8) * 1.0;
 
-    vec3 n = vec3( fx , fy , fz );
+    
+    fy =  ((w0 * (H0 - L0)) + L0) * 1.0;
+    fy += ((w1 * (H0 - L0)) + L0) * 3.0;
+    fy += ((w2 * (H0 - L0)) + L0) * 1.0;
+    
+    fy += ((w0 * (H3 - L3)) + L3) * 0.0;
+    fy += ((w1 * (H3 - L3)) + L3) * 0.0;
+    fy += ((w2 * (H3 - L3)) + L3) * 0.0;
+    
+    fy += ((w0 * (H6 - L6)) + L6) * -1.0;
+    fy += ((w1 * (H6 - L6)) + L6) * -3.0;
+    fy += ((w2 * (H6 - L6)) + L6) * -1.0;
+    
+    fy += ((w0 * (H1 - L1)) + L1) * 3.0;
+    fy += ((w1 * (H1 - L1)) + L1) * 6.0;
+    fy += ((w2 * (H1 - L1)) + L1) * 3.0;
+    
+    fy += ((w0 * (H4 - L4)) + L4) * 0.0;
+    fy += ((w1 * (H4 - L4)) + L4) * 0.0;
+    fy += ((w2 * (H4 - L4)) + L4) * 0.0;
+    
+    fy += ((w0 * (H7 - L7)) + L7) * -3.0;
+    fy += ((w1 * (H7 - L7)) + L7) * -6.0;
+    fy += ((w2 * (H7 - L7)) + L7) * -3.0;
+    
+    fy += ((w0 * (H2 - L2)) + L2) * 1.0;
+    fy += ((w1 * (H2 - L2)) + L2) * 3.0;
+    fy += ((w2 * (H2 - L2)) + L2) * 1.0;
+    
+    fy += ((w0 * (H5 - L5)) + L5) * 0.0;
+    fy += ((w1 * (H5 - L5)) + L5) * 0.0;
+    fy += ((w2 * (H5 - L5)) + L5) * 0.0;
+    
+    fy += ((w0 * (H8 - L8)) + L8) * -1.0;
+    fy += ((w1 * (H8 - L8)) + L8) * -3.0;
+    fy += ((w2 * (H8 - L8)) + L8) * -1.0;
+
+    
+    
+    
+    
+    fz =  ((w0 * (H0 - L0)) + L0) * -1.0;
+    fz += ((w1 * (H0 - L0)) + L0) * 0.0;
+    fz += ((w2 * (H0 - L0)) + L0) * 1.0;
+    
+    fz += ((w0 * (H3 - L3)) + L3) * -3.0;
+    fz += ((w1 * (H3 - L3)) + L3) * 0.0;
+    fz += ((w2 * (H3 - L3)) + L3) * 3.0;
+    
+    fz += ((w0 * (H6 - L6)) + L6) * -1.0;
+    fz += ((w1 * (H6 - L6)) + L6) * 0.0;
+    fz += ((w2 * (H6 - L6)) + L6) * 1.0;
+    
+    fz += ((w0 * (H1 - L1)) + L1) * -3.0;
+    fz += ((w1 * (H1 - L1)) + L1) * 0.0;
+    fz += ((w2 * (H1 - L1)) + L1) * 3.0;
+    
+    fz += ((w0 * (H4 - L4)) + L4) * -6.0;
+    fz += ((w1 * (H4 - L4)) + L4) * 0.0;
+    fz += ((w2 * (H4 - L4)) + L4) * 6.0;
+    
+    fz += ((w0 * (H7 - L7)) + L7) * -3.0;
+    fz += ((w1 * (H7 - L7)) + L7) * 0.0;
+    fz += ((w2 * (H7 - L7)) + L7) * 3.0;
+    
+    fz += ((w0 * (H2 - L2)) + L2) * -1.0;
+    fz += ((w1 * (H2 - L2)) + L2) * 0.0;
+    fz += ((w2 * (H2 - L2)) + L2) * 1.0;
+    
+    fz += ((w0 * (H5 - L5)) + L5) * -3.0;
+    fz += ((w1 * (H5 - L5)) + L5) * 0.0;
+    fz += ((w2 * (H5 - L5)) + L5) * 3.0;
+    
+    fz += ((w0 * (H8 - L8)) + L8) * -1.0;
+    fz += ((w1 * (H8 - L8)) + L8) * 0.0;
+    fz += ((w2 * (H8 - L8)) + L8) * 1.0;
+
+
+    vec3 n = vec3( fx/27.0 , fy/27.0 , fz/27.0 );
     return n;
 }
 
@@ -431,11 +423,11 @@ void main(void)
             //vec3 mycolor = colorValue.xxx * (Iamb + Ispe);
         
             //sample.rgb = N;
-            //sample.rgb = mycolor;
-            //sample.a = 1.0;
-            sample.rgb = (1.0 - accum.a) * mycolor * sample.a;
+            sample.rgb = mycolor;
+            sample.a = 1.0;
+            //sample.rgb = (1.0 - accum.a) * mycolor * sample.a;
             //sample.rgb = (1.0 - accum.a) * colorValue.xxx * sample.a;
-            sample.a = colorValue.a * opacityFactor * (1.0 / uStepsF);
+            //sample.a = colorValue.a * opacityFactor * (1.0 / uStepsF);
             accum += sample; 
 
             if(accum.a>=1.0) 
