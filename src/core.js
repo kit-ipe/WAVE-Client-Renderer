@@ -266,6 +266,11 @@ Core.prototype.init = function() {
     this._sceneSecondPass.add( zarrowHelper );
     //scene.add( arrowHelper );
     
+    //var light = new THREE.DirectionalLight( 0xffffff );
+    //light.position.set( 2, 3, 5 ).normalize();
+    //light.shadowCameraVisible = true;
+    
+    
     /*
     // alternate method
     var helper = new THREE.EdgesHelper( mesh, 0xff0000 );
