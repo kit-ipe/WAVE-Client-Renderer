@@ -599,6 +599,7 @@ Core.prototype.init = function() {
     this._controls.staticMoving = true;
     this._controls.dynamicDampingFactor = 0.3;
 
+
     this._rtTexture = new THREE.WebGLRenderTarget( this.getRenderSizeInPixels()[0], this.getRenderSizeInPixels()[1], { minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, format: THREE.RGBAFormat} );
     this._rtTexture.wrapS = this._rtTexture.wrapT = THREE.ClampToEdgeWrapping;
     
@@ -617,39 +618,40 @@ Core.prototype.init = function() {
         fragmentShader: ejs.render( this._shaders[this._shader_name].fragmentShader, {
           "maxTexturesNumber": me.getMaxTexturesNumber()}),
         attributes: {
-            vertColor:                       {type: 'c', value: [] }
+            vertColor: {type: 'c', value: [] }
         },
         uniforms: {
-            uBackCoord:                      { type: "t",  value: this._rtTexture }, 
-            uSliceMaps:                      { type: "tv", value: this._slicemaps_textures }, 
+            uBackCoord: { type: "t",  value: this._rtTexture }, 
+            uSliceMaps: { type: "tv", value: this._slicemaps_textures },
+            uLightPos: {type:"v3", value: new THREE.Vector3() },
 
-            uSteps:                          { type: "f", value: this._steps },
-            uSlicemapWidth:                  { type: "f", value: this._slicemaps_width},
-            uNumberOfSlices:                 { type: "f", value: this.getSlicesRange()[1] },
-            uSlicesOverX:                    { type: "f", value: this._slicemap_row_col[0] },
-            uSlicesOverY:                    { type: "f", value: this._slicemap_row_col[1] },
-            uOpacityVal:                     { type: "f", value: this._opacity_factor },
-            darkness:                        { type: "f", value: this._color_factor },            
+            uSteps: { type: "f", value: this._steps },
+            uSlicemapWidth: { type: "f", value: this._slicemaps_width },
+            uNumberOfSlices: { type: "f", value: this.getSlicesRange()[1] },
+            uSlicesOverX: { type: "f", value: this._slicemap_row_col[0] },
+            uSlicesOverY: { type: "f", value: this._slicemap_row_col[1] },
+            uOpacityVal: { type: "f", value: this._opacity_factor },
+            darkness: { type: "f", value: this._color_factor },            
             
-            screwThreshold:                  { type: "f", value: this.screwThreshold },
-            jointThreshold:                  { type: "f", value: this.jointThreshold },
-            l:                               { type: "f", value: this.l },
-            s:                               { type: "f", value: this.s },
-            hMin:                            { type: "f", value: this.hMin },
-            hMax:                            { type: "f", value: this.hMax },
+            screwThreshold: { type: "f", value: this.screwThreshold },
+            jointThreshold: { type: "f", value: this.jointThreshold },
+            l: { type: "f", value: this.l },
+            s: { type: "f", value: this.s },
+            hMin: { type: "f", value: this.hMin },
+            hMax: { type: "f", value: this.hMax },
           
-            minSos:                          { type: "f", value: this.minSos },
-            maxSos:                          { type: "f", value: this.maxSos },
-            minAtten:                        { type: "f", value: this.minAtten },
-            maxAtten:                        { type: "f", value: this.maxAtten },
-            minRefl:                         { type: "f", value: this.minRefl },
-            maxRefl:                         { type: "f", value: this.maxRefl },  
+            minSos: { type: "f", value: this.minSos },
+            maxSos: { type: "f", value: this.maxSos },
+            minAtten: { type: "f", value: this.minAtten },
+            maxAtten: { type: "f", value: this.maxAtten },
+            minRefl: { type: "f", value: this.minRefl },
+            maxRefl: { type: "f", value: this.maxRefl },  
           
-           uTransferFunction:               { type: "t",  value: this._transfer_function },
-           uColorVal:                       { type: "f", value: this._color_factor },
-           uAbsorptionModeIndex:            { type: "f", value: this._absorption_mode_index },
-           uMinGrayVal:                     { type: "f", value: this._gray_value[0] },
-           uMaxGrayVal:                     { type: "f", value: this._gray_value[1] }
+           uTransferFunction: { type: "t",  value: this._transfer_function },
+           uColorVal: { type: "f", value: this._color_factor },
+           uAbsorptionModeIndex: { type: "f", value: this._absorption_mode_index },
+           uMinGrayVal: { type: "f", value: this._gray_value[0] },
+           uMaxGrayVal: { type: "f", value: this._gray_value[1] }
         },
         side: THREE.BackSide,
         transparent: true
@@ -675,6 +677,31 @@ Core.prototype.init = function() {
     this._wireframe = new THREE.BoxHelper( mesh );
     this._wireframe.material.color.set( 0xe3e3e3 );
     this._sceneSecondPass.add( this._wireframe );
+
+    
+    var sphere = new THREE.SphereGeometry( 0.1 );
+    this._light1 = new THREE.PointLight( 0xff0040, 2, 50 );
+    this._light1.add( new THREE.Mesh( sphere, new THREE.MeshBasicMaterial( { color: 0xff0040 } ) ) );
+    this._light1.position.set(1, 0, 0);
+    //this._sceneSecondPass.add( this._light1 );
+    //this._sceneSecondPass.add( new THREE.DirectionalLightHelper(this._light1, 0.2) );
+    
+    
+    // parent
+	this._parent = new THREE.Object3D();
+	this._sceneSecondPass.add( this._parent );
+
+    // pivot
+	this._pivot = new THREE.Object3D();
+	this._parent.add( this._pivot );
+    
+	// mesh
+	//mesh1 = new THREE.Mesh( geometry, material1 );
+	//mesh2 = new THREE.Mesh( geometry, material2 );
+	//this._light1.position.x = 2;
+    //mesh2.scale.multiplyScalar( 0.5 );
+	//this._parent.add( mesh1 );
+	this._pivot.add( this._light1 );
     
     /*
     var mesh2 = new THREE.Mesh(
@@ -946,7 +973,8 @@ Core.prototype.setMode = function(conf) {
         },
         uniforms: {
             uBackCoord:                      { type: "t",  value: this._rtTexture }, 
-            uSliceMaps:                      { type: "tv", value: this._slicemaps_textures }, 
+            uSliceMaps:                      { type: "tv", value: this._slicemaps_textures },
+            uLightPos: {type:"v3", value: new THREE.Vector3() },
           
             uNumberOfSlices:                 { type: "f", value: this.getSlicesRange()[1] },
             uSlicemapWidth:                  { type: "f", value: this._slicemaps_width},
@@ -1198,6 +1226,15 @@ Core.prototype.setAxis = function(value) {
 Core.prototype.draw = function(fps) {
     this.onPreDraw.call(fps.toFixed(3));
 
+    this._pivot.rotation.y += 0.01;
+    
+    //var cameraPosition = new THREE.Vector3();
+    //cameraPosition.setFromMatrixPosition(this._light1.worldMatrix);
+    //console.log(cameraPosition);
+    
+    var cameraPosition = this._light1.getWorldPosition();
+    this._secondPassSetUniformValue("uLightPos", cameraPosition);
+    
     this._controls.update();
     this._render.render( this._sceneFirstPass, this._camera, this._rtTexture, true );
     this._render.render( this._sceneFirstPass, this._camera );
@@ -3253,6 +3290,7 @@ window.VRC.Core.prototype._shaders.secondPassPhong = {
 		"uSlicesOverX" : { type: "f", value: -1 },
 		"uSlicesOverY" : { type: "f", value: -1 },
 		"darkness" : { type: "f", value: -1 },
+		"uLightPos" : { type: "v3", value: new THREE.Vector3( 0, 0, 0 ) },
 		"minSos" : { type: "f", value: -1 },
 		"maxSos" : { type: "f", value: -1 },
 		"l" : { type: "f", value: -1 },
@@ -3292,6 +3330,7 @@ window.VRC.Core.prototype._shaders.secondPassPhong = {
 		'uniform float uSlicesOverX; ',
 		'uniform float uSlicesOverY; ',
 		'uniform float darkness;',
+		'uniform vec3 uLightPos;',
 		'uniform float minSos;',
 		'uniform float maxSos;',
 		'uniform float l; ',
@@ -3478,8 +3517,9 @@ window.VRC.Core.prototype._shaders.secondPassPhong = {
 		'            colorValue.w = 0.1;',
 		'            ',
 		'            // normalize vectors after interpolation',
-		'            vec3 lightPos = vec3(2.0,4.0,5.0);',
-		'            vec3 L = normalize(cameraPosition - vpos.xyz);',
+		'            //vec3 lightPos = vec3(1.0, 1.0, 1.0);',
+		'            //vec3 L = normalize(vpos.xyz - lightPos);',
+		'            vec3 L = normalize(vpos.xyz - uLightPos);',
 		'            vec3 V = normalize( cameraPosition - vpos.xyz );',
 		'            vec3 N = normalize(getNormal(vpos.xyz));',
 		'            // get Blinn-Phong reflectance components',
@@ -3941,6 +3981,7 @@ window.VRC.Core.prototype._shaders.secondPassSoebel = {
 		"uSlicesOverX" : { type: "f", value: -1 },
 		"uSlicesOverY" : { type: "f", value: -1 },
 		"darkness" : { type: "f", value: -1 },
+		"uLightPos" : { type: "v3", value: new THREE.Vector3( 0, 0, 0 ) },
 		"minSos" : { type: "f", value: -1 },
 		"maxSos" : { type: "f", value: -1 },
 		"l" : { type: "f", value: -1 },
@@ -3980,6 +4021,7 @@ window.VRC.Core.prototype._shaders.secondPassSoebel = {
 		'uniform float uSlicesOverX; ',
 		'uniform float uSlicesOverY; ',
 		'uniform float darkness;',
+		'uniform vec3 uLightPos;',
 		'uniform float minSos;',
 		'uniform float maxSos;',
 		'uniform float l; ',
@@ -4322,8 +4364,9 @@ window.VRC.Core.prototype._shaders.secondPassSoebel = {
 		'            colorValue.w = 0.1;',
 		'            ',
 		'            // normalize vectors after interpolation',
-		'            vec3 lightPos = vec3(2.0,4.0,5.0);',
-		'            vec3 L = normalize(cameraPosition - vpos.xyz);',
+		'            //vec3 lightPos = vec3(1.0, 1.0, 1.0);',
+		'            //vec3 L = normalize(vpos.xyz - lightPos);',
+		'            vec3 L = normalize(vpos.xyz - uLightPos);',
 		'            vec3 V = normalize( cameraPosition - vpos.xyz );',
 		'            vec3 N = normalize(getNormal(vpos.xyz));',
 		'            // get Blinn-Phong reflectance components',
@@ -4349,7 +4392,7 @@ window.VRC.Core.prototype._shaders.secondPassSoebel = {
 		'   ',
 		'        //advance the current position ',
 		'        vpos.xyz += Step;  ',
-		'   ',
+		'    ',
 		'        if(vpos.x > 1.0 || vpos.y > 1.0 || vpos.z > 1.0 || vpos.x < 0.0 || vpos.y < 0.0 || vpos.z < 0.0)      ',
 		'            break;  ',
 		'    } ',
@@ -4851,7 +4894,7 @@ window.VRC.Core.prototype._shaders.secondPassSR = {
                     me.isChange = false;
                     console.log("DEACTIVATE");
                     clearInterval(me._token);
-                }, 3000);
+                }, 5000);
                 
             });
             
@@ -4865,32 +4908,6 @@ window.VRC.Core.prototype._shaders.secondPassSR = {
                 if(me._needRedraw && me._isStart) {
                     me._core.draw(0);
                 }
-                /*
-                if(me._needRedraw) {
-                    frames = 10;
-                    if (!me.isChange) {
-                      me._needRedraw = false;
-                      counter = 0;
-                    }
-                }
-
-                if(frames > 0 && me._isStart) {
-                    var delta = me._clock.getDelta();
-                    var fps = 1 / delta;
-
-                    //console.log("Drawing " + frames + " Counter: " + counter);
-                    me._core.draw(fps);
-                    frames--;
-                    counter++;
-
-                    // timeout counter
-                    if (counter > 500) {
-                      me.isChange = false;
-                      counter = 0;  
-                    }
-                }
-                */
-
             };
 
             animate();

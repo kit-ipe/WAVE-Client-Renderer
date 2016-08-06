@@ -50,9 +50,9 @@
                 me._token = setInterval(function(){
                     me._needRedraw = false;
                     me.isChange = false;
-                    //console.log("DEACTIVATE");
+                    console.log("DEACTIVATE");
                     clearInterval(me._token);
-                }, 2000);
+                }, 5000);
                 
             });
             

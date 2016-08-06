@@ -21,6 +21,8 @@ uniform float uSlicesOverX;
 uniform float uSlicesOverY; 
 uniform float darkness;
 
+uniform vec3 uLightPos;
+
 uniform float minSos;
 uniform float maxSos;
 
@@ -406,8 +408,9 @@ void main(void)
             colorValue.w = 0.1;
             
             // normalize vectors after interpolation
-            vec3 lightPos = vec3(2.0,4.0,5.0);
-            vec3 L = normalize(cameraPosition - vpos.xyz);
+            //vec3 lightPos = vec3(1.0, 1.0, 1.0);
+            //vec3 L = normalize(vpos.xyz - lightPos);
+            vec3 L = normalize(vpos.xyz - uLightPos);
             vec3 V = normalize( cameraPosition - vpos.xyz );
             vec3 N = normalize(getNormal(vpos.xyz));
 
@@ -436,7 +439,7 @@ void main(void)
    
         //advance the current position 
         vpos.xyz += Step;  
-   
+    
         if(vpos.x > 1.0 || vpos.y > 1.0 || vpos.z > 1.0 || vpos.x < 0.0 || vpos.y < 0.0 || vpos.z < 0.0)      
             break;  
     } 
