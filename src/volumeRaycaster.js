@@ -13,7 +13,9 @@
     var VolumeRaycaster = function(config) {
 
         var me = {};
-
+        
+        me._token;
+        
         me._needRedraw = true;
 
         me._isStart = false;
@@ -41,11 +43,17 @@
             me.addCallback("onCameraChangeStart", function() {
                 me._needRedraw = true;
                 me.isChange = true;
+                clearInterval(me._token);
             });
 
             me.addCallback("onCameraChangeEnd", function() {
-                me._needRedraw = false;
-                me.isChange = false;
+                me._token = setInterval(function(){
+                    me._needRedraw = false;
+                    me.isChange = false;
+                    //console.log("DEACTIVATE");
+                    clearInterval(me._token);
+                }, 2000);
+                
             });
             
             
@@ -54,30 +62,10 @@
             function animate() {
 
                 requestAnimationFrame( animate );
-                if(me._needRedraw) {
-                    frames = 10;
-                    if (!me.isChange) {
-                      me._needRedraw = false;
-                      counter = 0;
-                    }
+                // Note: isStart is a flag to indicate texture maps finished loaded.
+                if(me._needRedraw && me._isStart) {
+                    me._core.draw(0);
                 }
-
-                if(frames > 0 && me._isStart) {
-                    var delta = me._clock.getDelta();
-                    var fps = 1 / delta;
-
-                    console.log("Drawing " + frames + " Counter: " + counter);
-                    me._core.draw(fps);
-                    frames--;
-                    counter++;
-
-                    // timeout counter
-                    if (counter > 500) {
-                      me.isChange = false;
-                      counter = 0;  
-                    }
-                }
-
             };
 
             animate();

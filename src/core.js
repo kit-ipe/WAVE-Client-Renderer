@@ -301,6 +301,11 @@ Core.prototype.init = function() {
         console.log("Controls Changes");
         me.onCameraChange.call();
     });
+    
+    this._controls.addEventListener("scroll", function() {
+        console.log("Controls Changes");
+        me.onCameraChange.call();
+    });
 
     this._controls.addEventListener("start", function() {
         console.log("Controls Starts");
@@ -761,7 +766,7 @@ Core.prototype.draw = function(fps) {
     theta = Math.atan2(vector.x,vector.z);
     theta = theta + 3.142; // add/minux pi to inverse
     var degree = theta * (180/3.142);
-    //66console.log(degree);
+    //console.log(degree);
     compassDraw(degree);
     
     this.onPostDraw.call(fps.toFixed(3));
