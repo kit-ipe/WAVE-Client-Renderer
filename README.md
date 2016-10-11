@@ -1,5 +1,6 @@
-Tomoraycaster: JavaScript framework for client-side raycasting.
+Tomoraycaster
 ====================
+A JavaScript framework for client-side raycasting.
 
 ## Workflow:
 ### 1. Clone this repo
@@ -27,7 +28,7 @@ $ ./prepare_grunt.sh
 ```
 ### 5. Compile all the source files into Javascript
 ```bash
-
+$ grunt
 ```
 ### 6. Go to the test dir
 ```bash
