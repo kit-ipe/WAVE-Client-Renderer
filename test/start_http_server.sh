@@ -1,1 +1,1 @@
-python2 -m SimpleHTTPServer 10001
+python -m SimpleHTTPServer 10001
