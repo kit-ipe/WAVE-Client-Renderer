@@ -2,10 +2,6 @@ data
 utils/slice_map_creator/*.png
 utils/slice_map_creator/data
 *.pyc
-*.png
-*.jpg
-*.tiff
-*.tif
 *.json
 node_modules
 *.gen.js
