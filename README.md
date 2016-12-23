@@ -1,6 +1,6 @@
-Tomoraycaster
+WAVE Client Renderer
 ====================
-A JavaScript framework for client-side raycasting.
+A JavaScript framework for client-side data rendering. The WAVE Client Renderer is a subset of the WAVE framework, mainly to provide visual previews for large data sets.
 
 ## Workflow:
 ### 1. Clone this repo
