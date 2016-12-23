@@ -1,5 +1,5 @@
 {
-  "name": "tomoraycaster",
+  "name": "WAVE-Client-Renderer",
   "version": "0.6.0",
   "devDependencies": {
     "grunt": "^1.0.1",
