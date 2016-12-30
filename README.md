@@ -5,11 +5,11 @@ A JavaScript framework for client-side data rendering. The WAVE Client Renderer 
 ## Workflow:
 ### 1. Clone this repo
 ```bash
-$ git clone https://github.com/kit-ipe/tomoraycaster.git
+$ git clone https://github.com/kit-ipe/WAVE-Client-Renderer.git
 ```
 ### 2. Go to the dir where you cloned repo
 ```bash
-$ cd tomoraycaster
+$ cd WAVE-Client-Renderer
 ```
 ### 3. Install npm
 * Opensuse 13.2
@@ -39,5 +39,5 @@ $ cd test
 $ ./start_http_server.sh
 
 ```
-### 8. Point your browser to [localhost:10001](http://localhost:10001).
+### 8. Point your browser to [localhost:5617](http://localhost:5617).
 
