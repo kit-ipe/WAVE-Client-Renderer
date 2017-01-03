@@ -26,8 +26,10 @@ var Core = function(conf) {
     this.maxSos = conf.maxSos;
     this.maxAtten = conf.maxAtten;
 
+    this.lightRotation = 0;
+    
     // General Parameters
-    this._steps = 20;
+    this._steps = conf.steps == undefined ? 20 : conf.steps;
     this._slices_gap = [0, '*'];
     this._slicemap_row_col = [16, 16];
     this._gray_value = [0.0, 1.0];
@@ -57,9 +59,7 @@ var Core = function(conf) {
     this._threshold_li_index = 0;
   
     this._transfer_function_colors = [
-        {"pos": 0.25, "color": "#892c2c"},
-        {"pos": 0.5, "color": "#00ff00"},
-        {"pos": 0.75, "color": "#0000ff"}
+        {'color': '#00004c', 'pos': 0.0}, {'color': '#000054', 'pos': 0.013888888888888888}, {'color': '#000060', 'pos': 0.027777777777777776}, {'color': '#000068', 'pos': 0.041666666666666664}, {'color': '#000073', 'pos': 0.05555555555555555}, {'color': '#00007c', 'pos': 0.06944444444444445}, {'color': '#000087', 'pos': 0.08333333333333333}, {'color': '#00008f', 'pos': 0.09722222222222221}, {'color': '#00009a', 'pos': 0.1111111111111111}, {'color': '#0000a6', 'pos': 0.125}, {'color': '#0000ae', 'pos': 0.1388888888888889}, {'color': '#0000b9', 'pos': 0.15277777777777776}, {'color': '#0000c2', 'pos': 0.16666666666666666}, {'color': '#0000cd', 'pos': 0.18055555555555555}, {'color': '#0000d5', 'pos': 0.19444444444444442}, {'color': '#0000e0', 'pos': 0.20833333333333331}, {'color': '#0000e9', 'pos': 0.2222222222222222}, {'color': '#0000f4', 'pos': 0.2361111111111111}, {'color': '#0101ff', 'pos': 0.25}, {'color': '#0d0dff', 'pos': 0.2638888888888889}, {'color': '#1d1dff', 'pos': 0.2777777777777778}, {'color': '#2828ff', 'pos': 0.29166666666666663}, {'color': '#3939ff', 'pos': 0.3055555555555555}, {'color': '#4545ff', 'pos': 0.3194444444444444}, {'color': '#5555ff', 'pos': 0.3333333333333333}, {'color': '#6161ff', 'pos': 0.3472222222222222}, {'color': '#7171ff', 'pos': 0.3611111111111111}, {'color': '#8181ff', 'pos': 0.375}, {'color': '#8d8dff', 'pos': 0.38888888888888884}, {'color': '#9d9dff', 'pos': 0.40277777777777773}, {'color': '#a8a8ff', 'pos': 0.41666666666666663}, {'color': '#b9b9ff', 'pos': 0.4305555555555555}, {'color': '#c5c5ff', 'pos': 0.4444444444444444}, {'color': '#d5d5ff', 'pos': 0.4583333333333333}, {'color': '#e1e1ff', 'pos': 0.4722222222222222}, {'color': '#f1f1ff', 'pos': 0.4861111111111111}, {'color': '#fffdfd', 'pos': 0.5}, {'color': '#fff1f1', 'pos': 0.5138888888888888}, {'color': '#ffe1e1', 'pos': 0.5277777777777778}, {'color': '#ffd5d5', 'pos': 0.5416666666666666}, {'color': '#ffc5c5', 'pos': 0.5555555555555556}, {'color': '#ffb9b9', 'pos': 0.5694444444444444}, {'color': '#ffa9a9', 'pos': 0.5833333333333333}, {'color': '#ff9d9d', 'pos': 0.5972222222222222}, {'color': '#ff8d8d', 'pos': 0.611111111111111}, {'color': '#ff7d7d', 'pos': 0.625}, {'color': '#ff7171', 'pos': 0.6388888888888888}, {'color': '#ff6161', 'pos': 0.6527777777777778}, {'color': '#ff5555', 'pos': 0.6666666666666666}, {'color': '#ff4545', 'pos': 0.6805555555555555}, {'color': '#ff3838', 'pos': 0.6944444444444444}, {'color': '#ff2828', 'pos': 0.7083333333333333}, {'color': '#ff1d1d', 'pos': 0.7222222222222222}, {'color': '#ff0d0d', 'pos': 0.736111111111111}, {'color': '#fd0000', 'pos': 0.75}, {'color': '#f70000', 'pos': 0.7638888888888888}, {'color': '#ef0000', 'pos': 0.7777777777777777}, {'color': '#e90000', 'pos': 0.7916666666666666}, {'color': '#e10000', 'pos': 0.8055555555555555}, {'color': '#db0000', 'pos': 0.8194444444444444}, {'color': '#d30000', 'pos': 0.8333333333333333}, {'color': '#cd0000', 'pos': 0.8472222222222222}, {'color': '#c50000', 'pos': 0.861111111111111}, {'color': '#bd0000', 'pos': 0.875}, {'color': '#b70000', 'pos': 0.8888888888888888}, {'color': '#af0000', 'pos': 0.9027777777777777}, {'color': '#a90000', 'pos': 0.9166666666666666}, {'color': '#a10000', 'pos': 0.9305555555555555}, {'color': '#9b0000', 'pos': 0.9444444444444444}, {'color': '#930000', 'pos': 0.9583333333333333}, {'color': '#8d0000', 'pos': 0.9722222222222222}, {'color': '#850000', 'pos': 0.986111111111111}
     ];
 
     this._dom_container_id = conf.dom_container != undefined ? conf.dom_container : "container";
@@ -181,8 +181,9 @@ Core.prototype.init = function() {
             uBackCoord: { type: "t",  value: this._rtTexture }, 
             uSliceMaps: { type: "tv", value: this._slicemaps_textures },
             uLightPos: {type:"v3", value: new THREE.Vector3() },
+            uSetViewMode: {type:"i", value: 0 },
 
-            uSteps: { type: "f", value: this._steps },
+            uSteps: { type: "i", value: this._steps },
             uSlicemapWidth: { type: "f", value: this._slicemaps_width },
             uNumberOfSlices: { type: "f", value: this.getSlicesRange()[1] },
             uSlicesOverX: { type: "f", value: this._slicemap_row_col[0] },
@@ -258,7 +259,8 @@ Core.prototype.init = function() {
 	//this._light1.position.x = 2;
     //mesh2.scale.multiplyScalar( 0.5 );
 	//this._parent.add( mesh1 );
-	this._pivot.add( this._light1 );
+    
+	//this._pivot.add( this._light1 );
     
     /*
     var mesh2 = new THREE.Mesh(
@@ -276,21 +278,24 @@ Core.prototype.init = function() {
     var xlength = 0.2;
     var xhex = 0xff0000;
     var xarrowHelper = new THREE.ArrowHelper( xdir, xorigin, xlength, xhex );
-    this._sceneSecondPass.add( xarrowHelper );
+    
     
     var ydir = new THREE.Vector3( 0, 1, 0 );
     var yorigin = new THREE.Vector3( -0.8, -0.5, 0.5 );
     var ylength = 0.2;
     var yhex = 0x00ff00;
     var yarrowHelper = new THREE.ArrowHelper( ydir, yorigin, ylength, yhex );
-    this._sceneSecondPass.add( yarrowHelper );
+    
     
     var zdir = new THREE.Vector3( 0, 0, 1 );
     var zorigin = new THREE.Vector3( -0.8, -0.5, 0.5 );
     var zlength = 0.2;
     var zhex = 0x0000ff;
     var zarrowHelper = new THREE.ArrowHelper( zdir, zorigin, zlength, zhex );
-    this._sceneSecondPass.add( zarrowHelper );
+    
+    //this._sceneSecondPass.add( xarrowHelper );
+    //this._sceneSecondPass.add( yarrowHelper );
+    //this._sceneSecondPass.add( zarrowHelper );
     //scene.add( arrowHelper );
     
     //var light = new THREE.DirectionalLight( 0xffffff );
@@ -519,47 +524,47 @@ Core.prototype._initGeometry = function(geometryDimensions, volumeSizes) {
 
 
 Core.prototype.setMode = function(conf) {  
-  this._shader_name =  conf.shader_name;
+    this._shader_name =  conf.shader_name;
   
-  this._materialSecondPass = new THREE.ShaderMaterial( {
+    this._materialSecondPass = new THREE.ShaderMaterial( {
         vertexShader: this._shaders[this._shader_name].vertexShader,
-        fragmentShader: ejs.render( this._shaders[this._shader_name].fragmentShader, {
-          "maxTexturesNumber": this.getMaxTexturesNumber()}),
+        fragmentShader: ejs.render(
+            this._shaders[this._shader_name].fragmentShader,
+            {"maxTexturesNumber": this.getMaxTexturesNumber()}
+        ),
         attributes: {
-            vertColor:                       {type: 'c', value: [] }
+            vertColor: {type: 'c', value: [] }
         },
         uniforms: {
-            uBackCoord:                      { type: "t",  value: this._rtTexture }, 
-            uSliceMaps:                      { type: "tv", value: this._slicemaps_textures },
+            uBackCoord: { type: "t",  value: this._rtTexture }, 
+            uSliceMaps: { type: "tv", value: this._slicemaps_textures },
             uLightPos: {type:"v3", value: new THREE.Vector3() },
-          
-            uNumberOfSlices:                 { type: "f", value: this.getSlicesRange()[1] },
-            uSlicemapWidth:                  { type: "f", value: this._slicemaps_width},
-            uSlicesOverX:                    { type: "f", value: this._slicemap_row_col[0] },
-            uSlicesOverY:                    { type: "f", value: this._slicemap_row_col[1] },
-            uOpacityVal:                     { type: "f", value: this._opacity_factor },
-            darkness:                        { type: "f", value: this._color_factor },
-          
-            l:                               { type: "f", value: this.l },
-            s:                               { type: "f", value: this.s },
-            hMin:                            { type: "f", value: this.hMin },
-            hMax:                            { type: "f", value: this.hMax },
-          
-            minSos:                          { type: "f", value: this.minSos },
-            maxSos:                          { type: "f", value: this.maxSos },
-            minAtten:                        { type: "f", value: this.minAtten },
-            maxAtten:                        { type: "f", value: this.maxAtten },
-            minRefl:                         { type: "f", value: this.minRefl },
-            maxRefl:                         { type: "f", value: this.maxRefl }    
+            uSetViewMode: {type:"i", value: 0 },          
+            uNumberOfSlices: { type: "f", value: this.getSlicesRange()[1] },
+            uSlicemapWidth: { type: "f", value: this._slicemaps_width},
+            uSlicesOverX: { type: "f", value: this._slicemap_row_col[0] },
+            uSlicesOverY: { type: "f", value: this._slicemap_row_col[1] },
+            uOpacityVal: { type: "f", value: this._opacity_factor },
+            darkness: { type: "f", value: this._color_factor },
+            l: { type: "f", value: this.l },
+            s: { type: "f", value: this.s },
+            hMin: { type: "f", value: this.hMin },
+            hMax: { type: "f", value: this.hMax },
+            minSos: { type: "f", value: this.minSos },
+            maxSos: { type: "f", value: this.maxSos },
+            minAtten: { type: "f", value: this.minAtten },
+            maxAtten: { type: "f", value: this.maxAtten },
+            minRefl: { type: "f", value: this.minRefl },
+            maxRefl: { type: "f", value: this.maxRefl }    
         },
         side: THREE.BackSide,
         transparent: true
     });
   
-  this._meshSecondPass = new THREE.Mesh( this._geometry, this._materialSecondPass );
-  
-  this._sceneSecondPass = new THREE.Scene();
-  this._sceneSecondPass.add( this._meshSecondPass );
+    this._meshSecondPass = new THREE.Mesh( this._geometry, this._materialSecondPass );
+
+    this._sceneSecondPass = new THREE.Scene();
+    this._sceneSecondPass.add( this._meshSecondPass );
 }
 
 
@@ -779,11 +784,44 @@ Core.prototype.setAxis = function(value) {
     this._render.render( this._sceneSecondPass, this._camera );
 };
 
+Core.prototype.showISO = function() {
+    this._secondPassSetUniformValue("uSetViewMode", 1);
+    this._pivot.add( this._light1 );
+    this._render.render( this._sceneSecondPass, this._camera );
+};
+
+Core.prototype.showLight = function() {
+    this._pivot.add( this._light1 );
+    this._render.render( this._sceneSecondPass, this._camera );
+};
+
+Core.prototype.hideLight = function() {
+    this._pivot.remove( this._light1 );
+    this._render.render( this._sceneSecondPass, this._camera );
+};
+
+Core.prototype.showVolren = function() {
+    this._secondPassSetUniformValue("uSetViewMode", 0);
+    this._pivot.remove( this._light1 );
+    this._render.render( this._sceneSecondPass, this._camera );
+};
+
+Core.prototype.startLightRotation = function() {
+    this.lightRotation = 1;
+    this.draw(0.0);
+};
+
+Core.prototype.stopLightRotation = function() {
+    this.lightRotation = 0;
+    this.draw(0.0);
+};
 
 Core.prototype.draw = function(fps) {
     this.onPreDraw.call(fps.toFixed(3));
 
-    this._pivot.rotation.y += 0.01;
+    if (this.lightRotation > 0) {
+        this._pivot.rotation.y += 0.01;
+    }
     
     //var cameraPosition = new THREE.Vector3();
     //cameraPosition.setFromMatrixPosition(this._light1.worldMatrix);
@@ -799,12 +837,15 @@ Core.prototype.draw = function(fps) {
     // Render the second pass and perform the volume rendering.
     this._render.render( this._sceneSecondPass, this._camera );
 
+    /*
+    // Enable this for compass or birdview
     var vector = this._camera.getWorldDirection();
     theta = Math.atan2(vector.x,vector.z);
     theta = theta + 3.142; // add/minux pi to inverse
     var degree = theta * (180/3.142);
     //console.log(degree);
     compassDraw(degree);
+    */
     
     this.onPostDraw.call(fps.toFixed(3));
 };

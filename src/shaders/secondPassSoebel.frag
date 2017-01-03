@@ -22,6 +22,9 @@ uniform float uSlicesOverY;
 uniform float darkness;
 
 uniform vec3 uLightPos;
+uniform int uSetViewMode;
+
+uniform float uSteps;
 
 uniform float minSos;
 uniform float maxSos;
@@ -361,7 +364,7 @@ vec3 specularLighting(in vec3 N, in vec3 L, in vec3 V)
     float specularTerm = 0.0;
     const vec3 u_lightSpecularIntensity = vec3(0, 1, 0);
     const vec3 u_matSpecularReflectance = vec3(1, 1, 1);
-    const float u_matShininess = 256.0;
+    const float u_matShininess = 5.0;
 
    // calculate specular reflection only if
    // the surface is oriented to the light source
@@ -376,8 +379,11 @@ vec3 specularLighting(in vec3 N, in vec3 L, in vec3 V)
 
 void main(void)
 {
-    const int uStepsI = 144;
-    const float uStepsF = float(uStepsI);
+    //const int uStepsI = 144;
+    //const float uStepsF = float(uStepsI);
+    int uStepsI = int(uSteps);
+    float uStepsF = uSteps;
+    
     
     vec2 texC = ((pos.xy/pos.w) + 1.0) / 2.0; 
 
@@ -395,7 +401,9 @@ void main(void)
     
     float opacityFactor = uOpacityVal; 
   
-    for(int i = 0; i < uStepsI; i++) {       
+    for(int i = 0; i < 8192; i++) {
+        if (i > uStepsI)
+            break;
         vec3 gray_val = getVolumeValue(vpos.xyz); 
 
         if(gray_val.z < 0.05 || 
@@ -406,40 +414,38 @@ void main(void)
             colorValue.x = (darkness * 2.0 - gray_val.x) * l * 0.4;
             //colorValue.x = gray_val.x;
             colorValue.w = 0.1;
-            
-            // normalize vectors after interpolation
-            //vec3 lightPos = vec3(1.0, 1.0, 1.0);
-            //vec3 L = normalize(vpos.xyz - lightPos);
-            vec3 L = normalize(vpos.xyz - uLightPos);
-            vec3 V = normalize( cameraPosition - vpos.xyz );
-            vec3 N = normalize(getNormal(vpos.xyz));
 
-            // get Blinn-Phong reflectance components
-            vec3 Iamb = ambientLighting();
-            vec3 Idif = diffuseLighting(N, L);
-            vec3 Ispe = specularLighting(N, L, V);
+            if ( uSetViewMode == 1 ) {
+                // normalize vectors after interpolation
+                vec3 L = normalize(vpos.xyz - uLightPos);
+                vec3 V = normalize( cameraPosition - vpos.xyz );
+                vec3 N = normalize(getNormal(vpos.xyz));
 
-            // diffuse color of the object from texture
-            //vec3 diffuseColor = texture(u_diffuseTexture, o_texcoords).rgb;
+                // get Blinn-Phong reflectance components
+                vec3 Iamb = ambientLighting();
+                vec3 Idif = diffuseLighting(N, L);
+                vec3 Ispe = specularLighting(N, L, V);
+
+                // diffuse color of the object from texture
+                //vec3 diffuseColor = texture(u_diffuseTexture, o_texcoords).rgb;
         
-            vec3 mycolor = (Iamb + Idif + Ispe);
-            //vec3 mycolor = colorValue.xxx * (Iamb + Ispe);
-        
-            //sample.rgb = N;
-            sample.rgb = mycolor;
-            sample.a = 1.0;
-            //sample.rgb = (1.0 - accum.a) * mycolor * sample.a;
-            //sample.rgb = (1.0 - accum.a) * colorValue.xxx * sample.a;
-            //sample.a = colorValue.a * opacityFactor * (1.0 / uStepsF);
+                vec3 mycolor = (Iamb + Idif + Ispe);
+                //vec3 mycolor = colorValue.xxx * (Iamb + Ispe);
+                sample.rgb = mycolor;
+                sample.a = 1.0;
+            } else {
+                sample.rgb = (1.0 - accum.a) * colorValue.xxx * sample.a;
+                sample.a = colorValue.a * opacityFactor * (1.0 / uStepsF);
+            }
+
             accum += sample; 
-
             if(accum.a>=1.0) 
                break; 
         }    
    
         //advance the current position 
         vpos.xyz += Step;  
-    
+   
         if(vpos.x > 1.0 || vpos.y > 1.0 || vpos.z > 1.0 || vpos.x < 0.0 || vpos.y < 0.0 || vpos.z < 0.0)      
             break;  
     } 
