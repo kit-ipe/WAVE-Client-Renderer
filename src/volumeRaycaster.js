@@ -329,6 +329,29 @@
 
         };
 
+        me.showISO = function() {
+            return me._core.showISO();
+        };
+        
+        me.showVolren = function() {
+            return me._core.showVolren();
+        };
+        
+        me.showLight = function() {
+            return me._core.showLight();
+        };
+        
+        me.hideLight = function() {
+            return me._core.hideLight();
+        };
+        
+        me.startLightRotation = function() {
+            return me._core.startLightRotation();
+        };
+        
+        me.stopLightRotation = function() {
+            return me._core.stopLightRotation();
+        };
 
         me.setAxis = function() {
             me._core.setAxis();
