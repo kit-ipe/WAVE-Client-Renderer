@@ -8,7 +8,12 @@
  */
 
 var Core = function(conf) {
+    // Stats
+    this.stats;
+    this.isStatsOn = false;
+
     // USCT Parameters  
+    // Slowly need to deprecate this section; can be generalized into rgb.
     this.zFactor = conf.zFactor != undefined ? conf.zFactor : 1;
     this.l = conf.l;
     this.s = conf.s;
@@ -144,6 +149,7 @@ Core.prototype.init = function() {
     this._camera.rotation.z = this._camera_settings["rotation"]["z"];
 
     this.isAxisOn = false;
+    //this.isStatsOn = false;
 
     this._controls = new THREE.TrackballControls(this._camera, this._render.domElement);
     this._controls.rotateSpeed = 2.0;
@@ -244,7 +250,6 @@ Core.prototype.init = function() {
     //this._sceneSecondPass.add( this._light1 );
     //this._sceneSecondPass.add( new THREE.DirectionalLightHelper(this._light1, 0.2) );
     
-    
     // parent
 	this._parent = new THREE.Object3D();
 	this._sceneSecondPass.add( this._parent );
@@ -302,24 +307,17 @@ Core.prototype.init = function() {
     //light.position.set( 2, 3, 5 ).normalize();
     //light.shadowCameraVisible = true;
     
-    
     /*
     // alternate method
     var helper = new THREE.EdgesHelper( mesh, 0xff0000 );
     scene.add( helper );
     */
-      
-    // FramesPerSecond
-    var stats = new Stats();
-    stats.setMode(0); // 0: fps, 1: ms, 2: mb
-    stats.domElement.style.position = 'absolute';
-    stats.domElement.style.right = '10px';
-    stats.domElement.style.top = '10px';
-    document.body.appendChild( stats.domElement );
     
     var update = function () {
-        stats.begin();
-        stats.end();
+        if (me.isStatsOn == true) {
+            me.stats.begin();
+            me.stats.end();
+        }
         requestAnimationFrame( update );
     };
 
@@ -763,6 +761,24 @@ Core.prototype.removeWireframe = function() {
     this._render.render( this._sceneSecondPass, this._camera );
 };
 
+Core.prototype.setStats = function(value) {
+    console.log("Core: setStats()");
+    console.log("Enable Stats: " + this.isStatsOn);
+
+    if (value == true) {
+        this.isStatsOn = true;    
+        // FramesPerSecond
+    
+        this.stats = new Stats();
+        this.stats.setMode(0); // 0: fps, 1: ms, 2: mb
+        this.stats.domElement.style.position = 'absolute';
+        this.stats.domElement.style.right = '10px';
+        this.stats.domElement.style.top = '10px';
+        document.body.appendChild( this.stats.domElement );
+    } else {
+       document.getElementById("stats").remove();
+    }
+}
 
 Core.prototype.setAxis = function(value) {
     console.log("Core: setAxis()");

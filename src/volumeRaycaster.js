@@ -358,6 +358,11 @@
             me._needRedraw = true;
         };
         
+        me.setStats = function(value) {
+            me._core.setStats(value);
+            me._needRedraw = true;
+        };
+        
         me.removeWireframe = function() {
             me._core.removeWireframe();
             me._needRedraw = true;
