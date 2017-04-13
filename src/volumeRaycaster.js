@@ -235,8 +235,6 @@
 
             me._core.setGeometryDimensions(geometryDimension);
             me._needRedraw = true;
-
-
         };
 
         me.setGeometryMaxX = function(value) {
@@ -253,8 +251,6 @@
 
             me._core.setGeometryDimensions(geometryDimension);
             me._needRedraw = true;
-
-
         };
 
         me.setGeometryMinY = function(value) {
@@ -271,7 +267,6 @@
 
             me._core.setGeometryDimensions(geometryDimension);
             me._needRedraw = true;
-
         };
 
         me.setGeometryMaxY = function(value) {

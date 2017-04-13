@@ -167,9 +167,6 @@ Core.prototype.init = function() {
     this._materialFirstPass = new THREE.ShaderMaterial( {
         vertexShader: this._shaders.firstPass.vertexShader,
         fragmentShader: this._shaders.firstPass.fragmentShader,
-        //attributes: {
-        //    vertColor: {type: 'c', value: [] }
-        //},
         side: THREE.FrontSide,
         transparent: true
     } );
@@ -178,9 +175,6 @@ Core.prototype.init = function() {
         vertexShader: this._shaders[this._shader_name].vertexShader,
         fragmentShader: ejs.render( this._shaders[this._shader_name].fragmentShader, {
           "maxTexturesNumber": me.getMaxTexturesNumber()}),
-        //attributes: {
-        //    vertColor: {type: 'c', value: [] }
-        //},
         uniforms: {
             uBackCoord: { type: "t",  value: this._rtTexture }, 
             uSliceMaps: { type: "tv", value: this._slicemaps_textures },
@@ -853,7 +847,6 @@ Core.prototype.draw = function(fps) {
 
 Core.prototype.getDOMContainer = function() {
     return document.getElementById(this._dom_container_id);
-
 };
 
 
@@ -891,19 +884,23 @@ Core.prototype.getCanvasSize = function() {
 Core.prototype.getCanvasSizeInPixels = function() {
     var width = this.getCanvasSize()[0];
     var height = this.getCanvasSize()[1];
-
+    var canvas_id = "#" + this._dom_container_id + " > canvas";
+    
     if(this._canvas_size[0] == '*') {
+        width = document.querySelector(canvas_id).width;
+    } else if (this._canvas_size[0] == 'fullscreen') {
         width = window.innerWidth
         || document.documentElement.clientWidth
         || document.body.clientWidth;
-
-    } 
+    }
+    
     if(this._canvas_size[1] == '*') {
+        height = document.querySelector(canvas_id).height;
+    } else if (this._canvas_size[1] == 'fullscreen') {
         height = window.innerHeight
         || document.documentElement.clientHeight
         || document.body.clientHeight;
     }
-
     return [width, height];
 };
 
