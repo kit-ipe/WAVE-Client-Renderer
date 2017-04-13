@@ -162,14 +162,14 @@ Core.prototype.init = function() {
 
 
     this._rtTexture = new THREE.WebGLRenderTarget( this.getRenderSizeInPixels()[0], this.getRenderSizeInPixels()[1], { minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, format: THREE.RGBAFormat} );
-    this._rtTexture.wrapS = this._rtTexture.wrapT = THREE.ClampToEdgeWrapping;
+    this._rtTexture.texture.wrapS = this._rtTexture.texture.wrapT = THREE.ClampToEdgeWrapping;
     
     this._materialFirstPass = new THREE.ShaderMaterial( {
         vertexShader: this._shaders.firstPass.vertexShader,
         fragmentShader: this._shaders.firstPass.fragmentShader,
-        attributes: {
-            vertColor: {type: 'c', value: [] }
-        },
+        //attributes: {
+        //    vertColor: {type: 'c', value: [] }
+        //},
         side: THREE.FrontSide,
         transparent: true
     } );
@@ -178,9 +178,9 @@ Core.prototype.init = function() {
         vertexShader: this._shaders[this._shader_name].vertexShader,
         fragmentShader: ejs.render( this._shaders[this._shader_name].fragmentShader, {
           "maxTexturesNumber": me.getMaxTexturesNumber()}),
-        attributes: {
-            vertColor: {type: 'c', value: [] }
-        },
+        //attributes: {
+        //    vertColor: {type: 'c', value: [] }
+        //},
         uniforms: {
             uBackCoord: { type: "t",  value: this._rtTexture }, 
             uSliceMaps: { type: "tv", value: this._slicemaps_textures },
