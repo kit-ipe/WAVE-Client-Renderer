@@ -17,8 +17,6 @@ var Core = function(conf) {
     this.zFactor = conf.zFactor != undefined ? conf.zFactor : 1;
     this.l = conf.l;
     this.s = conf.s;
-    this.screwThreshold = conf.screwThreshold;
-    this.jointThreshold = conf.s;
   
     this.hMin = conf.hMin;
     this.hMax = conf.hMax;
@@ -196,9 +194,7 @@ Core.prototype.init = function() {
             uSlicesOverY: { type: "f", value: this._slicemap_row_col[1] },
             uOpacityVal: { type: "f", value: this._opacity_factor },
             darkness: { type: "f", value: this._color_factor },            
-            
-            screwThreshold: { type: "f", value: this.screwThreshold },
-            jointThreshold: { type: "f", value: this.jointThreshold },
+
             l: { type: "f", value: this.l },
             s: { type: "f", value: this.s },
             hMin: { type: "f", value: this.hMin },
@@ -401,18 +397,6 @@ Core.prototype.setTransferFunctionByImage = function(image) {
     this._secondPassSetUniformValue("uTransferFunction", texture);
     this.onChangeTransferFunction.call(image);
 };
-
-
-Core.prototype.setScrewThreshold = function(v) {
-    this.screwThreshold = v;
-    this._secondPassSetUniformValue("screwThreshold", this.screwThreshold);
-}
-
-
-Core.prototype.setJointThreshold = function(v) {
-    this.jointThreshold = v;
-    this._secondPassSetUniformValue("jointThreshold", this.jointThreshold);
-}
 
 
 Core.prototype.setL = function(v) {
