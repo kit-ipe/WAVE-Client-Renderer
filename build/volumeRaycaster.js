@@ -1328,21 +1328,26 @@ Core.prototype.getCanvasSizeInPixels = function() {
     var width = this.getCanvasSize()[0];
     var height = this.getCanvasSize()[1];
     var canvas_id = "#" + this._dom_container_id + " > canvas";
+    var container = document.getElementById(this._dom_container_id);
     
     if(this._canvas_size[0] == '*') {
         width = document.querySelector(canvas_id).width;
+        container.style.width = width+"px";
     } else if (this._canvas_size[0] == 'fullscreen') {
         width = window.innerWidth
         || document.documentElement.clientWidth
         || document.body.clientWidth;
+        container.style.width = width+"px";
     }
     
     if(this._canvas_size[1] == '*') {
         height = document.querySelector(canvas_id).height;
+        container.style.height = height+"px";
     } else if (this._canvas_size[1] == 'fullscreen') {
         height = window.innerHeight
         || document.documentElement.clientHeight
         || document.body.clientHeight;
+        container.style.height = height+"px";
     }
     return [width, height];
 };
