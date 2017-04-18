@@ -149,7 +149,10 @@ Core.prototype.init = function() {
     this.isAxisOn = false;
     //this.isStatsOn = false;
 
-    this._controls = new THREE.TrackballControls(this._camera, this._render.domElement);
+    // Control
+    this._controls = new THREE.TrackballControls(
+        this._camera, 
+        this._render.domElement);
     this._controls.rotateSpeed = 2.0;
     this._controls.zoomSpeed = 2.0;
     this._controls.panSpeed = 2.0;
@@ -160,10 +163,61 @@ Core.prototype.init = function() {
     this._controls.staticMoving = true;
     this._controls.dynamicDampingFactor = 0.3;
 
-
-    this._rtTexture = new THREE.WebGLRenderTarget( this.getRenderSizeInPixels()[0], this.getRenderSizeInPixels()[1], { minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, format: THREE.RGBAFormat} );
-    this._rtTexture.texture.wrapS = this._rtTexture.texture.wrapT = THREE.ClampToEdgeWrapping;
+    this._rtTexture = new THREE.WebGLRenderTarget(
+        this.getRenderSizeInPixels()[0],
+        this.getRenderSizeInPixels()[1],
+        {minFilter: THREE.LinearFilter,
+         magFilter: THREE.LinearFilter,
+         format: THREE.RGBAFormat}
+    );
+    this._rtTexture.texture.wrapS = THREE.ClampToEdgeWrapping;
+    this._rtTexture.texture.wrapT = THREE.ClampToEdgeWrapping;
     
+    /*
+    var tex2 = THREE.ImageUtils.loadTexture( "http://katrin.kit.edu/vis/tmp/zoom_0.png" );
+    var cm2 = THREE.ImageUtils.loadTexture( "http://katrin.kit.edu/static/colormaps/cm_viridis.png" );
+    var gm2 = THREE.ImageUtils.loadTexture( "http://katrin.kit.edu/static/colormaps/cm_Greys.png" );
+    tex2.minFilter = THREE.LinearFilter;
+    cm2.minFilter = THREE.LinearFilter;
+    gm2.minFilter = THREE.LinearFilter;
+    var shaderCode2 = document.getElementById("fragShaderHourly").innerHTML;
+    var uniforms2 = {};
+    uniforms2.resolution = {type:'v2',value:new THREE.Vector2(overview.offsetWidth,overview.offsetHeight)};
+    uniforms2.texture2 = {type:'t',value:tex2};
+    */
+    // 2D
+    //var tex2 = THREE.ImageUtils.loadTexture( "dataset/slicemap_0_blue_line.png" );
+    this._tex1 = THREE.ImageUtils.loadTexture( "dataset/image01_2014_03_17_01.png" );
+    this._tex1.minFilter = THREE.LinearFilter;
+    this._tex2 = THREE.ImageUtils.loadTexture( "dataset/image01_2014_03_17_02.png" );
+    this._tex2.minFilter = THREE.LinearFilter;
+    
+    //console.log("CHECK!!");
+    //console.log(this._shaders["secondPass2DCustom"].fragmentShader);
+    
+    this._material2D = new THREE.ShaderMaterial({
+        vertexShader: this._shaders["secondPass2DCustom"].vertexShader,
+        fragmentShader: ejs.render(
+            this._shaders["secondPass2DCustom"].fragmentShader,
+            {"maxTexturesNumber": this.getMaxTexturesNumber()}
+        ),
+        uniforms: {
+            uSetViewMode: {type: "i", value: 0},
+            texture1: {type: 't', value: this._tex1},
+            texture2: {type: 't', value: this._tex2},
+            resolution: {type: 'v2',value: new THREE.Vector2(512,512)}
+        }
+    });
+    var geometry = new THREE.PlaneBufferGeometry( 10, 10 );
+    this._meshFirstPass = new THREE.Mesh( geometry, this._material2D );
+    this._sceneFirstPass = new THREE.Scene();
+    this._sceneFirstPass.add(this._meshFirstPass);
+    
+    //var sprite = new THREE.Mesh( geometry,material );
+    //scene.add( sprite );
+    //sprite.position.z = -1;//Move it back so we can see it
+    
+    /*
     this._materialFirstPass = new THREE.ShaderMaterial( {
         vertexShader: this._shaders.firstPass.vertexShader,
         fragmentShader: this._shaders.firstPass.fragmentShader,
@@ -224,6 +278,7 @@ Core.prototype.init = function() {
     this._sceneSecondPass.add(this._meshSecondPass);
     //this._sceneSecondPass.add(this._axes);
     
+    
     var mesh = new THREE.Mesh(
         new THREE.BoxGeometry( 1, 1, 1 ),
         new THREE.MeshNormalMaterial()
@@ -231,7 +286,7 @@ Core.prototype.init = function() {
     this._wireframe = new THREE.BoxHelper( mesh );
     this._wireframe.material.color.set( 0xe3e3e3 );
     this._sceneSecondPass.add( this._wireframe );
-
+    // END OF 3D
     
     var sphere = new THREE.SphereGeometry( 0.1 );
     this._light1 = new THREE.PointLight( 0xff0040, 2, 50 );
@@ -243,10 +298,10 @@ Core.prototype.init = function() {
     // parent
 	this._parent = new THREE.Object3D();
 	this._sceneSecondPass.add( this._parent );
-
     // pivot
 	this._pivot = new THREE.Object3D();
 	this._parent.add( this._pivot );
+    */
     
 	// mesh
 	//mesh1 = new THREE.Mesh( geometry, material1 );
@@ -268,6 +323,11 @@ Core.prototype.init = function() {
     this._sceneSecondPass.add( this._wireframe2 );
     */
     
+    // 3D
+    //this.setTransferFunctionByColors(this._transfer_function_colors);
+    
+    // Arrow Helper
+    /*
     var xdir = new THREE.Vector3( 1, 0, 0 );
     var xorigin = new THREE.Vector3( -0.8, -0.5, 0.5 );
     var xlength = 0.2;
@@ -287,6 +347,7 @@ Core.prototype.init = function() {
     var zlength = 0.2;
     var zhex = 0x0000ff;
     var zarrowHelper = new THREE.ArrowHelper( zdir, zorigin, zlength, zhex );
+    */
     
     //this._sceneSecondPass.add( xarrowHelper );
     //this._sceneSecondPass.add( yarrowHelper );
@@ -341,8 +402,6 @@ Core.prototype.init = function() {
         me.setRenderCanvasSize('*', '*');
     }, false);
 
-    this.setTransferFunctionByColors(this._transfer_function_colors);
-
     this._render.setSize(this.getRenderSizeInPixels()[0], this.getRenderSizeInPixels()[1]); 
     this.setRenderCanvasSize(this.getCanvasSize()[0], this.getCanvasSize()[1]);
     
@@ -350,8 +409,6 @@ Core.prototype.init = function() {
         this._callback();   
     } catch(e){}       
 };
-
-
 
 
 Core.prototype._secondPassSetUniformValue = function(key, value) {
@@ -388,69 +445,10 @@ Core.prototype.setTransferFunctionByImage = function(image) {
     texture.flipY = true;
     texture.needsUpdate = true;
 
-    this._secondPassSetUniformValue("uTransferFunction", texture);
+    //3D
+    //this._secondPassSetUniformValue("uTransferFunction", texture);
     this.onChangeTransferFunction.call(image);
 };
-
-
-Core.prototype.setL = function(v) {
-    this.l = v;
-    this._secondPassSetUniformValue("l", this.l);
-}
-
-
-Core.prototype.setS = function(v) {
-    this.s = v;
-    this._secondPassSetUniformValue("s", this.s);
-}
-
-
-Core.prototype.setHMin = function(v) {
-    this.hMin = v;
-    this._secondPassSetUniformValue("hMin", this.hMin);
-}
-
-
-Core.prototype.setHMax = function(v) {
-    this.hMax = v;
-    this._secondPassSetUniformValue("hMax", this.hMax);
-}
-
-
-Core.prototype.setMaxRefl = function(v) {
-    this.maxRefl = v;
-    this._secondPassSetUniformValue("maxRefl", this.maxRefl);
-}
-
-
-Core.prototype.setMaxSos = function(v) {
-    this.maxSos = v;
-    this._secondPassSetUniformValue("maxSos", this.maxSos);
-}
-
-
-Core.prototype.setMinAtten = function(v) {
-    this.minAtten = v;
-    this._secondPassSetUniformValue("minAtten", this.minAtten);
-}
-
-
-Core.prototype.setMinRefl = function(v) {
-    this.minRefl = v;
-    this._secondPassSetUniformValue("minRefl", this.minRefl);
-}
-
-
-Core.prototype.setMinSos = function(v) {
-    this.minSos = v;
-    this._secondPassSetUniformValue("minSos", this.minSos);
-}
-
-
-Core.prototype.setMaxAtten = function(v) {
-    this.maxAtten = v;
-    this._secondPassSetUniformValue("maxAtten", this.maxAtten);
-}
 
 
 Core.prototype.setTransferFunctionByColors = function(colors) {
@@ -502,6 +500,8 @@ Core.prototype._initGeometry = function(geometryDimensions, volumeSizes) {
 Core.prototype.setMode = function(conf) {  
     this._shader_name =  conf.shader_name;
   
+    //3D
+    /*
     this._materialSecondPass = new THREE.ShaderMaterial( {
         vertexShader: this._shaders[this._shader_name].vertexShader,
         fragmentShader: ejs.render(
@@ -541,6 +541,55 @@ Core.prototype.setMode = function(conf) {
 
     this._sceneSecondPass = new THREE.Scene();
     this._sceneSecondPass.add( this._meshSecondPass );
+    */
+}
+
+
+Core.prototype.setShader = function(codeblock) {
+    console.log("apply new Shader.");
+    console.log(codeblock);
+    
+    var header = "uniform vec2 resolution; \
+    precision mediump int; \
+    precision mediump float; \
+    varying vec4 pos; \
+    uniform sampler2D uSliceMaps[<%= maxTexturesNumber %>]; \
+    uniform sampler2D texture1; \
+    uniform sampler2D texture2; \
+    void main(void) { \
+    vec2 pos = gl_FragCoord.xy / resolution.xy; \
+    float b1, b2, b3, b4, b5, b6; \
+    vec3 t1, t2; \
+    t1 = texture2D(texture1, pos).xyz; \
+    t2 = texture2D(texture2, pos).xyz; \
+    b1 = t1.x; \
+    b2 = t1.y; \
+    b3 = t1.z; \
+    b4 = t2.x; \
+    b5 = t2.y; \
+    b6 = t2.z;";
+    var footer = "}";
+    
+    var final_code = header + codeblock + footer;
+
+    this._sceneFirstPass.remove(this._meshFirstPass);
+    this._material2D = new THREE.ShaderMaterial({
+        vertexShader: this._shaders["secondPass2DCustom"].vertexShader,
+        fragmentShader: ejs.render(
+            final_code,
+            {"maxTexturesNumber": this.getMaxTexturesNumber()}
+        ),
+        uniforms: {
+            uSetViewMode: {type: "i", value: 0 },
+            texture1: {type: 't', value: this._tex1},
+            texture2: {type: 't', value: this._tex2},
+            resolution: {type: 'v2', value: new THREE.Vector2(512,512)}
+        }
+    });
+    var geometry = new THREE.PlaneBufferGeometry( 10, 10 );
+    this._meshFirstPass = new THREE.Mesh( geometry, this._material2D );
+    this._sceneFirstPass = new THREE.Scene();
+    this._sceneFirstPass.add(this._meshFirstPass);
 }
 
 
@@ -570,44 +619,51 @@ Core.prototype.setSlicemapsImages = function(images, imagesPaths) {
     this._slicemaps_images = images;
     this._slicemaps_paths = imagesPaths != undefined ? imagesPaths : this._slicemaps_paths;
     this._setSlicemapsTextures(images);
-    this._secondPassSetUniformValue("uSliceMaps", this._slicemaps_textures);
+    //3D
+    //this._secondPassSetUniformValue("uSliceMaps", this._slicemaps_textures);
     this._slicemaps_width = images[0].width;
-    this._secondPassSetUniformValue("uSlicemapWidth", this._slicemaps_width);
+    //3D
+    //this._secondPassSetUniformValue("uSlicemapWidth", this._slicemaps_width);
 };
 
 
 Core.prototype.setSteps = function(steps) {
     //console.log("Core: setSteps(" + steps + ")");
     this._steps = steps;
-    this._secondPassSetUniformValue("uSteps", this._steps);
+    //3D
+    //this._secondPassSetUniformValue("uSteps", this._steps);
 };
 
 
 Core.prototype.setSlicesRange = function(from, to) {
     console.log("Core: setSlicesRange()");
     this._slices_gap = [from, to];
-    this._secondPassSetUniformValue("uNumberOfSlices", this.getSlicesRange()[1])
+    //3D
+    //this._secondPassSetUniformValue("uNumberOfSlices", this.getSlicesRange()[1])
 };
 
 
 Core.prototype.setOpacityFactor = function(opacity_factor) {
     console.log("Core: setOpacityFactor()");
     this._opacity_factor = opacity_factor;
-    this._secondPassSetUniformValue("uOpacityVal", this._opacity_factor);
+    //3D
+    //this._secondPassSetUniformValue("uOpacityVal", this._opacity_factor);
 };
 
 
 Core.prototype.setColorFactor = function(color_factor) {
     console.log("Core: setColorFactor()");
     this._color_factor = color_factor;
-    this._secondPassSetUniformValue("darkness", this._color_factor);
+    //3D
+    //this._secondPassSetUniformValue("darkness", this._color_factor);
 };
 
 
 Core.prototype.setAbsorptionMode = function(mode_index) {
     console.log("Core: setAbsorptionMode()");
     this._absorption_mode_index = mode_index;
-    this._secondPassSetUniformValue("uAbsorptionModeIndex", this._absorption_mode_index);
+    //3D
+    //this._secondPassSetUniformValue("uAbsorptionModeIndex", this._absorption_mode_index);
 };
 
 
@@ -640,7 +696,6 @@ Core.prototype.setRenderCanvasSize = function(width, height) {
 
     if( (this._canvas_size[0] != '*' || this._canvas_size[1] != '*') && this.onResizeWindow.isStart(this._onWindowResizeFuncIndex_canvasSize) ) {
         this.onResizeWindow.stop(this._onWindowResizeFuncIndex_canvasSize);
-
     }
 
     var width = this.getCanvasSizeInPixels()[0];
@@ -664,15 +719,17 @@ Core.prototype.setBackgroundColor = function(color) {
 Core.prototype.setRowCol = function(row, col) {
     console.log("Core: setRowCol()");
     this._slicemap_row_col = [row, col];
-    this._secondPassSetUniformValue("uSlicesOverX", this._slicemap_row_col[0]);
-    this._secondPassSetUniformValue("uSlicesOverY", this._slicemap_row_col[1]);
+    //3D
+    //this._secondPassSetUniformValue("uSlicesOverX", this._slicemap_row_col[0]);
+    //this._secondPassSetUniformValue("uSlicesOverY", this._slicemap_row_col[1]);
 };
 
 
 Core.prototype.setGrayMinValue = function(value) {
     console.log("Core: setMinGrayValue()");
     this._gray_value[0] = value;
-    this._secondPassSetUniformValue("uMinGrayVal", this._gray_value[0]);
+    //3D
+    //this._secondPassSetUniformValue("uMinGrayVal", this._gray_value[0]);
 };
 
 
@@ -694,7 +751,6 @@ Core.prototype.applyThresholding = function(threshold_name) {
         case "li": {
             this.setGrayMinValue( this._threshold_li_index );
         }; break;
-
     }
 };
 
@@ -705,39 +761,46 @@ Core.prototype.setThresholdIndexes = function(otsu, isodata, yen, li) {
     this._threshold_isodata_index    = isodata;
     this._threshold_yen_index        = yen;
     this._threshold_li_index         = li;
-
 };
 
 
 Core.prototype.setGrayMaxValue = function(value) {
     console.log("Core: setMaxGrayValue()");
     this._gray_value[1] = value;
-    this._secondPassSetUniformValue("uMaxGrayVal", this._gray_value[1]);
+    //3D
+    //this._secondPassSetUniformValue("uMaxGrayVal", this._gray_value[1]);
 };
+
 
 Core.prototype.addWireframe = function() {
     console.log("Core: addFrame()");
     this._sceneSecondPass.add( this._wireframe );
 
-    this._controls.update();
-    this._render.render( this._sceneFirstPass, this._camera, this._rtTexture, true );
-    this._render.render( this._sceneFirstPass, this._camera );
+    // Controls
+    //this._controls.update();
+    //3D
+    //this._render.render( this._sceneFirstPass, this._camera, this._rtTexture, true );
+    //this._render.render( this._sceneFirstPass, this._camera );
 
     // Render the second pass and perform the volume rendering.
     this._render.render( this._sceneSecondPass, this._camera );
 };
+
 
 Core.prototype.removeWireframe = function() {
     console.log("Core: removeFrame()");
     this._sceneSecondPass.remove( this._wireframe );
 
-    this._controls.update();
-    this._render.render( this._sceneFirstPass, this._camera, this._rtTexture, true );
-    this._render.render( this._sceneFirstPass, this._camera );
+    // Controls
+    //this._controls.update();
+    //3D
+    //this._render.render( this._sceneFirstPass, this._camera, this._rtTexture, true );
+    //this._render.render( this._sceneFirstPass, this._camera );
 
     // Render the second pass and perform the volume rendering.
     this._render.render( this._sceneSecondPass, this._camera );
 };
+
 
 Core.prototype.setStats = function(value) {
     console.log("Core: setStats()");
@@ -758,6 +821,7 @@ Core.prototype.setStats = function(value) {
     }
 }
 
+
 Core.prototype.setAxis = function(value) {
     console.log("Core: setAxis()");
     console.log("Axis status: " + this.isAxisOn);
@@ -770,45 +834,57 @@ Core.prototype.setAxis = function(value) {
         this.isAxisOn = true;
     }
 
-    this._controls.update();
-    this._render.render( this._sceneFirstPass, this._camera, this._rtTexture, true );
-    this._render.render( this._sceneFirstPass, this._camera );
+    // Controls
+    //this._controls.update();
+    //3D
+    //this._render.render( this._sceneFirstPass, this._camera, this._rtTexture, true );
+    //this._render.render( this._sceneFirstPass, this._camera );
 
     // Render the second pass and perform the volume rendering.
     this._render.render( this._sceneSecondPass, this._camera );
 };
 
+
 Core.prototype.showISO = function() {
-    this._secondPassSetUniformValue("uSetViewMode", 1);
+    //3D
+    //this._secondPassSetUniformValue("uSetViewMode", 1);
     this._pivot.add( this._light1 );
-    this._render.render( this._sceneSecondPass, this._camera );
+    //3D
+    //this._render.render( this._sceneSecondPass, this._camera );
 };
+
 
 Core.prototype.showLight = function() {
     this._pivot.add( this._light1 );
     this._render.render( this._sceneSecondPass, this._camera );
 };
 
+
 Core.prototype.hideLight = function() {
     this._pivot.remove( this._light1 );
     this._render.render( this._sceneSecondPass, this._camera );
 };
 
+
 Core.prototype.showVolren = function() {
-    this._secondPassSetUniformValue("uSetViewMode", 0);
+    //3D
+    //this._secondPassSetUniformValue("uSetViewMode", 0);
     this._pivot.remove( this._light1 );
-    this._render.render( this._sceneSecondPass, this._camera );
+    //this._render.render( this._sceneSecondPass, this._camera );
 };
+
 
 Core.prototype.startLightRotation = function() {
     this.lightRotation = 1;
     this.draw(0.0);
 };
 
+
 Core.prototype.stopLightRotation = function() {
     this.lightRotation = 0;
     this.draw(0.0);
 };
+
 
 Core.prototype.draw = function(fps) {
     this.onPreDraw.call(fps.toFixed(3));
@@ -821,15 +897,19 @@ Core.prototype.draw = function(fps) {
     //cameraPosition.setFromMatrixPosition(this._light1.worldMatrix);
     //console.log(cameraPosition);
     
-    var cameraPosition = this._light1.getWorldPosition();
-    this._secondPassSetUniformValue("uLightPos", cameraPosition);
+    //3D
+    //var cameraPosition = this._light1.getWorldPosition();
+    //this._secondPassSetUniformValue("uLightPos", cameraPosition);
     
-    this._controls.update();
+    //Controls
+    //this._controls.update();
+    //3D
     this._render.render( this._sceneFirstPass, this._camera, this._rtTexture, true );
     this._render.render( this._sceneFirstPass, this._camera );
 
+    //3D
     // Render the second pass and perform the volume rendering.
-    this._render.render( this._sceneSecondPass, this._camera );
+    //this._render.render( this._sceneSecondPass, this._camera );
 
     /*
     // Enable this for compass or birdview

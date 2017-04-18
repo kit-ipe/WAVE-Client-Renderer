@@ -196,6 +196,11 @@
           me._core.setMode(conf);
           me._needRedraw = true;
         };
+        
+        me.setShader = function(codeblock){
+          me._core.setShader(codeblock);
+          me._needRedraw = true;
+        };
       
         me.setOpacityFactor = function(opacity_factor) {
             me._core.setOpacityFactor(opacity_factor);
@@ -742,10 +747,7 @@
             if(config['row_col'] != undefined) {
                 me._core.setRowCol( config['row_col'][0], config['row_col'][1] );
             }
-            
-            if(config['test'] != undefined) 
-                me._core.setRowCol( config['test'], config['test'] );
-
+    
             if(config['gray_min'] != undefined) {
                 me._core.setGrayMinValue( config['gray_min'] );
             }
