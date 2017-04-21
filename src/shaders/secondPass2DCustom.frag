@@ -13,14 +13,17 @@ uniform sampler2D uSliceMaps[<%= maxTexturesNumber %>];
 
 uniform sampler2D texture1;
 uniform sampler2D texture2;
+uniform vec4 uZoom;
 
 void main(void) {
     vec2 pos = gl_FragCoord.xy / resolution.xy;
     float b1, b2, b3, b4, b5, b6;
     vec3 t1, t2;
 
-    t1 = texture2D(texture1, pos).xyz;
-    t2 = texture2D(texture2, pos).xyz;
+    float newX = ((uZoom.y - uZoom.x)  * pos.x) + uZoom.x;
+    float newY = ((uZoom.w - uZoom.z)  * pos.y) + uZoom.z;
+    t1 = texture2D(texture1, vec2(newX, newY)).xyz;
+    t2 = texture2D(texture2, vec2(newX, newY)).xyz;
 
     b1 = t1.x;
     b2 = t1.y;

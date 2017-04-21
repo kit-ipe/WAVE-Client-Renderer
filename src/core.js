@@ -125,7 +125,8 @@ Core.prototype.init = function() {
     var me = this;
     this._container = this.getDOMContainer();
 
-    this._render = new THREE.WebGLRenderer({ antialias: true, alpha : true });  
+    this._render = new THREE.WebGLRenderer({ antialias: true, alpha : true }); 
+    this._render.domElement.id = 'wave-canvas';
     this._render.setSize(this.getRenderSizeInPixels()[0],
                          this.getRenderSizeInPixels()[1]);
     this._render.setClearColor(this._render_clear_color, 0);
@@ -205,6 +206,8 @@ Core.prototype.init = function() {
             uSetViewMode: {type: "i", value: 0},
             texture1: {type: 't', value: this._tex1},
             texture2: {type: 't', value: this._tex2},
+            uZoom: {type:'v4', value: new THREE.Vector4(0.0, 1.0, 0.0, 1.0)},
+            //uZoom: {type:'v4', value: new THREE.Vector4(0.1875, 0.28125, 0.20117, 0.29492)},
             resolution: {type: 'v2',value: new THREE.Vector2(512,512)}
         }
     });
@@ -545,10 +548,16 @@ Core.prototype.setMode = function(conf) {
 }
 
 
-Core.prototype.setShader = function(codeblock) {
-    console.log("apply new Shader.");
-    console.log(codeblock);
-    
+Core.prototype.setZoom = function(x1, x2, y1, y2) {
+    console.log("apply Zooming.");
+    //this._material2D.uniforms["uZoom"].value = new THREE.Vector4(0.1875, 0.28125, 0.20117, 0.29492);
+    this._material2D.uniforms["uZoom"].value = new THREE.Vector4(x1, x2, y1, y2);
+    //uSetViewMode: {type: "i", value: 0 }
+    //this._material2D.uniforms.uZoom.value = {type: "i", value: 1 };
+}
+
+
+Core.prototype.setShader = function(codeblock) {    
     var header = "uniform vec2 resolution; \
     precision mediump int; \
     precision mediump float; \
@@ -556,12 +565,15 @@ Core.prototype.setShader = function(codeblock) {
     uniform sampler2D uSliceMaps[<%= maxTexturesNumber %>]; \
     uniform sampler2D texture1; \
     uniform sampler2D texture2; \
+    uniform vec4 uZoom; \
     void main(void) { \
     vec2 pos = gl_FragCoord.xy / resolution.xy; \
     float b1, b2, b3, b4, b5, b6; \
     vec3 t1, t2; \
-    t1 = texture2D(texture1, pos).xyz; \
-    t2 = texture2D(texture2, pos).xyz; \
+    float newX = ((uZoom.y - uZoom.x)  * pos.x) + uZoom.x; \
+    float newY = ((uZoom.w - uZoom.z)  * pos.y) + uZoom.z; \
+    t1 = texture2D(texture1, vec2(newX, newY)).xyz; \
+    t2 = texture2D(texture2, vec2(newX, newY)).xyz; \
     b1 = t1.x; \
     b2 = t1.y; \
     b3 = t1.z; \
@@ -583,6 +595,7 @@ Core.prototype.setShader = function(codeblock) {
             uSetViewMode: {type: "i", value: 0 },
             texture1: {type: 't', value: this._tex1},
             texture2: {type: 't', value: this._tex2},
+            uZoom: {type:'v4', value: new THREE.Vector4(0.0, 1.0, 0.0, 1.0)},
             resolution: {type: 'v2', value: new THREE.Vector2(512,512)}
         }
     });

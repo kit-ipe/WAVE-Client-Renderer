@@ -201,6 +201,11 @@
           me._core.setShader(codeblock);
           me._needRedraw = true;
         };
+        
+        me.setZoom = function(x1, x2, y1, y2){
+          me._core.setZoom(x1, x2, y1, y2);
+          me._needRedraw = true;
+        };
       
         me.setOpacityFactor = function(opacity_factor) {
             me._core.setOpacityFactor(opacity_factor);
