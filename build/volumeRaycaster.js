@@ -568,7 +568,11 @@ Core.prototype.init = function() {
     var me = this;
     this._container = this.getDOMContainer();
 
-    this._render = new THREE.WebGLRenderer({ antialias: true, alpha : true }); 
+    this._render = new THREE.WebGLRenderer({
+        preserveDrawingBuffer: true,
+        antialias: true,
+        alpha : true
+    }); 
     this._render.domElement.id = 'wave-canvas';
     this._render.setSize(this.getRenderSizeInPixels()[0],
                          this.getRenderSizeInPixels()[1]);
@@ -928,6 +932,11 @@ Core.prototype.setTransferFunctionByColors = function(colors) {
 
 Core.prototype.getTransferFunctionAsImage = function() {
     return this._transfer_function_as_image;
+};
+
+
+Core.prototype.getBase64 = function() {
+    return this._render.domElement.toDataURL("image/jpeg");
 };
 
 
@@ -7254,6 +7263,10 @@ window.VRC.Core.prototype._shaders.secondPassStevenTri = {
 
         me.getTransferFunctionAsImage = function() {
             return me._core.getTransferFunctionAsImage();
+        };
+        
+        me.getBase64 = function() {
+            return me._core.getBase64();    
         };
 
         me.isAutoStepsOn = function() {

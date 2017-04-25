@@ -702,6 +702,10 @@
         me.getTransferFunctionAsImage = function() {
             return me._core.getTransferFunctionAsImage();
         };
+        
+        me.getBase64 = function() {
+            return me._core.getBase64();    
+        };
 
         me.isAutoStepsOn = function() {
             console.log("Check");
