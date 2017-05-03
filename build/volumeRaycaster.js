@@ -475,6 +475,7 @@ var Core = function(conf) {
     this.lightRotation = 0;
     
     // General Parameters
+    this._mode = conf.mode == undefined ? "3d" : conf.mode;
     this._steps = conf.steps == undefined ? 20 : conf.steps;
     this._slices_gap = [0, '*'];
     this._slicemap_row_col = [16, 16];
@@ -622,124 +623,124 @@ Core.prototype.init = function() {
     this._rtTexture.texture.wrapT = THREE.ClampToEdgeWrapping;
 
     // 2D
-    this._tex1 = THREE.ImageUtils.loadTexture( this._slicemaps_paths[0] );
-    this._tex1.minFilter = THREE.LinearFilter;
-    this._tex2 = THREE.ImageUtils.loadTexture( this._slicemaps_paths[1] );
-    this._tex2.minFilter = THREE.LinearFilter;
-    this._cm = THREE.ImageUtils.loadTexture( "http://katrin.kit.edu/static/colormaps/cm_BrBG.png" );
-    this._cm.minFilter = THREE.LinearFilter;
-    
-    this._material2D = new THREE.ShaderMaterial({
-        vertexShader: this._shaders["secondPass2DCustom"].vertexShader,
-        fragmentShader: ejs.render(
-            this._shaders["secondPass2DCustom"].fragmentShader,
-            {"maxTexturesNumber": this.getMaxTexturesNumber()}
-        ),
-        uniforms: {
-            uSetViewMode: {type: "i", value: 0},
-            texture1: {type: 't', value: this._tex1},
-            texture2: {type: 't', value: this._tex2},
-            colourmap: {type: 't', value: this._cm},
-            uZoom: {type:'v4', value: new THREE.Vector4(0.0, 1.0, 0.0, 1.0)},
-            //uZoom: {type:'v4', value: new THREE.Vector4(0.1875, 0.28125, 0.20117, 0.29492)},
-            resolution: {type: 'v2',value: new THREE.Vector2(this._render_size[0], this._render_size[1])}
-        }
-    });
-    var geometry = new THREE.PlaneBufferGeometry( 10, 10 );
-    this._meshFirstPass = new THREE.Mesh( geometry, this._material2D );
-    this._sceneFirstPass = new THREE.Scene();
-    this._sceneFirstPass.add(this._meshFirstPass);
-    
-    //var sprite = new THREE.Mesh( geometry,material );
-    //scene.add( sprite );
-    //sprite.position.z = -1;//Move it back so we can see it
-    
-    /*
-    this._materialFirstPass = new THREE.ShaderMaterial( {
-        vertexShader: this._shaders.firstPass.vertexShader,
-        fragmentShader: this._shaders.firstPass.fragmentShader,
-        side: THREE.FrontSide,
-        transparent: true
-    } );
-    
-    this._materialSecondPass = new THREE.ShaderMaterial( {
-        vertexShader: this._shaders[this._shader_name].vertexShader,
-        fragmentShader: ejs.render( this._shaders[this._shader_name].fragmentShader, {
-          "maxTexturesNumber": me.getMaxTexturesNumber()}),
-        uniforms: {
-            uBackCoord: { type: "t",  value: this._rtTexture }, 
-            uSliceMaps: { type: "tv", value: this._slicemaps_textures },
-            uLightPos: {type:"v3", value: new THREE.Vector3() },
-            uSetViewMode: {type:"i", value: 0 },
+    if(this._mode == "2d") {
+	    this._tex1 = THREE.ImageUtils.loadTexture( this._slicemaps_paths[0] );
+	    this._tex1.minFilter = THREE.LinearFilter;
+	    this._tex2 = THREE.ImageUtils.loadTexture( this._slicemaps_paths[1] );
+	    this._tex2.minFilter = THREE.LinearFilter;
+	    this._cm = THREE.ImageUtils.loadTexture( "http://katrin.kit.edu/static/colormaps/cm_BrBG.png" );
+	    this._cm.minFilter = THREE.LinearFilter;
+	    
+	    this._material2D = new THREE.ShaderMaterial({
+		vertexShader: this._shaders["secondPass2DCustom"].vertexShader,
+		fragmentShader: ejs.render(
+		    this._shaders["secondPass2DCustom"].fragmentShader,
+		    {"maxTexturesNumber": this.getMaxTexturesNumber()}
+		),
+		uniforms: {
+		    uSetViewMode: {type: "i", value: 0},
+		    texture1: {type: 't', value: this._tex1},
+		    texture2: {type: 't', value: this._tex2},
+		    colourmap: {type: 't', value: this._cm},
+		    uZoom: {type:'v4', value: new THREE.Vector4(0.0, 1.0, 0.0, 1.0)},
+		    //uZoom: {type:'v4', value: new THREE.Vector4(0.1875, 0.28125, 0.20117, 0.29492)},
+		    resolution: {type: 'v2',value: new THREE.Vector2(this._render_size[0], this._render_size[1])}
+		}
+	    });
+	    var geometry = new THREE.PlaneBufferGeometry( 10, 10 );
+	    this._meshFirstPass = new THREE.Mesh( geometry, this._material2D );
+	    this._sceneFirstPass = new THREE.Scene();
+	    this._sceneFirstPass.add(this._meshFirstPass);
+	    
+	    //var sprite = new THREE.Mesh( geometry,material );
+	    //scene.add( sprite );
+	    //sprite.position.z = -1;//Move it back so we can see it
+	   
+    } else { 
+	    this._materialFirstPass = new THREE.ShaderMaterial( {
+		vertexShader: this._shaders.firstPass.vertexShader,
+		fragmentShader: this._shaders.firstPass.fragmentShader,
+		side: THREE.FrontSide,
+		transparent: true
+	    } );
+	    
+	    this._materialSecondPass = new THREE.ShaderMaterial( {
+		vertexShader: this._shaders[this._shader_name].vertexShader,
+		fragmentShader: ejs.render( this._shaders[this._shader_name].fragmentShader, {
+		  "maxTexturesNumber": me.getMaxTexturesNumber()}),
+		uniforms: {
+		    uBackCoord: { type: "t",  value: this._rtTexture }, 
+		    uSliceMaps: { type: "tv", value: this._slicemaps_textures },
+		    uLightPos: {type:"v3", value: new THREE.Vector3() },
+		    uSetViewMode: {type:"i", value: 0 },
 
-            uSteps: { type: "i", value: this._steps },
-            uSlicemapWidth: { type: "f", value: this._slicemaps_width },
-            uNumberOfSlices: { type: "f", value: this.getSlicesRange()[1] },
-            uSlicesOverX: { type: "f", value: this._slicemap_row_col[0] },
-            uSlicesOverY: { type: "f", value: this._slicemap_row_col[1] },
-            uOpacityVal: { type: "f", value: this._opacity_factor },
-            darkness: { type: "f", value: this._color_factor },            
+		    uSteps: { type: "i", value: this._steps },
+		    uSlicemapWidth: { type: "f", value: this._slicemaps_width },
+		    uNumberOfSlices: { type: "f", value: this.getSlicesRange()[1] },
+		    uSlicesOverX: { type: "f", value: this._slicemap_row_col[0] },
+		    uSlicesOverY: { type: "f", value: this._slicemap_row_col[1] },
+		    uOpacityVal: { type: "f", value: this._opacity_factor },
+		    darkness: { type: "f", value: this._color_factor },            
 
-            l: { type: "f", value: this.l },
-            s: { type: "f", value: this.s },
-            hMin: { type: "f", value: this.hMin },
-            hMax: { type: "f", value: this.hMax },
-          
-            minSos: { type: "f", value: this.minSos },
-            maxSos: { type: "f", value: this.maxSos },
-            minAtten: { type: "f", value: this.minAtten },
-            maxAtten: { type: "f", value: this.maxAtten },
-            minRefl: { type: "f", value: this.minRefl },
-            maxRefl: { type: "f", value: this.maxRefl },  
-          
-           uTransferFunction: { type: "t",  value: this._transfer_function },
-           uColorVal: { type: "f", value: this._color_factor },
-           uAbsorptionModeIndex: { type: "f", value: this._absorption_mode_index },
-           uMinGrayVal: { type: "f", value: this._gray_value[0] },
-           uMaxGrayVal: { type: "f", value: this._gray_value[1] }
-        },
-        side: THREE.BackSide,
-        transparent: true
-    });
+		    l: { type: "f", value: this.l },
+		    s: { type: "f", value: this.s },
+		    hMin: { type: "f", value: this.hMin },
+		    hMax: { type: "f", value: this.hMax },
+		  
+		    minSos: { type: "f", value: this.minSos },
+		    maxSos: { type: "f", value: this.maxSos },
+		    minAtten: { type: "f", value: this.minAtten },
+		    maxAtten: { type: "f", value: this.maxAtten },
+		    minRefl: { type: "f", value: this.minRefl },
+		    maxRefl: { type: "f", value: this.maxRefl },  
+		  
+		   uTransferFunction: { type: "t",  value: this._transfer_function },
+		   uColorVal: { type: "f", value: this._color_factor },
+		   uAbsorptionModeIndex: { type: "f", value: this._absorption_mode_index },
+		   uMinGrayVal: { type: "f", value: this._gray_value[0] },
+		   uMaxGrayVal: { type: "f", value: this._gray_value[1] }
+		},
+		side: THREE.BackSide,
+		transparent: true
+	    });
 
-    this._sceneFirstPass = new THREE.Scene();
-    this._sceneSecondPass = new THREE.Scene();
+	    this._sceneFirstPass = new THREE.Scene();
+	    this._sceneSecondPass = new THREE.Scene();
 
-    // Created mesh for both passes using geometry helper
-    this._initGeometry( this.getGeometryDimensions(), this.getVolumeSizeNormalized() );    
-    this._meshFirstPass = new THREE.Mesh( this._geometry, this._materialFirstPass );
-    this._meshSecondPass = new THREE.Mesh( this._geometry, this._materialSecondPass );
+	    // Created mesh for both passes using geometry helper
+	    this._initGeometry( this.getGeometryDimensions(), this.getVolumeSizeNormalized() );    
+	    this._meshFirstPass = new THREE.Mesh( this._geometry, this._materialFirstPass );
+	    this._meshSecondPass = new THREE.Mesh( this._geometry, this._materialSecondPass );
 
-    //this._axes = buildAxes(0.5);
-    this._sceneFirstPass.add(this._meshFirstPass);
-    this._sceneSecondPass.add(this._meshSecondPass);
-    //this._sceneSecondPass.add(this._axes);
-    
-    
-    var mesh = new THREE.Mesh(
-        new THREE.BoxGeometry( 1, 1, 1 ),
-        new THREE.MeshNormalMaterial()
-    );
-    this._wireframe = new THREE.BoxHelper( mesh );
-    this._wireframe.material.color.set( 0xe3e3e3 );
-    this._sceneSecondPass.add( this._wireframe );
-    // END OF 3D
-    
-    var sphere = new THREE.SphereGeometry( 0.1 );
-    this._light1 = new THREE.PointLight( 0xff0040, 2, 50 );
-    this._light1.add( new THREE.Mesh( sphere, new THREE.MeshBasicMaterial( { color: 0xff0040 } ) ) );
-    this._light1.position.set(1, 0, 0);
-    //this._sceneSecondPass.add( this._light1 );
-    //this._sceneSecondPass.add( new THREE.DirectionalLightHelper(this._light1, 0.2) );
-    
-    // parent
-	this._parent = new THREE.Object3D();
-	this._sceneSecondPass.add( this._parent );
-    // pivot
-	this._pivot = new THREE.Object3D();
-	this._parent.add( this._pivot );
-    */
-    
+	    //this._axes = buildAxes(0.5);
+	    this._sceneFirstPass.add(this._meshFirstPass);
+	    this._sceneSecondPass.add(this._meshSecondPass);
+	    //this._sceneSecondPass.add(this._axes);
+	    
+	    
+	    var mesh = new THREE.Mesh(
+		new THREE.BoxGeometry( 1, 1, 1 ),
+		new THREE.MeshNormalMaterial()
+	    );
+	    this._wireframe = new THREE.BoxHelper( mesh );
+	    this._wireframe.material.color.set( 0xe3e3e3 );
+	    this._sceneSecondPass.add( this._wireframe );
+	    
+	    var sphere = new THREE.SphereGeometry( 0.1 );
+	    this._light1 = new THREE.PointLight( 0xff0040, 2, 50 );
+	    this._light1.add( new THREE.Mesh( sphere, new THREE.MeshBasicMaterial( { color: 0xff0040 } ) ) );
+	    this._light1.position.set(1, 0, 0);
+	    //this._sceneSecondPass.add( this._light1 );
+	    //this._sceneSecondPass.add( new THREE.DirectionalLightHelper(this._light1, 0.2) );
+	    
+	    // parent
+		this._parent = new THREE.Object3D();
+		this._sceneSecondPass.add( this._parent );
+	    // pivot
+		this._pivot = new THREE.Object3D();
+		this._parent.add( this._pivot );
+    }   
+ 
 	// mesh
 	//mesh1 = new THREE.Mesh( geometry, material1 );
 	//mesh2 = new THREE.Mesh( geometry, material2 );
@@ -760,9 +761,9 @@ Core.prototype.init = function() {
     this._sceneSecondPass.add( this._wireframe2 );
     */
     
-    // 3D
-    //this.setTransferFunctionByColors(this._transfer_function_colors);
-    
+    if(this._mode == "3d") { 
+        this.setTransferFunctionByColors(this._transfer_function_colors);
+    }
     // Arrow Helper
     /*
     var xdir = new THREE.Vector3( 1, 0, 0 );
@@ -882,8 +883,9 @@ Core.prototype.setTransferFunctionByImage = function(image) {
     texture.flipY = true;
     texture.needsUpdate = true;
 
-    //3D
-    //this._secondPassSetUniformValue("uTransferFunction", texture);
+    if(this._mode == "3d") { 
+        this._secondPassSetUniformValue("uTransferFunction", texture);
+    }
     this.onChangeTransferFunction.call(image);
 };
 
@@ -942,48 +944,47 @@ Core.prototype._initGeometry = function(geometryDimensions, volumeSizes) {
 Core.prototype.setMode = function(conf) {  
     this._shader_name =  conf.shader_name;
   
-    //3D
-    /*
-    this._materialSecondPass = new THREE.ShaderMaterial( {
-        vertexShader: this._shaders[this._shader_name].vertexShader,
-        fragmentShader: ejs.render(
-            this._shaders[this._shader_name].fragmentShader,
-            {"maxTexturesNumber": this.getMaxTexturesNumber()}
-        ),
-        attributes: {
-            vertColor: {type: 'c', value: [] }
-        },
-        uniforms: {
-            uBackCoord: { type: "t",  value: this._rtTexture }, 
-            uSliceMaps: { type: "tv", value: this._slicemaps_textures },
-            uLightPos: {type:"v3", value: new THREE.Vector3() },
-            uSetViewMode: {type:"i", value: 0 },          
-            uNumberOfSlices: { type: "f", value: this.getSlicesRange()[1] },
-            uSlicemapWidth: { type: "f", value: this._slicemaps_width},
-            uSlicesOverX: { type: "f", value: this._slicemap_row_col[0] },
-            uSlicesOverY: { type: "f", value: this._slicemap_row_col[1] },
-            uOpacityVal: { type: "f", value: this._opacity_factor },
-            darkness: { type: "f", value: this._color_factor },
-            l: { type: "f", value: this.l },
-            s: { type: "f", value: this.s },
-            hMin: { type: "f", value: this.hMin },
-            hMax: { type: "f", value: this.hMax },
-            minSos: { type: "f", value: this.minSos },
-            maxSos: { type: "f", value: this.maxSos },
-            minAtten: { type: "f", value: this.minAtten },
-            maxAtten: { type: "f", value: this.maxAtten },
-            minRefl: { type: "f", value: this.minRefl },
-            maxRefl: { type: "f", value: this.maxRefl }    
-        },
-        side: THREE.BackSide,
-        transparent: true
-    });
-  
-    this._meshSecondPass = new THREE.Mesh( this._geometry, this._materialSecondPass );
+    if(this._mode == "3d") { 
+	    this._materialSecondPass = new THREE.ShaderMaterial( {
+		vertexShader: this._shaders[this._shader_name].vertexShader,
+		fragmentShader: ejs.render(
+		    this._shaders[this._shader_name].fragmentShader,
+		    {"maxTexturesNumber": this.getMaxTexturesNumber()}
+		),
+		attributes: {
+		    vertColor: {type: 'c', value: [] }
+		},
+		uniforms: {
+		    uBackCoord: { type: "t",  value: this._rtTexture }, 
+		    uSliceMaps: { type: "tv", value: this._slicemaps_textures },
+		    uLightPos: {type:"v3", value: new THREE.Vector3() },
+		    uSetViewMode: {type:"i", value: 0 },          
+		    uNumberOfSlices: { type: "f", value: this.getSlicesRange()[1] },
+		    uSlicemapWidth: { type: "f", value: this._slicemaps_width},
+		    uSlicesOverX: { type: "f", value: this._slicemap_row_col[0] },
+		    uSlicesOverY: { type: "f", value: this._slicemap_row_col[1] },
+		    uOpacityVal: { type: "f", value: this._opacity_factor },
+		    darkness: { type: "f", value: this._color_factor },
+		    l: { type: "f", value: this.l },
+		    s: { type: "f", value: this.s },
+		    hMin: { type: "f", value: this.hMin },
+		    hMax: { type: "f", value: this.hMax },
+		    minSos: { type: "f", value: this.minSos },
+		    maxSos: { type: "f", value: this.maxSos },
+		    minAtten: { type: "f", value: this.minAtten },
+		    maxAtten: { type: "f", value: this.maxAtten },
+		    minRefl: { type: "f", value: this.minRefl },
+		    maxRefl: { type: "f", value: this.maxRefl }    
+		},
+		side: THREE.BackSide,
+		transparent: true
+	    });
+	  
+	    this._meshSecondPass = new THREE.Mesh( this._geometry, this._materialSecondPass );
 
-    this._sceneSecondPass = new THREE.Scene();
-    this._sceneSecondPass.add( this._meshSecondPass );
-    */
+	    this._sceneSecondPass = new THREE.Scene();
+	    this._sceneSecondPass.add( this._meshSecondPass );
+    }
 }
 
 
@@ -1086,51 +1087,59 @@ Core.prototype.setSlicemapsImages = function(images, imagesPaths) {
     this._slicemaps_images = images;
     this._slicemaps_paths = imagesPaths != undefined ? imagesPaths : this._slicemaps_paths;
     this._setSlicemapsTextures(images);
-    //3D
-    //this._secondPassSetUniformValue("uSliceMaps", this._slicemaps_textures);
+    
+    if(this._mode == "3d") { 
+        this._secondPassSetUniformValue("uSliceMaps", this._slicemaps_textures);
+    }
     this._slicemaps_width = images[0].width;
-    //3D
-    //this._secondPassSetUniformValue("uSlicemapWidth", this._slicemaps_width);
+    if(this._mode == "3d") {
+        this._secondPassSetUniformValue("uSlicemapWidth", this._slicemaps_width);
+    }
 };
 
 
 Core.prototype.setSteps = function(steps) {
     //console.log("Core: setSteps(" + steps + ")");
     this._steps = steps;
-    //3D
-    //this._secondPassSetUniformValue("uSteps", this._steps);
+    if(this._mode == "3d") { 
+        this._secondPassSetUniformValue("uSteps", this._steps);
+    }
 };
 
 
 Core.prototype.setSlicesRange = function(from, to) {
     console.log("Core: setSlicesRange()");
     this._slices_gap = [from, to];
-    //3D
-    //this._secondPassSetUniformValue("uNumberOfSlices", this.getSlicesRange()[1])
+    if(this._mode == "3d") { 
+        this._secondPassSetUniformValue("uNumberOfSlices", this.getSlicesRange()[1]);
+    }
 };
 
 
 Core.prototype.setOpacityFactor = function(opacity_factor) {
     console.log("Core: setOpacityFactor()");
     this._opacity_factor = opacity_factor;
-    //3D
-    //this._secondPassSetUniformValue("uOpacityVal", this._opacity_factor);
+    if(this._mode == "3d") { 
+        this._secondPassSetUniformValue("uOpacityVal", this._opacity_factor);
+    }
 };
 
 
 Core.prototype.setColorFactor = function(color_factor) {
     console.log("Core: setColorFactor()");
     this._color_factor = color_factor;
-    //3D
-    //this._secondPassSetUniformValue("darkness", this._color_factor);
+    if(this._mode == "3d") { 
+        this._secondPassSetUniformValue("darkness", this._color_factor);
+    }
 };
 
 
 Core.prototype.setAbsorptionMode = function(mode_index) {
     console.log("Core: setAbsorptionMode()");
     this._absorption_mode_index = mode_index;
-    //3D
-    //this._secondPassSetUniformValue("uAbsorptionModeIndex", this._absorption_mode_index);
+    if(this._mode == "3d") { 
+        this._secondPassSetUniformValue("uAbsorptionModeIndex", this._absorption_mode_index);
+    }
 };
 
 
@@ -1186,17 +1195,19 @@ Core.prototype.setBackgroundColor = function(color) {
 Core.prototype.setRowCol = function(row, col) {
     console.log("Core: setRowCol()");
     this._slicemap_row_col = [row, col];
-    //3D
-    //this._secondPassSetUniformValue("uSlicesOverX", this._slicemap_row_col[0]);
-    //this._secondPassSetUniformValue("uSlicesOverY", this._slicemap_row_col[1]);
+    if(this._mode == "3d") {
+        this._secondPassSetUniformValue("uSlicesOverX", this._slicemap_row_col[0]);
+        this._secondPassSetUniformValue("uSlicesOverY", this._slicemap_row_col[1]);
+    }
 };
 
 
 Core.prototype.setGrayMinValue = function(value) {
     console.log("Core: setMinGrayValue()");
     this._gray_value[0] = value;
-    //3D
-    //this._secondPassSetUniformValue("uMinGrayVal", this._gray_value[0]);
+    if(this._mode == "3d") {
+        this._secondPassSetUniformValue("uMinGrayVal", this._gray_value[0]);
+    }
 };
 
 
@@ -1234,8 +1245,9 @@ Core.prototype.setThresholdIndexes = function(otsu, isodata, yen, li) {
 Core.prototype.setGrayMaxValue = function(value) {
     console.log("Core: setMaxGrayValue()");
     this._gray_value[1] = value;
-    //3D
-    //this._secondPassSetUniformValue("uMaxGrayVal", this._gray_value[1]);
+    if(this._mode == "3d") {
+        this._secondPassSetUniformValue("uMaxGrayVal", this._gray_value[1]);
+    }
 };
 
 
@@ -1246,8 +1258,10 @@ Core.prototype.addWireframe = function() {
     // Controls
     //this._controls.update();
     //3D
-    //this._render.render( this._sceneFirstPass, this._camera, this._rtTexture, true );
-    //this._render.render( this._sceneFirstPass, this._camera );
+    if(this._mode == "3d") {
+        this._render.render( this._sceneFirstPass, this._camera, this._rtTexture, true );
+        this._render.render( this._sceneFirstPass, this._camera );
+    }
 
     // Render the second pass and perform the volume rendering.
     this._render.render( this._sceneSecondPass, this._camera );
@@ -1261,8 +1275,10 @@ Core.prototype.removeWireframe = function() {
     // Controls
     //this._controls.update();
     //3D
-    //this._render.render( this._sceneFirstPass, this._camera, this._rtTexture, true );
-    //this._render.render( this._sceneFirstPass, this._camera );
+    if(this._mode == "3d") {
+        this._render.render( this._sceneFirstPass, this._camera, this._rtTexture, true );
+        this._render.render( this._sceneFirstPass, this._camera );
+    }
 
     // Render the second pass and perform the volume rendering.
     this._render.render( this._sceneSecondPass, this._camera );
@@ -1304,8 +1320,10 @@ Core.prototype.setAxis = function(value) {
     // Controls
     //this._controls.update();
     //3D
-    //this._render.render( this._sceneFirstPass, this._camera, this._rtTexture, true );
-    //this._render.render( this._sceneFirstPass, this._camera );
+    if(this._mode == "3d") {
+        this._render.render( this._sceneFirstPass, this._camera, this._rtTexture, true );
+        this._render.render( this._sceneFirstPass, this._camera );
+    }
 
     // Render the second pass and perform the volume rendering.
     this._render.render( this._sceneSecondPass, this._camera );
@@ -1313,11 +1331,11 @@ Core.prototype.setAxis = function(value) {
 
 
 Core.prototype.showISO = function() {
-    //3D
-    //this._secondPassSetUniformValue("uSetViewMode", 1);
-    this._pivot.add( this._light1 );
-    //3D
-    //this._render.render( this._sceneSecondPass, this._camera );
+    if(this._mode == "3d") {
+        this._secondPassSetUniformValue("uSetViewMode", 1);
+        this._pivot.add( this._light1 );
+        this._render.render( this._sceneSecondPass, this._camera );
+    }
 };
 
 
@@ -1334,10 +1352,11 @@ Core.prototype.hideLight = function() {
 
 
 Core.prototype.showVolren = function() {
-    //3D
-    //this._secondPassSetUniformValue("uSetViewMode", 0);
-    this._pivot.remove( this._light1 );
-    //this._render.render( this._sceneSecondPass, this._camera );
+    if(this._mode == "3d") {
+        this._secondPassSetUniformValue("uSetViewMode", 0);
+        this._pivot.remove( this._light1 );
+        this._render.render( this._sceneSecondPass, this._camera );
+    }
 };
 
 
@@ -1365,18 +1384,21 @@ Core.prototype.draw = function(fps) {
     //console.log(cameraPosition);
     
     //3D
-    //var cameraPosition = this._light1.getWorldPosition();
-    //this._secondPassSetUniformValue("uLightPos", cameraPosition);
-    
+    if(this._mode == "3d") {
+        var cameraPosition = this._light1.getWorldPosition();
+        this._secondPassSetUniformValue("uLightPos", cameraPosition);
+    }    
+
     //Controls
     //this._controls.update();
     //3D
     this._render.render( this._sceneFirstPass, this._camera, this._rtTexture, true );
     this._render.render( this._sceneFirstPass, this._camera );
 
-    //3D
     // Render the second pass and perform the volume rendering.
-    //this._render.render( this._sceneSecondPass, this._camera );
+    if(this._mode == "3d") {
+        this._render.render( this._sceneSecondPass, this._camera );
+    }
 
     /*
     // Enable this for compass or birdview
