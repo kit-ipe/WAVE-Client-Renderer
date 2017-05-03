@@ -480,7 +480,7 @@ var Core = function(conf) {
     this._slicemap_row_col = [16, 16];
     this._gray_value = [0.0, 1.0];
     this._slicemaps_images = [];
-    this._slicemaps_paths = [];
+    this._slicemaps_paths = conf.slicemaps_paths;
     this._slicemaps_width = [];
     this._slicemaps_textures = [];
     this._opacity_factor = conf.opacity_factor != undefined ? conf.opacity_factor : 35;
@@ -573,7 +573,7 @@ Core.prototype.init = function() {
         antialias: true,
         alpha : true
     }); 
-    this._render.domElement.id = 'wave-canvas';
+    this._render.domElement.id = 'wave-'+this._dom_container_id;
     this._render.setSize(this.getRenderSizeInPixels()[0],
                          this.getRenderSizeInPixels()[1]);
     this._render.setClearColor(this._render_clear_color, 0);
@@ -620,28 +620,14 @@ Core.prototype.init = function() {
     );
     this._rtTexture.texture.wrapS = THREE.ClampToEdgeWrapping;
     this._rtTexture.texture.wrapT = THREE.ClampToEdgeWrapping;
-    
-    /*
-    var tex2 = THREE.ImageUtils.loadTexture( "http://katrin.kit.edu/vis/tmp/zoom_0.png" );
-    var cm2 = THREE.ImageUtils.loadTexture( "http://katrin.kit.edu/static/colormaps/cm_viridis.png" );
-    var gm2 = THREE.ImageUtils.loadTexture( "http://katrin.kit.edu/static/colormaps/cm_Greys.png" );
-    tex2.minFilter = THREE.LinearFilter;
-    cm2.minFilter = THREE.LinearFilter;
-    gm2.minFilter = THREE.LinearFilter;
-    var shaderCode2 = document.getElementById("fragShaderHourly").innerHTML;
-    var uniforms2 = {};
-    uniforms2.resolution = {type:'v2',value:new THREE.Vector2(overview.offsetWidth,overview.offsetHeight)};
-    uniforms2.texture2 = {type:'t',value:tex2};
-    */
+
     // 2D
-    //var tex2 = THREE.ImageUtils.loadTexture( "dataset/slicemap_0_blue_line.png" );
-    this._tex1 = THREE.ImageUtils.loadTexture( "dataset/image01_2014_03_17_01.png" );
+    this._tex1 = THREE.ImageUtils.loadTexture( this._slicemaps_paths[0] );
     this._tex1.minFilter = THREE.LinearFilter;
-    this._tex2 = THREE.ImageUtils.loadTexture( "dataset/image01_2014_03_17_02.png" );
+    this._tex2 = THREE.ImageUtils.loadTexture( this._slicemaps_paths[1] );
     this._tex2.minFilter = THREE.LinearFilter;
-    
-    //console.log("CHECK!!");
-    //console.log(this._shaders["secondPass2DCustom"].fragmentShader);
+    this._cm = THREE.ImageUtils.loadTexture( "http://katrin.kit.edu/static/colormaps/cm_BrBG.png" );
+    this._cm.minFilter = THREE.LinearFilter;
     
     this._material2D = new THREE.ShaderMaterial({
         vertexShader: this._shaders["secondPass2DCustom"].vertexShader,
@@ -653,9 +639,10 @@ Core.prototype.init = function() {
             uSetViewMode: {type: "i", value: 0},
             texture1: {type: 't', value: this._tex1},
             texture2: {type: 't', value: this._tex2},
+            colourmap: {type: 't', value: this._cm},
             uZoom: {type:'v4', value: new THREE.Vector4(0.0, 1.0, 0.0, 1.0)},
             //uZoom: {type:'v4', value: new THREE.Vector4(0.1875, 0.28125, 0.20117, 0.29492)},
-            resolution: {type: 'v2',value: new THREE.Vector2(512,512)}
+            resolution: {type: 'v2',value: new THREE.Vector2(this._render_size[0], this._render_size[1])}
         }
     });
     var geometry = new THREE.PlaneBufferGeometry( 10, 10 );
@@ -1008,6 +995,19 @@ Core.prototype.setZoom = function(x1, x2, y1, y2) {
     //this._material2D.uniforms.uZoom.value = {type: "i", value: 1 };
 }
 
+Core.prototype.set2DTexture = function(urls) {
+    console.log("apply new Textures");
+    var chosen_cm = THREE.ImageUtils.loadTexture( urls[0] );
+    var chosen_cm2 = THREE.ImageUtils.loadTexture( urls[1] );
+    
+    chosen_cm.minFilter = THREE.NearestFilter;
+    chosen_cm2.minFilter = THREE.NearestFilter;
+
+    this._material2D.uniforms["texture1"].value = chosen_cm ;
+    this._material2D.uniforms["texture2"].value = chosen_cm2;
+    this._material2D.needsUpdate = true;
+}
+
 
 Core.prototype.setShader = function(codeblock) {    
     var header = "uniform vec2 resolution; \
@@ -1017,6 +1017,7 @@ Core.prototype.setShader = function(codeblock) {
     uniform sampler2D uSliceMaps[<%= maxTexturesNumber %>]; \
     uniform sampler2D texture1; \
     uniform sampler2D texture2; \
+    uniform sampler2D colourmap; \
     uniform vec4 uZoom; \
     void main(void) { \
     vec2 pos = gl_FragCoord.xy / resolution.xy; \
@@ -1047,8 +1048,9 @@ Core.prototype.setShader = function(codeblock) {
             uSetViewMode: {type: "i", value: 0 },
             texture1: {type: 't', value: this._tex1},
             texture2: {type: 't', value: this._tex2},
+            colourmap: {type: 't', value: this._cm},
             uZoom: {type:'v4', value: new THREE.Vector4(0.0, 1.0, 0.0, 1.0)},
-            resolution: {type: 'v2', value: new THREE.Vector2(512,512)}
+            resolution: {type: 'v2',value: new THREE.Vector2(this._render_size[0], this._render_size[1])}
         }
     });
     var geometry = new THREE.PlaneBufferGeometry( 10, 10 );
@@ -7267,6 +7269,12 @@ window.VRC.Core.prototype._shaders.secondPassStevenTri = {
         
         me.getBase64 = function() {
             return me._core.getBase64();    
+        };
+        
+        me.set2DTexture = function(urls) {
+            me._core.set2DTexture(urls); 
+            me._needRedraw = true;
+            return true;
         };
 
         me.isAutoStepsOn = function() {

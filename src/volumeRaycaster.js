@@ -706,6 +706,12 @@
         me.getBase64 = function() {
             return me._core.getBase64();    
         };
+        
+        me.set2DTexture = function(urls) {
+            me._core.set2DTexture(urls); 
+            me._needRedraw = true;
+            return true;
+        };
 
         me.isAutoStepsOn = function() {
             console.log("Check");
