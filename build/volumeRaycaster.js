@@ -1177,6 +1177,9 @@ Core.prototype.setRenderCanvasSize = function(width, height) {
     var width = this.getCanvasSizeInPixels()[0];
     var height = this.getCanvasSizeInPixels()[1];
 
+    console.log("CHECK WIDTH HEIGHT");
+    console.log(width);
+    console.log(height);
     this._render.domElement.style.width = width + "px";
     this._render.domElement.style.height = height + "px";
 
@@ -1390,7 +1393,7 @@ Core.prototype.draw = function(fps) {
     }    
 
     //Controls
-    //this._controls.update();
+    this._controls.update();
     //3D
     this._render.render( this._sceneFirstPass, this._camera, this._rtTexture, true );
     this._render.render( this._sceneFirstPass, this._camera );
@@ -1432,10 +1435,12 @@ Core.prototype.getRenderSizeInPixels  = function() {
     var height = this.getRenderSize()[0];
 
     if(this._render_size[0] == '*') {
-        width = this._render.domElement.width;
+        //width = this._render.domElement.width;
+        width = this.getCanvasSizeInPixels()[0];
     } 
     if(this._render_size[1] == '*') {
-        height = this._render.domElement.height;
+        //height = this._render.domElement.height;
+        height = this.getCanvasSizeInPixels()[1];
     }
 
     return [width, height];
