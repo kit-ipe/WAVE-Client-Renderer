@@ -734,9 +734,6 @@ Core.prototype.setRenderCanvasSize = function(width, height) {
     var width = this.getCanvasSizeInPixels()[0];
     var height = this.getCanvasSizeInPixels()[1];
 
-    console.log("CHECK WIDTH HEIGHT");
-    console.log(width);
-    console.log(height);
     this._render.domElement.style.width = width + "px";
     this._render.domElement.style.height = height + "px";
 
