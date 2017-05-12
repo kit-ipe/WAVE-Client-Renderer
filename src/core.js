@@ -34,7 +34,14 @@ var Core = function(conf) {
     // General Parameters
     this._mode = conf.mode == undefined ? "3d" : conf.mode;
     this._steps = conf.steps == undefined ? 20 : conf.steps;
-    this._slices_gap = [0, '*'];
+    this._slices_gap = typeof conf.slices_range == undefined ? [0, '*'] : conf.slices_range;
+    
+    console.log("CHECK");
+    console.log(conf);
+    console.log(conf.mode);
+    console.log(typeof conf.mode);
+    console.log(this._mode);
+
     this._slicemap_row_col = [16, 16];
     this._gray_value = [0.0, 1.0];
     this._slicemaps_images = [];
@@ -172,12 +179,16 @@ Core.prototype.init = function() {
     this._rtTexture = new THREE.WebGLRenderTarget(
         this.getRenderSizeInPixels()[0],
         this.getRenderSizeInPixels()[1],
-        {minFilter: THREE.LinearFilter,
-         magFilter: THREE.LinearFilter,
-         format: THREE.RGBAFormat}
+        {
+            minFilter: THREE.LinearFilter,
+            magFilter: THREE.LinearFilter,
+            wrapS:  THREE.ClampToEdgeWrapping,
+            wrapT:  THREE.ClampToEdgeWrapping,
+            format: THREE.RGBFormat,
+            type: THREE.FloatType,
+            generateMipmaps: false
+        }
     );
-    this._rtTexture.texture.wrapS = THREE.ClampToEdgeWrapping;
-    this._rtTexture.texture.wrapT = THREE.ClampToEdgeWrapping;
 
     // 2D
     if(this._mode == "2d") {
@@ -218,6 +229,7 @@ Core.prototype.init = function() {
 		vertexShader: this._shaders.firstPass.vertexShader,
 		fragmentShader: this._shaders.firstPass.fragmentShader,
 		side: THREE.FrontSide,
+        //side: THREE.BackSide,
 		transparent: true
 	    } );
 	    
@@ -233,7 +245,7 @@ Core.prototype.init = function() {
 
 		    uSteps: { type: "i", value: this._steps },
 		    uSlicemapWidth: { type: "f", value: this._slicemaps_width },
-		    uNumberOfSlices: { type: "f", value: this.getSlicesRange()[1] },
+		    uNumberOfSlices: { type: "f", value:  (parseFloat(this.getSlicesRange()[1]) + 1.0) },
 		    uSlicesOverX: { type: "f", value: this._slicemap_row_col[0] },
 		    uSlicesOverY: { type: "f", value: this._slicemap_row_col[1] },
 		    uOpacityVal: { type: "f", value: this._opacity_factor },
@@ -257,7 +269,8 @@ Core.prototype.init = function() {
 		   uMinGrayVal: { type: "f", value: this._gray_value[0] },
 		   uMaxGrayVal: { type: "f", value: this._gray_value[1] }
 		},
-		side: THREE.BackSide,
+		//side: THREE.FrontSide,
+        side: THREE.BackSide,
 		transparent: true
 	    });
 
@@ -516,7 +529,7 @@ Core.prototype.setMode = function(conf) {
 		    uSliceMaps: { type: "tv", value: this._slicemaps_textures },
 		    uLightPos: {type:"v3", value: new THREE.Vector3() },
 		    uSetViewMode: {type:"i", value: 0 },          
-		    uNumberOfSlices: { type: "f", value: this.getSlicesRange()[1] },
+		    uNumberOfSlices: { type: "f", value: (parseFloat(this.getSlicesRange()[1]) + 1.0) },
 		    uSlicemapWidth: { type: "f", value: this._slicemaps_width},
 		    uSlicesOverX: { type: "f", value: this._slicemap_row_col[0] },
 		    uSlicesOverY: { type: "f", value: this._slicemap_row_col[1] },
@@ -668,7 +681,7 @@ Core.prototype.setSlicesRange = function(from, to) {
     console.log("Core: setSlicesRange()");
     this._slices_gap = [from, to];
     if(this._mode == "3d") { 
-        this._secondPassSetUniformValue("uNumberOfSlices", this.getSlicesRange()[1]);
+        this._secondPassSetUniformValue("uNumberOfSlices", (parseFloat(this.getSlicesRange()[1]) + 1.0));
     }
 };
 
@@ -1060,7 +1073,7 @@ Core.prototype.getSlicesRange  = function() {
     var from = this._slices_gap[0];
     var to = this._slices_gap[1];
     if(this._slices_gap[1] == '*') {
-        to = this.getRowCol()[0] * this.getRowCol()[1] * this.getSlicemapsImages().length;
+        to = (this.getRowCol()[0] * this.getRowCol()[1] * this.getSlicemapsImages().length) - 1;
     }
 
     return [from, to];

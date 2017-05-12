@@ -38,6 +38,7 @@ float getTextureValue(int slicemapNo, vec2 texpos)
           value_vec = texture2D(uSliceMaps[<%=i%>],texpos).rgb;
           //value = ((value_vec.r + value_vec.g + value_vec.b)/3.0);
           value = ((value_vec.r * 0.299)+(value_vec.g * 0.587)+(value_vec.b * 0.114));
+          value = vale_rec.r;
         }
 
         <% if( i < maxTexturesNumber-1 ) { %>

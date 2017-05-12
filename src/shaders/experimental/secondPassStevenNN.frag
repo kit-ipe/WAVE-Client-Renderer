@@ -62,7 +62,8 @@ float getVolumeValue(vec3 volpos)
         {
           value1_vec = texture2D(uSliceMaps[<%=i%>],texpos1).rgb;
           //value1 = ((value1_vec.r + value1_vec.g + value1_vec.b)/3.0);
-          value1 = ((value1_vec.r * 0.299)+(value1_vec.g * 0.587)+(value1_vec.b * 0.114));
+          //value1 = ((value1_vec.r * 0.299)+(value1_vec.g * 0.587)+(value1_vec.b * 0.114));
+          value1 = value1_vec.r;
         }
 
         <% if( i < maxTexturesNumber-1 ) { %>

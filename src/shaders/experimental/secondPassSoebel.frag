@@ -33,11 +33,12 @@ uniform float l;
 uniform float s; 
 uniform float hMin; 
 uniform float hMax; 
-
+uniform float uSlicemapWidth;
 
 //Acts like a texture3D using Z slices and trilinear filtering. 
 vec3 getVolumeValue(vec3 volpos)
 {
+    /*
     float s1Original, s2Original, s1, s2; 
     float dx1, dy1; 
 
@@ -72,6 +73,53 @@ vec3 getVolumeValue(vec3 volpos)
     <% } %>
 
     return value;
+    */
+    
+    float value1 = 0.0;
+    vec2 texpos1;
+    vec3 value1_vec;
+    
+    float eps =pow(2.0,-16.0);
+    if (volpos.x >= 1.0)
+        volpos.x = 1.0-eps;
+    if (volpos.y >= 1.0)
+        volpos.y = 1.0-eps;
+    if (volpos.z >= 1.0)
+        volpos.z = 1.0-eps;
+    
+    float slicesPerSlicemap = uSlicesOverX * uSlicesOverY; 
+
+    float sliceNo = floor(volpos.z*(uNumberOfSlices));
+    
+    int texIndexOfSlicemap = int(floor(sliceNo / slicesPerSlicemap));
+
+    float s1 = mod(sliceNo, slicesPerSlicemap);
+
+    float dx1 = fract(s1/uSlicesOverX);
+    float dy1 = floor(s1/uSlicesOverY)/uSlicesOverY;      
+       
+    float sliceSizeX = uSlicemapWidth/uSlicesOverX;
+    float sliceSizeY = uSlicemapWidth/uSlicesOverY;
+    
+    texpos1.x = dx1+(floor(volpos.x*sliceSizeX)+0.5)/uSlicemapWidth;
+    texpos1.y = dy1+(floor(volpos.y*sliceSizeY)+0.5)/uSlicemapWidth;
+ 
+    <% for(var i=0; i < maxTexturesNumber; i++) { %>
+        if( texIndexOfSlicemap == <%=i%> )
+        {
+          value1_vec = texture2D(uSliceMaps[<%=i%>],texpos1).rgb;
+          //value1 = ((value1_vec.r + value1_vec.g + value1_vec.b)/3.0);
+          //value1 = ((value1_vec.r * 0.299)+(value1_vec.g * 0.587)+(value1_vec.b * 0.114));
+          //value1 = value1_vec;
+        }
+
+        <% if( i < maxTexturesNumber-1 ) { %>
+            else
+        <% } %>
+    <% } %>
+    
+
+    return value1_vec;
 }
 
 // Compute the Normal around the current voxel
@@ -288,9 +336,6 @@ vec3 getNormal(vec3 at)
     fy += ((w2 * (H8 - L8)) + L8) * -1.0;
 
     
-    
-    
-    
     fz =  ((w0 * (H0 - L0)) + L0) * -1.0;
     fz += ((w1 * (H0 - L0)) + L0) * 0.0;
     fz += ((w2 * (H0 - L0)) + L0) * 1.0;
@@ -414,7 +459,26 @@ void main(void)
             colorValue.x = (darkness * 2.0 - gray_val.x) * l * 0.4;
             //colorValue.x = gray_val.x;
             colorValue.w = 0.1;
+            
+            vec3 L = normalize(vpos.xyz - uLightPos);
+                vec3 V = normalize( cameraPosition - vpos.xyz );
+                vec3 N = normalize(getNormal(vpos.xyz));
 
+                // get Blinn-Phong reflectance components
+                vec3 Iamb = ambientLighting();
+                vec3 Idif = diffuseLighting(N, L);
+                vec3 Ispe = specularLighting(N, L, V);
+
+                // diffuse color of the object from texture
+                //vec3 diffuseColor = texture(u_diffuseTexture, o_texcoords).rgb;
+        
+                vec3 mycolor = (Iamb + Idif + Ispe);
+                //vec3 mycolor = colorValue.xxx * (Iamb + Ispe);
+                sample.rgb = mycolor;
+                sample.rgb = N;
+                sample.a = 1.0;
+
+            /*
             if ( uSetViewMode == 1 ) {
                 // normalize vectors after interpolation
                 vec3 L = normalize(vpos.xyz - uLightPos);
@@ -437,6 +501,7 @@ void main(void)
                 sample.rgb = (1.0 - accum.a) * colorValue.xxx * sample.a;
                 sample.a = colorValue.a * opacityFactor * (1.0 / uStepsF);
             }
+            */
 
             accum += sample; 
             if(accum.a>=1.0) 
@@ -444,7 +509,7 @@ void main(void)
         }    
    
         //advance the current position 
-        vpos.xyz += Step;  
+        vpos.xyz += Step;
    
         if(vpos.x > 1.0 || vpos.y > 1.0 || vpos.z > 1.0 || vpos.x < 0.0 || vpos.y < 0.0 || vpos.z < 0.0)      
             break;  
