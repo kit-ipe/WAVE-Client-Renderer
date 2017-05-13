@@ -14,7 +14,6 @@ var Core = function(conf) {
 
     // USCT Parameters  
     // Slowly need to deprecate this section; can be generalized into rgb.
-    this.zFactor = conf.zFactor != undefined ? conf.zFactor : 1;
     this.l = conf.l;
     this.s = conf.s;
   
@@ -32,6 +31,7 @@ var Core = function(conf) {
     this.lightRotation = 0;
     
     // General Parameters
+    this.zFactor = conf.zFactor != undefined ? conf.zFactor : 1;
     this._mode = conf.mode == undefined ? "3d" : conf.mode;
     this._steps = conf.steps == undefined ? 20 : conf.steps;
     this._slices_gap = typeof conf.slices_range == undefined ? [0, '*'] : conf.slices_range;
@@ -238,6 +238,7 @@ Core.prototype.init = function() {
 		fragmentShader: ejs.render( this._shaders[this._shader_name].fragmentShader, {
 		  "maxTexturesNumber": me.getMaxTexturesNumber()}),
 		uniforms: {
+            uRatio : { type: "f", value: this.zFactor},
 		    uBackCoord: { type: "t",  value: this._rtTexture }, 
 		    uSliceMaps: { type: "tv", value: this._slicemaps_textures },
 		    uLightPos: {type:"v3", value: new THREE.Vector3() },
@@ -525,6 +526,7 @@ Core.prototype.setMode = function(conf) {
 		    vertColor: {type: 'c', value: [] }
 		},
 		uniforms: {
+            uRatio : { type: "f", value: this.zFactor},
 		    uBackCoord: { type: "t",  value: this._rtTexture }, 
 		    uSliceMaps: { type: "tv", value: this._slicemaps_textures },
 		    uLightPos: {type:"v3", value: new THREE.Vector3() },
@@ -633,7 +635,8 @@ Core.prototype.setShader = function(codeblock) {
 
 Core.prototype._setGeometry = function(geometryDimensions, volumeSizes) {
     var geometryHelper = new VRC.GeometryHelper();
-    var geometry      = geometryHelper.createBoxGeometry(geometryDimensions, volumeSizes, this.zFactor);
+    var geometry      = geometryHelper.createBoxGeometry(geometryDimensions, volumeSizes, 1.0);
+    //var geometry      = geometryHelper.createBoxGeometry(geometryDimensions, volumeSizes, this.zFactor);
     var colorArray    = geometry.attributes.vertColor.array;
     var positionArray = geometry.attributes.position.array;
 

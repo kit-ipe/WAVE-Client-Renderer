@@ -33,13 +33,16 @@ uniform float uSlicesOverX;
 uniform float uSlicesOverY; 
 uniform float uSteps;
 
-uniform float uZFactor;
+uniform float uRatio;
 
 // uniform int uAvailable_textures_number;
 
 
 vec4 getVolumeValue(vec3 volpos)
 {
+    //if (volpos.z < 0.5)
+    //    return vec4(0.0);
+
     float s1Original, s2Original, s1, s2; 
     float dx1, dy1; 
     // float dx2, dy2; 
@@ -56,7 +59,7 @@ vec4 getVolumeValue(vec3 volpos)
     float adapted_x, adapted_y, adapted_z;
     adapted_x = (volpos.x * (1.0 - (2.0*delta))) + delta;
     adapted_y = (volpos.y * (1.0 - (2.0*delta))) + delta;
-    adapted_z = 1.0 - ((volpos.z * (1.0 - (2.0*delta))) + delta);
+    adapted_z = 1.0 - (( (volpos.z* (1.0/uRatio) ) * (1.0 - (2.0*delta))) + delta);
 
     s1Original = floor(adapted_z*uNumberOfSlices);
     //s1Original = floor(volpos.z*uNumberOfSlices); 
@@ -113,9 +116,8 @@ vec4 getVolumeValue(vec3 volpos)
 
     // } 
 
-    // return mix(value1, value2, fract(volpos.z*uNumberOfSlices)); 
-
-} 
+    // return mix(value1, value2, fract(volpos.z*uNumberOfSlices));
+}
 
 void main(void) {
  
@@ -131,17 +133,23 @@ void main(void) {
  
     //The direction from the front position to back position.
     vec3 dir = backPos - frontPos;
-    //vec3 dir = frontPos - backPos;
- 
     float rayLength = length(dir);
 
     //Calculate how long to increment in each step.
-    float steps = ceil( sqrt(3.0) * (uSlicemapWidth / uSlicesOverX) ) * uZFactor;
+    float steps = ceil( sqrt(3.0) * (uSlicemapWidth / uSlicesOverX) ) * uRatio;
+    //float steps = 256.0;
     float delta = 1.0 / steps;
     
     //The increment in each direction for each step.
     vec3 deltaDirection = normalize(dir) * delta;
+    
+    vec3 Step = dir / steps;
+    
     float deltaDirectionLength = length(deltaDirection);
+
+
+    //vec4 vpos = frontColor;  // currentPosition
+    //vec3 Step = dir/uStepsF; // steps
 
     //Start the ray casting from the front position.
     vec3 currentPosition = frontPos;
@@ -157,35 +165,76 @@ void main(void) {
     
     //If we have twice as many samples, we only need ~1/2 the alpha per sample.
     //Scaling by 256/10 just happens to give a good value for the alphaCorrection slider.
-    float alphaScaleFactor = 25.6 * delta;
+    float alphaScaleFactor = 28.8 * delta;
     
-    vec4 colorSample;
+    vec4 colorSample = vec4(0.0);
+    vec4 sample = vec4(0.0); 
+    vec4 grayValue;
     float alphaSample;
     float alphaCorrection = 1.0;
     
     //Perform the ray marching iterations
+    for(int i = 0; i < MAX_STEPS; i++) {       
 
+        if(currentPosition.x > 1.0 || currentPosition.y > 1.0 || currentPosition.z > 1.0 || currentPosition.x < 0.0 || currentPosition.y < 0.0 || currentPosition.z < 0.0)      
+            break;
+        if(accumulatedColor.a>=1.0) 
+               break;
+
+        grayValue = getVolumeValue(currentPosition); 
+
+        if(grayValue.z < 0.05 || 
+           grayValue.x < 0.0 ||
+           grayValue.x > 1.0)  
+            accumulatedColor = vec4(0.0);     
+        else { 
+            //colorSample.x = (1.0 * 2.0 - grayValue.x) * 5.0 * 0.4;
+            colorSample.x = grayValue.x;
+            colorSample.w = alphaScaleFactor;
+              
+            //sample.a = colorSample.a * 40.0 * (1.0 / steps);
+            sample.a = colorSample.a;
+            sample.rgb = (1.0 - accumulatedColor.a) * colorSample.xxx * sample.a; 
+             
+            accumulatedColor += sample; 
+        }    
+   
+        //Advance the ray.
+        //currentPosition.xyz += deltaDirection;
+        currentPosition.xyz += Step;
+   
+         
+    } 
+    gl_FragColor = accumulatedColor; 
+
+
+    /*
     for(int i = 0; i < MAX_STEPS; i++) {
-        //Get the voxel intensity value from the 3D texture.
-        //colorSample = sampleAs3DTexture( currentPosition );
         
-        colorSample = getVolumeValue( currentPosition );
+        grayValue = getVolumeValue( currentPosition );
         
-        //Allow the alpha correction customization.
-        alphaSample = colorSample.a * alphaCorrection;
+        if(grayValue.r < uMinGrayVal || grayValue.r > uMaxGrayVal || grayValue.b < 0.05) { 
+            accumulatedColor = vec4(0.0); 
+        } else {
+            colorSample.rgb = vec3(1.0,0.0,0.0);
+            colorSample.a = 1.0;
+            
+            alphaSample = colorSample.a * alphaCorrection;
         
-        //Applying this effect to both the color and alpha accumulation results in more realistic transparency.
-        alphaSample *= (1.0 - accumulatedAlpha);
+            //Applying this effect to both the color and alpha accumulation results in more realistic transparency.
+            alphaSample *= (1.0 - accumulatedAlpha);
         
-        //Scaling alpha by the number of steps makes the final color invariant to the step size.
-        alphaSample *= alphaScaleFactor;
+            //Scaling alpha by the number of steps makes the final color invariant to the step size.
+            alphaSample *= alphaScaleFactor;
         
-        //Perform the composition.
-        accumulatedColor += colorSample * alphaSample;
+            //Perform the composition.
+            accumulatedColor += colorSample * alphaSample * 100.0;
         
-        //Store the alpha accumulated so far.
-        accumulatedAlpha += alphaSample;
-        
+            //Store the alpha accumulated so far.
+            accumulatedAlpha += alphaSample;
+            
+            accumulatedColor = colorSample;
+        }
         //Advance the ray.
         currentPosition += deltaDirection;
 					
@@ -195,6 +244,6 @@ void main(void) {
         if(accumulatedLength >= rayLength || accumulatedAlpha >= 1.0 )
             break;
     }
-    gl_FragColor = accumulatedColor; 
-
+    gl_FragColor = accumulatedColor;
+    */
 }
