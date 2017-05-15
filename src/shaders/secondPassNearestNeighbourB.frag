@@ -184,18 +184,18 @@ void main(void) {
         grayValue = getVolumeValue(currentPosition); 
 
         if(grayValue.z < 0.05 || 
-           grayValue.x < 0.0 ||
-           grayValue.x > 1.0)  
+           grayValue.z < 0.0 ||
+           grayValue.z > 1.0)  
             accumulatedColor = vec4(0.0);     
         else { 
             //colorSample.x = (1.0 * 2.0 - grayValue.x) * 5.0 * 0.4;
-            colorSample.xyz = grayValue.xyz;
+            colorSample.x = grayValue.z;
             //colorSample.w = alphaScaleFactor;
             colorSample.w = 0.1;
               
             //sample.a = colorSample.a * 40.0 * (1.0 / steps);
             sample.a = colorSample.a;
-            sample.rgb = (1.0 - accumulatedColor.a) * colorSample.xyz * sample.a; 
+            sample.rgb = (1.0 - accumulatedColor.a) * colorSample.xxx * sample.a; 
              
             accumulatedColor += sample; 
         }    
@@ -206,5 +206,45 @@ void main(void) {
    
          
     } 
+    gl_FragColor = accumulatedColor; 
+
+
+    /*
+    for(int i = 0; i < MAX_STEPS; i++) {
+        
+        grayValue = getVolumeValue( currentPosition );
+        
+        if(grayValue.r < uMinGrayVal || grayValue.r > uMaxGrayVal || grayValue.b < 0.05) { 
+            accumulatedColor = vec4(0.0); 
+        } else {
+            colorSample.rgb = vec3(1.0,0.0,0.0);
+            colorSample.a = 1.0;
+            
+            alphaSample = colorSample.a * alphaCorrection;
+        
+            //Applying this effect to both the color and alpha accumulation results in more realistic transparency.
+            alphaSample *= (1.0 - accumulatedAlpha);
+        
+            //Scaling alpha by the number of steps makes the final color invariant to the step size.
+            alphaSample *= alphaScaleFactor;
+        
+            //Perform the composition.
+            accumulatedColor += colorSample * alphaSample * 100.0;
+        
+            //Store the alpha accumulated so far.
+            accumulatedAlpha += alphaSample;
+            
+            accumulatedColor = colorSample;
+        }
+        //Advance the ray.
+        currentPosition += deltaDirection;
+					
+        accumulatedLength += deltaDirectionLength;
+        
+        //If the length traversed is more than the ray length, or if the alpha accumulated reaches 1.0 then exit.
+        if(accumulatedLength >= rayLength || accumulatedAlpha >= 1.0 )
+            break;
+    }
     gl_FragColor = accumulatedColor;
+    */
 }

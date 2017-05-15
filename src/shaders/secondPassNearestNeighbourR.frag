@@ -25,7 +25,7 @@ const int MAX_STEPS = 887;
 // Application specific parameters
 uniform float uNumberOfSlices; 
 uniform float uMinGrayVal; 
-uniform float uMaxGrayVal; 
+uniform float uMaxGrayVal;
 uniform float uOpacityVal; 
 uniform float uColorVal; 
 uniform float uAbsorptionModeIndex;
@@ -63,13 +63,13 @@ vec4 getVolumeValue(vec3 volpos)
 
     s1Original = floor(adapted_z*uNumberOfSlices);
     //s1Original = floor(volpos.z*uNumberOfSlices); 
-    // s2Original = min(s1Original + 1.0, uNumberOfSlices);
+    //s2Original = min(s1Original + 1.0, uNumberOfSlices);
 
     int tex1Index = int(floor(s1Original / slicesPerSprite));
-    // int tex2Index = int(floor(s2Original / slicesPerSprite));
+    //int tex2Index = int(floor(s2Original / slicesPerSprite));
 
     s1 = mod(s1Original, slicesPerSprite);
-    // s2 = mod(s2Original, slicesPerSprite);
+    //s2 = mod(s2Original, slicesPerSprite);
 
     dx1 = fract(s1/uSlicesOverX);
     dy1 = floor(s1/uSlicesOverY)/uSlicesOverY;
@@ -179,7 +179,7 @@ void main(void) {
         if(currentPosition.x > 1.0 || currentPosition.y > 1.0 || currentPosition.z > 1.0 || currentPosition.x < 0.0 || currentPosition.y < 0.0 || currentPosition.z < 0.0)      
             break;
         if(accumulatedColor.a>=1.0) 
-               break;
+            break;
 
         grayValue = getVolumeValue(currentPosition); 
 
@@ -190,7 +190,8 @@ void main(void) {
         else { 
             //colorSample.x = (1.0 * 2.0 - grayValue.x) * 5.0 * 0.4;
             colorSample.x = grayValue.x;
-            colorSample.w = alphaScaleFactor;
+            //colorSample.w = alphaScaleFactor;
+            colorSample.w = 0.1;
               
             //sample.a = colorSample.a * 40.0 * (1.0 / steps);
             sample.a = colorSample.a;
