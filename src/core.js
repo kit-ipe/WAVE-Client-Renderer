@@ -373,6 +373,9 @@ Core.prototype.init = function() {
     scene.add( helper );
     */
     
+    // fixed the bleeding edge
+    this.setGeometryDimensions(this.getGeometryDimensions());
+    
     var update = function () {
         if (me.isStatsOn == true) {
             me.stats.begin();
@@ -556,6 +559,15 @@ Core.prototype.setMode = function(conf) {
 
 	    this._sceneSecondPass = new THREE.Scene();
 	    this._sceneSecondPass.add( this._meshSecondPass );
+        
+        /*
+        var geometryDimension = me._core.getGeometryDimensions();
+        geometryDimension["xmin"] = 0;
+        geometryDimension["xmax"] = value;
+        
+        me._core.setGeometryDimensions(geometryDimension);
+        me._needRedraw = true;
+        */
     }
 }
 
@@ -635,6 +647,11 @@ Core.prototype.setShader = function(codeblock) {
 
 Core.prototype._setGeometry = function(geometryDimensions, volumeSizes) {
     var geometryHelper = new VRC.GeometryHelper();
+    
+    console.log("TO SET Geometry!!");
+    console.log(geometryDimensions);
+    console.log(volumeSizes);
+    
     var geometry      = geometryHelper.createBoxGeometry(geometryDimensions, volumeSizes, 1.0);
     //var geometry      = geometryHelper.createBoxGeometry(geometryDimensions, volumeSizes, this.zFactor);
     var colorArray    = geometry.attributes.vertColor.array;
@@ -721,7 +738,11 @@ Core.prototype.setVolumeSize = function(width, height, depth) {
     this._volume_sizes = [width, height, depth];
 
     var maxSize = Math.max(this.getVolumeSize()[0], this.getVolumeSize()[1], this.getVolumeSize()[2]);
-    var normalizedVolumeSizes = [this.getVolumeSize()[0] / maxSize,  this.getVolumeSize()[1] / maxSize, this.getVolumeSize()[2] / maxSize];
+    //var normalizedVolumeSizes = [this.getVolumeSize()[0] / maxSize,  this.getVolumeSize()[1] / maxSize, this.getVolumeSize()[2] / maxSize];
+    var normalizedVolumeSizes = [
+        parseFloat(this.getVolumeSize()[0]) / parseFloat(maxSize), 
+        parseFloat(this.getVolumeSize()[1]) / parseFloat(maxSize),
+        parseFloat(this.getVolumeSize()[2]) / parseFloat(maxSize)];
 
     this._setGeometry(this.getGeometryDimensions(), normalizedVolumeSizes);
 };
@@ -1095,8 +1116,14 @@ Core.prototype.getMaxStepsNumber = function() {
 
 Core.prototype.getVolumeSizeNormalized = function() {
     var maxSize = Math.max(this.getVolumeSize()[0], this.getVolumeSize()[1], this.getVolumeSize()[2]);
-    var normalizedVolumeSizes = [this.getVolumeSize()[0] / maxSize,  this.getVolumeSize()[1] / maxSize, this.getVolumeSize()[2] / maxSize];
+    var normalizedVolumeSizes = [
+        parseFloat(this.getVolumeSize()[0]) / parseFloat(maxSize), 
+        parseFloat(this.getVolumeSize()[1]) / parseFloat(maxSize),
+        parseFloat(this.getVolumeSize()[2]) / parseFloat(maxSize)];
 
+    console.log("Check normalized SIZE");
+    console.log(normalizedVolumeSizes);
+    
     return normalizedVolumeSizes;
 };
 
