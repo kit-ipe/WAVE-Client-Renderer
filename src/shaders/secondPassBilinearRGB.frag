@@ -57,16 +57,22 @@ vec4 getVolumeValue(vec3 volpos)
     float delta = 1.0 / sliceSizeX;
     
     float adapted_x, adapted_y, adapted_z;
-    adapted_x = (volpos.x * (1.0 - (2.0*delta))) + delta;
-    adapted_y = (volpos.y * (1.0 - (2.0*delta))) + delta;
-    adapted_z = 1.0 - (( (volpos.z* (1.0/uRatio) ) * (1.0 - (2.0*delta))) + delta);
+    //adapted_x = (volpos.x * (1.0 - (2.0*delta))) + delta;
+    //adapted_y = (volpos.y * (1.0 - (2.0*delta))) + delta;
+    //adapted_z = 1.0 - (( (volpos.z* (1.0/uRatio) ) * (1.0 - (2.0*delta))) + delta);
+    
+    adapted_x = volpos.x;
+    adapted_y = volpos.y;
+    adapted_z = 1.0 - (volpos.z * (1.0/uRatio));
 
-    s1Original = floor(adapted_z*uNumberOfSlices);
-    //s1Original = floor(volpos.z*uNumberOfSlices); 
-    //s2Original = min(s1Original + 1.0, uNumberOfSlices);
+    s1Original = floor(adapted_z * uNumberOfSlices);
+    s2Original = min(s1Original + 1.0, uNumberOfSlices);
+
+    if (s1Original == s2Original)
+        return vec4(0.0);
 
     int tex1Index = int(floor(s1Original / slicesPerSprite));
-    //int tex2Index = int(floor(s2Original / slicesPerSprite));
+    int tex2Index = int(floor(s2Original / slicesPerSprite));
 
     s1 = mod(s1Original, slicesPerSprite);
     //s2 = mod(s2Original, slicesPerSprite);
@@ -81,6 +87,7 @@ vec4 getVolumeValue(vec3 volpos)
     float value2 = 0.0;
     vec4 value1;
     // bool value1Set = false, value2Set = false;
+
 
     <% for(var i=0; i < maxTexturesNumber; i++) { %>
         if( tex1Index == <%=i%> )
@@ -171,10 +178,19 @@ void main(void) {
     float alphaSample;
     float alphaCorrection = 1.0;
     
+    float sliceSizeX = uSlicemapWidth / uSlicesOverX;  // Number of pixels of ONE slice along x axis
+    float sliceSizeY = uSlicemapWidth / uSlicesOverY;  // Number of pixels of ONE slice along y axis
+    float sm_delta = 1.0 / sliceSizeX;
+    
     //Perform the ray marching iterations
     for(int i = 0; i < MAX_STEPS; i++) {       
 
-        if(currentPosition.x > 1.0 || currentPosition.y > 1.0 || currentPosition.z > 1.0 || currentPosition.x < 0.0 || currentPosition.y < 0.0 || currentPosition.z < 0.0)      
+        if(currentPosition.x > 1.0 ||
+           currentPosition.y > 1.0 ||
+           currentPosition.z > 1.0 ||
+           currentPosition.x < 0.0 ||
+           currentPosition.y < 0.0 ||
+           currentPosition.z < 0.0)
             break;
         if(accumulatedColor.a>=1.0) 
             break;
@@ -182,8 +198,8 @@ void main(void) {
         grayValue = getVolumeValue(currentPosition); 
 
         if(grayValue.z < 0.05 || 
-           grayValue.x < 0.0 ||
-           grayValue.x > 1.0)  
+           grayValue.x <= 0.0 ||
+           grayValue.x >= 1.0)  
             accumulatedColor = vec4(0.0);     
         else { 
             //colorSample.x = (1.0 * 2.0 - grayValue.x) * 5.0 * 0.4;
