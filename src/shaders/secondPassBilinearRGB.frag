@@ -45,7 +45,7 @@ vec4 getVolumeValue(vec3 volpos)
 
     float s1Original, s2Original, s1, s2; 
     float dx1, dy1; 
-    // float dx2, dy2; 
+    float dx2, dy2; 
     // float value; 
 
     vec2 texpos1,texpos2;
@@ -54,7 +54,7 @@ vec4 getVolumeValue(vec3 volpos)
     float sliceSizeX = uSlicemapWidth / uSlicesOverX;  // Number of pixels of ONE slice along x axis
     float sliceSizeY = uSlicemapWidth / uSlicesOverY;  // Number of pixels of ONE slice along y axis
 
-    float delta = 1.0 / sliceSizeX;
+    float delta = 1.0 / (sliceSizeX * uRatio);
     
     float adapted_x, adapted_y, adapted_z;
     //adapted_x = (volpos.x * (1.0 - (2.0*delta))) + delta;
@@ -63,65 +63,48 @@ vec4 getVolumeValue(vec3 volpos)
     
     adapted_x = volpos.x;
     adapted_y = volpos.y;
+    //adapted_z = volpos.z;
     adapted_z = 1.0 - (volpos.z * (1.0/uRatio));
 
     s1Original = floor(adapted_z * uNumberOfSlices);
-    s2Original = min(s1Original + 1.0, uNumberOfSlices);
-
-    if (s1Original == s2Original)
-        return vec4(0.0);
+    s2Original = s1Original + delta;
 
     int tex1Index = int(floor(s1Original / slicesPerSprite));
     int tex2Index = int(floor(s2Original / slicesPerSprite));
 
     s1 = mod(s1Original, slicesPerSprite);
-    //s2 = mod(s2Original, slicesPerSprite);
+    s2 = mod(s2Original, slicesPerSprite);
 
     dx1 = fract(s1/uSlicesOverX);
     dy1 = floor(s1/uSlicesOverY)/uSlicesOverY;
     
-    texpos1.x = dx1+(floor(adapted_x*sliceSizeX)+0.5)/uSlicemapWidth;
-    texpos1.y = dy1+(floor(adapted_y*sliceSizeY)+0.5)/uSlicemapWidth;
+    dx2 = fract(s2/uSlicesOverX);
+    dy2 = floor(s2/uSlicesOverY)/uSlicesOverY;
+    
+    texpos1.x = dx1+(adapted_x*sliceSizeX)/uSlicemapWidth;
+    texpos1.y = dy1+(adapted_y*sliceSizeY)/uSlicemapWidth;
+    
+    texpos2.x = dx2+(adapted_x*sliceSizeX)/uSlicemapWidth;
+    texpos2.y = dy2+(adapted_y*sliceSizeY)/uSlicemapWidth;
  
-
-    float value2 = 0.0;
-    vec4 value1;
-    // bool value1Set = false, value2Set = false;
-
-
+ 
+    vec4 value1, value2;
+    
     <% for(var i=0; i < maxTexturesNumber; i++) { %>
         if( tex1Index == <%=i%> )
         {
             value1 = texture2D(uSliceMaps[<%=i%>],texpos1).rgba;
         }
+        if( tex2Index == <%=i%> )
+        {
+            value2 = texture2D(uSliceMaps[<%=i%>],texpos1).rgba;
+        }
     <% } %>
-
-    return value1;
-
-    // for (int x = 0; x < gl_MaxTextureImageUnits-2; x++)
-    // {
-    //     if(x == numberOfSlicemaps)
-    //     {
-    //         break;
-    //     }
-
-    //     if(x == tex1Index) { 
-    //         value1 = texture2D(uSliceMaps[x],texpos1).x; 
-    //         value1Set = true; 
-    //     } 
-
-    //     if(x == tex2Index) { 
-    //         value2 = texture2D(uSliceMaps[x],texpos2).x; 
-    //         value2Set = true; 
-    //     } 
-
-    //     if(value1Set && value2Set) { 
-    //         break; 
-    //     } 
-
-    // } 
-
-    // return mix(value1, value2, fract(volpos.z*uNumberOfSlices));
+    
+    //return vec4( (value1 + value2) * 0.5);
+    
+    
+    return mix(value1, value2, fract(volpos.z* uNumberOfSlices));
 }
 
 void main(void) {
