@@ -1,7 +1,7 @@
 /**
  * @classdesc
  * RaycasterLib
- * 
+ *
  * @class RaycasterLib
  * @this {RaycasterLib}
  * @author sogimu@nxt.ru Aleksandr Lizin aka sogimu
@@ -13,9 +13,9 @@
     var VolumeRaycaster = function(config) {
 
         var me = {};
-        
+
         me._token;
-        
+
         me._needRedraw = true;
 
         me._isStart = false;
@@ -39,7 +39,7 @@
                 me._needRedraw = true;
                 me.isChange = true;
             });
-            
+
             me.addCallback("onCameraChangeStart", function() {
                 me._needRedraw = true;
                 me.isChange = true;
@@ -53,10 +53,10 @@
                     console.log("DEACTIVATE");
                     clearInterval(me._token);
                 }, 5000);
-                
+
             });
-            
-            
+
+
             var counter = 0;
 
             function animate() {
@@ -93,7 +93,7 @@
         };
 
         me.uploadSlicemapsImages = function(imagesPaths, userOnLoadImage, userOnLoadImages, userOnError) {
-            
+
 
             var downloadImages = function(imagesPaths, onLoadImage, onLoadImages, onError) {
                 var downloadedImages = [];
@@ -106,9 +106,9 @@
                             image.onload = function() {
                                 downloadedImages[imageIndex] = image;
                                 downloadedImagesNumber++;
-                                
+
                                 onLoadImage(image);
-                                
+
                                 if(downloadedImagesNumber == imagesPaths.length) {
                                     onLoadImages(downloadedImages);
                                 };
@@ -196,17 +196,17 @@
           me._core.setMode(conf);
           me._needRedraw = true;
         };
-        
+
         me.setShader = function(codeblock){
           me._core.setShader(codeblock);
           me._needRedraw = true;
         };
-        
+
         me.setZoom = function(x1, x2, y1, y2){
           me._core.setZoom(x1, x2, y1, y2);
           me._needRedraw = true;
         };
-      
+
         me.setOpacityFactor = function(opacity_factor) {
             me._core.setOpacityFactor(opacity_factor);
             me._needRedraw = true;
@@ -225,10 +225,18 @@
 
         };
 
+        me.setIndexOfImage = function(indexOfImage) {
+
+            me._core.setIndexOfImage(indexOfImage);
+            me._needRedraw = true;
+
+
+        };
+
         me.setVolumeSize = function(width, height, depth) {
             me._core.setVolumeSize(width, height, depth);
             me._needRedraw = true;
-            
+
         };
 
         me.setGeometryMinX = function(value) {
@@ -337,23 +345,23 @@
         me.showISO = function() {
             return me._core.showISO();
         };
-        
+
         me.showVolren = function() {
             return me._core.showVolren();
         };
-        
+
         me.showLight = function() {
             return me._core.showLight();
         };
-        
+
         me.hideLight = function() {
             return me._core.hideLight();
         };
-        
+
         me.startLightRotation = function() {
             return me._core.startLightRotation();
         };
-        
+
         me.stopLightRotation = function() {
             return me._core.stopLightRotation();
         };
@@ -362,17 +370,17 @@
             me._core.setAxis();
             me._needRedraw = true;
         };
-        
+
         me.setStats = function(value) {
             me._core.setStats(value);
             me._needRedraw = true;
         };
-        
+
         me.removeWireframe = function() {
             me._core.removeWireframe();
             me._needRedraw = true;
         };
-        
+
         me.addWireframe = function() {
             me._core.addWireframe();
             me._needRedraw = true;
@@ -388,7 +396,7 @@
             me._core.setScrewThreshold(value);
             me._needRedraw = true;
         };
-        
+
         me.setJointThreshold = function(value) {
             me._core.setJointThreshold(value);
             me._needRedraw = true;
@@ -398,22 +406,22 @@
             me._core.setL(value);
             me._needRedraw = true;
         };
-      
+
         me.setS = function(value) {
             me._core.setS(value);
             me._needRedraw = true;
         };
-      
+
         me.setHMin = function(value) {
             me._core.setHMin(value);
             me._needRedraw = true;
         };
-      
+
         me.setHMax = function(value) {
             me._core.setHMax(value);
             me._needRedraw = true;
         };
-      
+
         me.setMinRefl = function(value) {
             me._core.setMinRefl(value);
             me._needRedraw = true;
@@ -427,7 +435,7 @@
             me._core.setMinAtten(value);
             me._needRedraw = true;
         };
-      
+
        me.setMaxRefl = function(value) {
             me._core.setMaxRefl(value);
             me._needRedraw = true;
@@ -441,7 +449,7 @@
             me._core.setMaxAtten(value);
             me._needRedraw = true;
         };
-      
+
         me.setRowCol = function(row, col) {
             me._core.setRowCol(row, col);
             me._needRedraw = true;
@@ -581,8 +589,8 @@
             }
             me._needRedraw = true;
 
-        };       
-        
+        };
+
         me.getGrayMaxValue = function() {
             return me._core.getGrayMaxValue();
         };
@@ -702,13 +710,13 @@
         me.getTransferFunctionAsImage = function() {
             return me._core.getTransferFunctionAsImage();
         };
-        
+
         me.getBase64 = function() {
-            return me._core.getBase64();    
+            return me._core.getBase64();
         };
-        
+
         me.set2DTexture = function(urls) {
-            me._core.set2DTexture(urls); 
+            me._core.set2DTexture(urls);
             me._needRedraw = true;
             return true;
         };
@@ -742,13 +750,17 @@
                         if(config['slices_range'] != undefined) {
                             me.setSlicesRange( config['slices_range'][0], config['slices_range'][1] );
                         }
-                        
+                        //
+
+
+
+                        me.stop();
                         if(onLoadImages != undefined) onLoadImages(images);
 
                         me.start();
                     }
 
-                );                
+                );
             }
 
             if(config['slices_range'] != undefined) {
@@ -762,7 +774,7 @@
             if(config['row_col'] != undefined) {
                 me._core.setRowCol( config['row_col'][0], config['row_col'][1] );
             }
-    
+
             if(config['gray_min'] != undefined) {
                 me._core.setGrayMinValue( config['gray_min'] );
             }
@@ -808,13 +820,13 @@
             }
 
             if(config['color_factor'] != undefined) {
-                me._core.setColorFactor( config['color_factor'] );   
+                me._core.setColorFactor( config['color_factor'] );
             }
 
             if(config['tf_colors'] != undefined) {
-                me._core.setTransferFunctionByColors( config['tf_colors'] );   
+                me._core.setTransferFunctionByColors( config['tf_colors'] );
             }
-            
+
             if(config['background'] != undefined) {
                 me._core.setBackgroundColor( config['background'] );
             }
@@ -829,6 +841,11 @@
 
             if(config['absorption_mode'] != undefined) {
                 me._core.setAbsorptionMode( config['absorption_mode'] );
+            }
+
+            if(config['indexOfImage'] != undefined) {
+                me._core.setIndexOfImage( config['indexOfImage'] );
+                
             }
 
             //if(config['render_size'] != undefined) {
@@ -893,7 +910,7 @@
                 "x_max": me.getGeometryDimensions()["xmax"],
                 "y_min": me.getGeometryDimensions()["ymin"],
                 "y_max": me.getGeometryDimensions()["ymax"],
-                "z_min": me.getGeometryDimensions()["zmin"], 
+                "z_min": me.getGeometryDimensions()["zmin"],
                 "z_max": me.getGeometryDimensions()["zmax"],
                 "dom_container_id": me.getDomContainerId(),
                 "auto_steps": me.isAutoStepsOn(),

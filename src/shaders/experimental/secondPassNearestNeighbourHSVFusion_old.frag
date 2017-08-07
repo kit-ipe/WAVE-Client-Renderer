@@ -35,8 +35,6 @@ uniform float uSteps;
 
 uniform float uRatio;
 
-uniform float uIndexOfImage;
-
 // uniform int uAvailable_textures_number;
 
 
@@ -61,22 +59,9 @@ vec4 getVolumeValue(vec3 volpos)
     float adapted_x, adapted_y, adapted_z;
     adapted_x = (volpos.x * (1.0 - (2.0*delta))) + delta;
     adapted_y = (volpos.y * (1.0 - (2.0*delta))) + delta;
-    adapted_z = 1.0 - (( (volpos.z* (1.0/uRatio) ) * (1.0 - (2.0*delta))) );
+    adapted_z = 1.0 - (( (volpos.z* (1.0/uRatio) ) * (1.0 - (2.0*delta))) + delta);
 
-
- // s1Original = floor(adapted_z*uNumberOfSlices);
-    // BUG_FIXED
-    if(adapted_z>0.0)
-    {
     s1Original = floor(adapted_z*uNumberOfSlices);
-    }
-    else
-    {
-      s1Original=1.0*uNumberOfSlices;
-    }
-
-
-
     //s1Original = floor(volpos.z*uNumberOfSlices);
     //s2Original = min(s1Original + 1.0, uNumberOfSlices);
 
@@ -263,11 +248,6 @@ void main(void) {
            grayValue.x > 1.0)
             accumulatedColor = vec4(0.0);
         else {
-
-
-
-          if (uIndexOfImage==0.0)
-          {
             // colorSample.xyz = grayValue.xyz;
 
             colorSample.x = grayValue.x;
@@ -275,58 +255,11 @@ void main(void) {
             colorSample.z = grayValue.z;
             colorSample.w = 0.04;
 
-            // colorSample.w = 0.04;
-            // colorSample.x = grayValue.x;
-            // colorSample.y = 1.0-grayValue.x/0.6;
-            // colorSample.z = grayValue.x/1.8;
-
-            // colorSample.w = 0.04;
-            // colorSample.x = grayValue.y;
-            // colorSample.y = 1.0-grayValue.y/0.7;
-            // colorSample.z = grayValue.y/1.8;
-
-            // colorSample.w = 0.03;
-            // colorSample.x = grayValue.z;
-            // colorSample.y = grayValue.z;
-            // colorSample.z = grayValue.z;
-          }
-          if (uIndexOfImage==1.0)
-          {
-            colorSample.w = 0.04;
-            colorSample.x = grayValue.x;
-            colorSample.y = 1.0-grayValue.x/0.6;
-            colorSample.z = grayValue.x/1.8;
-          }
-          if (uIndexOfImage==2.0)
-          {
-            colorSample.w = 0.04;
-            colorSample.x = grayValue.y;
-            colorSample.y = 1.0-grayValue.y/0.7;
-            colorSample.z = grayValue.y/1.8;
-          }
-          if (uIndexOfImage==3.0)
-          {
-            colorSample.w = 0.03;
-            colorSample.x = grayValue.z;
-            colorSample.y = grayValue.z;
-            colorSample.z = grayValue.z;
-          }
-
             //sample.a = colorSample.a * 40.0 * (1.0 / steps);
             sample.a = colorSample.a;
             sample.rgb = (1.0 - accumulatedColor.a) * hsv2rgb(colorSample.xyz) * sample.a;
 
-          if(uIndexOfImage==0.0) // multimodality
-          {
             accumulatedColor += sample;
-            // accumulatedColor += vec4(currentPosition.xyz,sample.a);
-          }
-          else // single modality
-          {
-            vec3 tmp = vec3(0.3, 0.59, 0.11);
-            float grayscale=dot(sample.rgb, tmp);
-            accumulatedColor += vec4(grayscale,grayscale,grayscale,sample.a);
-          }
 
         }
 
