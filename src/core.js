@@ -136,6 +136,7 @@ var Core = function(conf) {
 
 Core.prototype.init = function() {
     var me = this;
+
     this._container = this.getDOMContainer();
 
     this._render = new THREE.WebGLRenderer({
@@ -147,6 +148,9 @@ Core.prototype.init = function() {
     this._render.setSize(this.getRenderSizeInPixels()[0],
                          this.getRenderSizeInPixels()[1]);
     this._render.setClearColor(this._render_clear_color, 0);
+
+    // this._container.removeChild( this._container.firstChild );
+    this._container.innerHTML=" ";
 
     this._container.appendChild( this._render.domElement );
 
@@ -273,7 +277,8 @@ Core.prototype.init = function() {
 		   uColorVal: { type: "f", value: this._color_factor },
 		   uAbsorptionModeIndex: { type: "f", value: this._absorption_mode_index },
 		   uMinGrayVal: { type: "f", value: this._gray_value[0] },
-		   uMaxGrayVal: { type: "f", value: this._gray_value[1] }
+		   uMaxGrayVal: { type: "f", value: this._gray_value[1] },
+       uIndexOfImage: { type: "f", value: this._indexOfImage }
 		},
 		//side: THREE.FrontSide,
         side: THREE.BackSide,
@@ -723,6 +728,14 @@ Core.prototype.setAbsorptionMode = function(mode_index) {
     }
 };
 
+Core.prototype.setIndexOfImage = function(indexOfImage) {
+    console.log("Core: setIndexOfImage()");
+    this._indexOfImage = indexOfImage;
+    if(this._mode == "3d") {
+        this._secondPassSetUniformValue("uIndexOfImage", this._indexOfImage);
+    }
+};
+
 
 Core.prototype.setVolumeSize = function(width, height, depth) {
     console.log("Core: setVolumeSize()");
@@ -1166,6 +1179,10 @@ Core.prototype.getColorFactor = function() {
 Core.prototype.getAbsorptionMode = function() {
     return this._absorption_mode_index;
 };
+
+// Core.prototype.getIndexOfImage = function() {
+//     return this._indexOfImage;
+// };
 
 
 Core.prototype.getClearColor = function() {
