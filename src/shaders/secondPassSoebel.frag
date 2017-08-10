@@ -20,10 +20,16 @@ uniform vec3 uLightPos;
 uniform int uSetViewMode;
 uniform float uMinGrayVal;
 uniform float uMaxGrayVal;
+uniform float uSlicemapWidth;
 uniform float l;
 uniform float s;
 uniform float hMin;
 uniform float hMax;
+
+float xw = uSlicemapWidth / uSlicesOverX;
+float yw = uSlicemapWidth / uSlicesOverY;
+float zw = uNumberOfSlices;
+
 //Acts like a texture3D using Z slices and trilinear filtering.
 vec3 getVolumeValue(vec3 volpos)
 {
@@ -79,8 +85,8 @@ vec3 getNormal(vec3 at)
                                                // second division is normalize along y-axis
     float weight = at.z - floor(at.z);
     float w1 = at.z - floor(at.z);
-    float w0 = (at.z - (1.0/144.0)) - floor(at.z);
-    float w2 = (at.z + (1.0/144.0)) - floor(at.z);
+    float w0 = (at.z - (1.0/zw)) - floor(at.z);
+    float w2 = (at.z + (1.0/zw)) - floor(at.z);
 
 
     float fx, fy, fz;
@@ -90,78 +96,78 @@ vec3 getNormal(vec3 at)
     <% for(var i=0; i < maxTexturesNumber; i++) { %>
         if( iTexLowerIndex == <%=i%> )
         {
-            texpos1.x = dx1+((at.x - 1.0/144.0)/uSlicesOverX);
-            texpos1.y = dy1+((at.y + 1.0/144.0)/uSlicesOverY);
+            texpos1.x = dx1+((at.x - 1.0/xw)/uSlicesOverX);
+            texpos1.y = dy1+((at.y + 1.0/yw)/uSlicesOverY);
             L0 = texture2D(uSliceMaps[<%=i%>],texpos1).x;
 
-            texpos1.x = dx1+((at.x + 0.0/144.0)/uSlicesOverX);
-            texpos1.y = dy1+((at.y + 1.0/144.0)/uSlicesOverY);
+            texpos1.x = dx1+((at.x + 0.0/xw)/uSlicesOverX);
+            texpos1.y = dy1+((at.y + 1.0/yw)/uSlicesOverY);
             L1 = texture2D(uSliceMaps[<%=i%>],texpos1).x;
 
-            texpos1.x = dx1+((at.x + 1.0/144.0)/uSlicesOverX);
-            texpos1.y = dy1+((at.y + 1.0/144.0)/uSlicesOverY);
+            texpos1.x = dx1+((at.x + 1.0/xw)/uSlicesOverX);
+            texpos1.y = dy1+((at.y + 1.0/yw)/uSlicesOverY);
             L2 = texture2D(uSliceMaps[<%=i%>],texpos1).x;
 
-            texpos1.x = dx1+((at.x - 1.0/144.0)/uSlicesOverX);
-            texpos1.y = dy1+((at.y + 0.0/144.0)/uSlicesOverY);
+            texpos1.x = dx1+((at.x - 1.0/xw)/uSlicesOverX);
+            texpos1.y = dy1+((at.y + 0.0/yw)/uSlicesOverY);
             L3 = texture2D(uSliceMaps[<%=i%>],texpos1).x;
 
-            texpos1.x = dx1+((at.x + 0.0/144.0)/uSlicesOverX);
-            texpos1.y = dy1+((at.y + 0.0/144.0)/uSlicesOverY);
+            texpos1.x = dx1+((at.x + 0.0/xw)/uSlicesOverX);
+            texpos1.y = dy1+((at.y + 0.0/yw)/uSlicesOverY);
             L4 = texture2D(uSliceMaps[<%=i%>],texpos1).x;
 
-            texpos1.x = dx1+((at.x + 1.0/144.0)/uSlicesOverX);
-            texpos1.y = dy1+((at.y + 0.0/144.0)/uSlicesOverY);
+            texpos1.x = dx1+((at.x + 1.0/xw)/uSlicesOverX);
+            texpos1.y = dy1+((at.y + 0.0/yw)/uSlicesOverY);
             L5 = texture2D(uSliceMaps[<%=i%>],texpos1).x;
 
-            texpos1.x = dx1+((at.x - 1.0/144.0)/uSlicesOverX);
-            texpos1.y = dy1+((at.y - 1.0/144.0)/uSlicesOverY);
+            texpos1.x = dx1+((at.x - 1.0/xw)/uSlicesOverX);
+            texpos1.y = dy1+((at.y - 1.0/yw)/uSlicesOverY);
             L6 = texture2D(uSliceMaps[<%=i%>],texpos1).x;
 
-            texpos1.x = dx1+((at.x + 0.0/144.0)/uSlicesOverX);
-            texpos1.y = dy1+((at.y - 1.0/144.0)/uSlicesOverY);
+            texpos1.x = dx1+((at.x + 0.0/xw)/uSlicesOverX);
+            texpos1.y = dy1+((at.y - 1.0/yw)/uSlicesOverY);
             L7 = texture2D(uSliceMaps[<%=i%>],texpos1).x;
 
-            texpos1.x = dx1+((at.x + 1.0/144.0)/uSlicesOverX);
-            texpos1.y = dy1+((at.y - 1.0/144.0)/uSlicesOverY);
+            texpos1.x = dx1+((at.x + 1.0/xw)/uSlicesOverX);
+            texpos1.y = dy1+((at.y - 1.0/yw)/uSlicesOverY);
             L8 = texture2D(uSliceMaps[<%=i%>],texpos1).x;
 
         }
         if( iTexUpperIndex == <%=i%> ) {
-            texpos1.x = dx2+((at.x - 1.0/144.0)/uSlicesOverX);
-            texpos1.y = dy2+((at.y + 1.0/144.0)/uSlicesOverY);
+            texpos1.x = dx2+((at.x - 1.0/xw)/uSlicesOverX);
+            texpos1.y = dy2+((at.y + 1.0/yw)/uSlicesOverY);
             H0 = texture2D(uSliceMaps[<%=i%>],texpos1).x;
 
-            texpos1.x = dx2+((at.x + 0.0/144.0)/uSlicesOverX);
-            texpos1.y = dy2+((at.y + 1.0/144.0)/uSlicesOverY);
+            texpos1.x = dx2+((at.x + 0.0/xw)/uSlicesOverX);
+            texpos1.y = dy2+((at.y + 1.0/yw)/uSlicesOverY);
             H1 = texture2D(uSliceMaps[<%=i%>],texpos1).x;
 
-            texpos1.x = dx2+((at.x + 1.0/144.0)/uSlicesOverX);
-            texpos1.y = dy2+((at.y + 1.0/144.0)/uSlicesOverY);
+            texpos1.x = dx2+((at.x + 1.0/xw)/uSlicesOverX);
+            texpos1.y = dy2+((at.y + 1.0/yw)/uSlicesOverY);
             H2 = texture2D(uSliceMaps[<%=i%>],texpos1).x;
 
-            texpos1.x = dx2+((at.x - 1.0/144.0)/uSlicesOverX);
-            texpos1.y = dy2+((at.y + 0.0/144.0)/uSlicesOverY);
+            texpos1.x = dx2+((at.x - 1.0/xw)/uSlicesOverX);
+            texpos1.y = dy2+((at.y + 0.0/yw)/uSlicesOverY);
             H3 = texture2D(uSliceMaps[<%=i%>],texpos1).x;
 
-            texpos1.x = dx2+((at.x + 0.0/144.0)/uSlicesOverX);
-            texpos1.y = dy2+((at.y + 0.0/144.0)/uSlicesOverY);
+            texpos1.x = dx2+((at.x + 0.0/xw)/uSlicesOverX);
+            texpos1.y = dy2+((at.y + 0.0/yw)/uSlicesOverY);
             H4 = texture2D(uSliceMaps[<%=i%>],texpos1).x;
 
-            texpos1.x = dx2+((at.x + 1.0/144.0)/uSlicesOverX);
-            texpos1.y = dy2+((at.y + 0.0/144.0)/uSlicesOverY);
+            texpos1.x = dx2+((at.x + 1.0/xw)/uSlicesOverX);
+            texpos1.y = dy2+((at.y + 0.0/yw)/uSlicesOverY);
             H5 = texture2D(uSliceMaps[<%=i%>],texpos1).x;
 
-            texpos1.x = dx2+((at.x - 1.0/144.0)/uSlicesOverX);
-            texpos1.y = dy2+((at.y - 1.0/144.0)/uSlicesOverY);
+            texpos1.x = dx2+((at.x - 1.0/xw)/uSlicesOverX);
+            texpos1.y = dy2+((at.y - 1.0/yw)/uSlicesOverY);
             H6 = texture2D(uSliceMaps[<%=i%>],texpos1).x;
 
-            texpos1.x = dx2+((at.x + 0.0/144.0)/uSlicesOverX);
-            texpos1.y = dy2+((at.y - 1.0/144.0)/uSlicesOverY);
+            texpos1.x = dx2+((at.x + 0.0/xw)/uSlicesOverX);
+            texpos1.y = dy2+((at.y - 1.0/yw)/uSlicesOverY);
             H7 = texture2D(uSliceMaps[<%=i%>],texpos1).x;
 
-            texpos1.x = dx2+((at.x + 1.0/144.0)/uSlicesOverX);
-            texpos1.y = dy2+((at.y - 1.0/144.0)/uSlicesOverY);
+            texpos1.x = dx2+((at.x + 1.0/xw)/uSlicesOverX);
+            texpos1.y = dy2+((at.y - 1.0/yw)/uSlicesOverY);
             H8 = texture2D(uSliceMaps[<%=i%>],texpos1).x;
         }
     <% } %>
@@ -337,7 +343,7 @@ vec3 specularLighting(in vec3 N, in vec3 L, in vec3 V)
 }
 void main(void)
 {
-    const int uStepsI = 512;
+    const int uStepsI = 256;
     const float uStepsF = float(uStepsI);
 
     vec2 texC = ((pos.xy/pos.w) + 1.0) / 2.0;
@@ -356,16 +362,16 @@ void main(void)
     lightPos[1] = vec3(-1, -1, -1);
     lightPos[2] = vec3(1, 1, -1);
 
-    float xsqu;
-    float ysqu;
-    float distanceFromCenter;
+    // float xsqu;
+    // float ysqu;
+    // float distanceFromCenter;
 
     for(int i = 0; i < uStepsI; i++) {
-      xsqu = (0.5 - vpos.x) * (0.5 - vpos.x);
-      ysqu = (0.5 - vpos.y) * (0.5 - vpos.y);
-      distanceFromCenter = sqrt(xsqu + ysqu);
-
-      if (distanceFromCenter < 0.45 && vpos.z > 0.1 && vpos.z < 0.9) {
+      // xsqu = (0.5 - vpos.x) * (0.5 - vpos.x);
+      // ysqu = (0.5 - vpos.y) * (0.5 - vpos.y);
+      // distanceFromCenter = sqrt(xsqu + ysqu);
+      //
+      // if (distanceFromCenter < 0.4534 && vpos.z > 0.1 && vpos.z < 0.9) {
         vec3 gray_val = getVolumeValue(vpos.xyz);
 
         /************************************/
@@ -381,15 +387,14 @@ void main(void)
           for(int m_i = 0; m_i < 3; ++m_i) { // 3 = mask_size
             for(int j = 0; j < 3; ++j) {
               for(int k = 0; k < 3; ++k) {
-                offset = vec3((float(m_i) - 1.0) / 256.0, // 1.0 = (int)mask_size / 2
-                              (float(j) - 1.0) / 256.0,
-                              (float(k) - 1.0) / 449.0);
+                offset = vec3((float(m_i) - 1.0) / xw, // 1.0 = (int)mask_size / 2
+                              (float(j) - 1.0) / yw,
+                              (float(k) - 1.0) / zw);
                 curDotPos = vpos.xyz + offset;
                 sum_gray_val += getVolumeValue(curDotPos).x;
               }
             }
           }
-
           gray_val.x = sum_gray_val / 27.0; // 27.0 = pow(mask_size, 3)
         } // end of Mean filtering
 
@@ -420,7 +425,7 @@ void main(void)
             if(accum.a>=1.0)
                break;
         }
-      }
+      // }
 
         //advance the current position
         vpos.xyz += Step;
