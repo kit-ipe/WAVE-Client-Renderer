@@ -64,18 +64,12 @@ vec4 getVolumeValue(vec3 volpos)
     adapted_z = 1.0 - (( (volpos.z* (1.0/uRatio) ) * (1.0 - (2.0*delta))) );
 
 
- // s1Original = floor(adapted_z*uNumberOfSlices);
-    // BUG_FIXED
-    if(adapted_z>0.0)
-    {
-    s1Original = floor(adapted_z*uNumberOfSlices);
+    // s1Original = floor(adapted_z*uNumberOfSlices);
+    if(adapted_z>0.0) {
+        s1Original = floor(adapted_z*uNumberOfSlices);
+    } else {
+        s1Original = (1.0 - (0.5 / uNumberOfSlices)) * uNumberOfSlices;
     }
-    else
-    {
-      s1Original=1.0*uNumberOfSlices;
-    }
-
-
 
     //s1Original = floor(volpos.z*uNumberOfSlices);
     //s2Original = min(s1Original + 1.0, uNumberOfSlices);
@@ -92,7 +86,6 @@ vec4 getVolumeValue(vec3 volpos)
     texpos1.x = dx1+(floor(adapted_x*sliceSizeX)+0.5)/uSlicemapWidth;
     texpos1.y = dy1+(floor(adapted_y*sliceSizeY)+0.5)/uSlicemapWidth;
 
-
     float value2 = 0.0;
     vec4 value1;
     // bool value1Set = false, value2Set = false;
@@ -105,31 +98,6 @@ vec4 getVolumeValue(vec3 volpos)
     <% } %>
 
     return value1;
-
-    // for (int x = 0; x < gl_MaxTextureImageUnits-2; x++)
-    // {
-    //     if(x == numberOfSlicemaps)
-    //     {
-    //         break;
-    //     }
-
-    //     if(x == tex1Index) {
-    //         value1 = texture2D(uSliceMaps[x],texpos1).x;
-    //         value1Set = true;
-    //     }
-
-    //     if(x == tex2Index) {
-    //         value2 = texture2D(uSliceMaps[x],texpos2).x;
-    //         value2Set = true;
-    //     }
-
-    //     if(value1Set && value2Set) {
-    //         break;
-    //     }
-
-    // }
-
-    // return mix(value1, value2, fract(volpos.z*uNumberOfSlices));
 }
 
 
