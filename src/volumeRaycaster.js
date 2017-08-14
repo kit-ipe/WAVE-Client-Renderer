@@ -386,6 +386,15 @@
             me._needRedraw = true;
         };
 
+        me.startRotate = function() {
+            me._core.startRotate();
+            me._needRedraw = true;
+        };
+
+        me.stopRotate = function() {
+            me._core.stopRotate();
+            me._needRedraw = true;
+        };
 
         me.setBackgroundColor = function(color) {
             me._core.setBackgroundColor(color);

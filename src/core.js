@@ -11,6 +11,7 @@ var Core = function(conf) {
     // Stats
     this.stats;
     this.isStatsOn = false;
+    this._isRotate = false;
 
     // USCT Parameters
     // Slowly need to deprecate this section; can be generalized into rgb.
@@ -35,12 +36,6 @@ var Core = function(conf) {
     this._mode = conf.mode == undefined ? "3d" : conf.mode;
     this._steps = conf.steps == undefined ? 20 : conf.steps;
     this._slices_gap = typeof conf.slices_range == undefined ? [0, '*'] : conf.slices_range;
-
-    //console.log("CHECK");
-    //console.log(conf);
-    //console.log(conf.mode);
-    //console.log(typeof conf.mode);
-    //console.log(this._mode);
 
     this._slicemap_row_col = [16, 16];
     this._gray_value = [0.0, 1.0];
@@ -87,11 +82,6 @@ var Core = function(conf) {
             "x": 0,
             "y": 0,
             "z": 3
-
-            // -1.2288109632962383 0.32381312731105727 -0.19795182879322729 up: 0.00012277375019899728 0.9311791286703411 -0.3645619498183242
-            // "x": -1.2288109632962383,
-            // "y": 0.32381312731105727,
-            // "z": -0.19795182879322729
         }
     };
 
@@ -184,6 +174,9 @@ Core.prototype.init = function() {
 
     this._controls.staticMoving = true;
     this._controls.dynamicDampingFactor = 0.3;
+
+    this._controls.autoRotate = true;
+
 
     this._rtTexture = new THREE.WebGLRenderTarget(
         this.getRenderSizeInPixels()[0],
@@ -366,12 +359,11 @@ Core.prototype.init = function() {
     var zlength = 0.2;
     var zhex = 0x0000ff;
     var zarrowHelper = new THREE.ArrowHelper( zdir, zorigin, zlength, zhex );
-    */
 
-    //this._sceneSecondPass.add( xarrowHelper );
-    //this._sceneSecondPass.add( yarrowHelper );
-    //this._sceneSecondPass.add( zarrowHelper );
-    //scene.add( arrowHelper );
+    this._sceneSecondPass.add( xarrowHelper );
+    this._sceneSecondPass.add( yarrowHelper );
+    this._sceneSecondPass.add( zarrowHelper );
+    */
 
     //var light = new THREE.DirectionalLight( 0xffffff );
     //light.position.set( 2, 3, 5 ).normalize();
@@ -845,6 +837,18 @@ Core.prototype.setGrayMaxValue = function(value) {
 };
 
 
+Core.prototype.startRotate = function() {
+    console.log("Core: startRotate()");
+    this._isRotate = true;
+};
+
+
+Core.prototype.stopRotate = function() {
+    console.log("Core: stopRotate()");
+    this._isRotate = false;
+};
+
+
 Core.prototype.addWireframe = function() {
     console.log("Core: addFrame()");
     this._sceneSecondPass.add( this._wireframe );
@@ -965,7 +969,7 @@ Core.prototype.stopLightRotation = function() {
     this.draw(0.0);
 };
 
-
+rotSpeed = 0.01;
 Core.prototype.draw = function(fps) {
     this.onPreDraw.call(fps.toFixed(3));
 
@@ -984,13 +988,40 @@ Core.prototype.draw = function(fps) {
     }
 
     //Controls
+    //this._controls.position.x -= 0.01 * 2;
     this._controls.update();
+
+    if (this._isRotate) {
+        var x = this._camera.position.x,
+            y = this._camera.position.y,
+            z = this._camera.position.z;
+
+        //if (keyboard.pressed("left")){
+        this._camera.position.x = x * Math.cos(rotSpeed) + z * Math.sin(rotSpeed);
+        this._camera.position.z = z * Math.cos(rotSpeed) - x * Math.sin(rotSpeed);
+        //} else if (keyboard.pressed("right")){
+        //camera.position.x = x * Math.cos(rotSpeed) - z * Math.sin(rotSpeed);
+        //camera.position.z = z * Math.cos(rotSpeed) + x * Math.sin(rotSpeed);
+        //}
+
+        this._camera.lookAt(this._sceneFirstPass.position);
+    }
+
     //3D
     this._render.render( this._sceneFirstPass, this._camera, this._rtTexture, true );
     this._render.render( this._sceneFirstPass, this._camera );
 
     // Render the second pass and perform the volume rendering.
     if(this._mode == "3d") {
+
+        /*
+        rotation += 0.05;
+        this._camera.position.x = 0;
+        this._camera.position.y = Math.sin(rotation);
+        this._camera.position.z = Math.cos(rotation);
+
+        this._camera.lookAt( this._sceneSecondPass.position ); // the origin
+        */
         this._render.render( this._sceneSecondPass, this._camera );
     }
 
