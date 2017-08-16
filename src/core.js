@@ -187,7 +187,7 @@ Core.prototype.init = function() {
             wrapS:  THREE.ClampToEdgeWrapping,
             wrapT:  THREE.ClampToEdgeWrapping,
             format: THREE.RGBFormat,
-            type: THREE.FloatType,
+            type: THREE.UnsignedByteType,
             generateMipmaps: false
         }
     );
