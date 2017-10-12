@@ -30,14 +30,3 @@ $ ./prepare_grunt.sh
 ```bash
 $ grunt
 ```
-### 6. Go to the test dir
-```bash
-$ cd test
-```
-### 7. Start python http server
-```bash
-$ ./start_http_server.sh
-
-```
-### 8. Point your browser to [localhost:5617](http://localhost:5617).
-
