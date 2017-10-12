@@ -1,0 +1,43 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Minimalist</title>
+</head>
+
+<body>
+    <div id="container"></div>
+    <script src="js/three.min.js"></script>
+    <script src="js/TrackballControls.js"></script>
+    <script src="js/ejs.js"></script>
+    <script src="js/volumeRaycaster.js"></script>
+    <script src="js/stats.min.js"></script>
+    <script>
+        config = {
+            "dom_container": "container",
+            "slicemaps_paths": [
+                'dataset/usct_tmp/slicemap_0.png',
+                'dataset/usct_tmp/slicemap_1.png',
+                'dataset/usct_tmp/slicemap_2.png',
+                'dataset/usct_tmp/slicemap_3.png'
+			 ],
+            "steps" : 144,
+            "shader_name": "secondPassDVR",
+            "slices_range": [0, '*'],
+            "row_col": [8, 8],
+            "renderer_size": [1024, 1024],
+            "renderer_canvas_size": ['fullscreen','fullscreen'],
+            "opacity_factor": 40,
+            "color_factor": 0.4,
+            "l": 5,
+            "s" : 1,
+            "hMin" : -0.5,
+            "hMax" : 1,
+            "minRefl" : 0,
+            "zFactor" : 0.56,
+        };
+        rcl2 = new VRC.VolumeRaycaster(config);
+    </script>
+</body>
+</html>
