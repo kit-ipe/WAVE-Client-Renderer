@@ -197,6 +197,16 @@
           me._needRedraw = true;
         };
 
+        me.setShaderName = function(value) {
+          me._core.setShaderName(value);
+          me._needRedraw = true;
+        };
+        
+        me.setShader = function(codeblock){
+          me._core.setShader(codeblock);
+          me._needRedraw = true;
+        };
+
         me.setShader = function(codeblock){
           me._core.setShader(codeblock);
           me._needRedraw = true;

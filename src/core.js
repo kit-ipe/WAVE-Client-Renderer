@@ -520,6 +520,7 @@ Core.prototype._initGeometry = function(geometryDimensions, volumeSizes) {
 Core.prototype.setMode = function(conf) {
     this._shader_name =  conf.shader_name;
 
+
     if(this._mode == "3d") {
 	    this._materialSecondPass = new THREE.ShaderMaterial( {
 		vertexShader: this._shaders[this._shader_name].vertexShader,
@@ -527,9 +528,9 @@ Core.prototype.setMode = function(conf) {
 		    this._shaders[this._shader_name].fragmentShader,
 		    {"maxTexturesNumber": this.getMaxTexturesNumber()}
 		),
-		attributes: {
-		    vertColor: {type: 'c', value: [] }
-		},
+		//attributes: {
+		//    vertColor: {type: 'c', value: [] }
+		//},
 		uniforms: {
             uRatio : { type: "f", value: this.zFactor},
 		    uBackCoord: { type: "t",  value: this._rtTexture },
@@ -585,6 +586,79 @@ Core.prototype.set2DTexture = function(urls) {
     this._material2D.uniforms["texture2"].value = chosen_cm2;
     this._material2D.needsUpdate = true;
 }
+
+/////////////////////////////////////////////////////////////////////
+Core.prototype.setShaderName = function(value) {
+    // console.log("Core: setShaderName()");
+
+    // new THREE.BoxGeometry( 1, 1, 1 ),
+
+    this._shader_name = value;
+    // this._shader_name =  conf.shader_name;
+
+    if(this._mode == "3d") {
+
+
+      this._materialSecondPass = new THREE.ShaderMaterial( {
+		vertexShader: this._shaders[this._shader_name].vertexShader,
+		fragmentShader: ejs.render( this._shaders[this._shader_name].fragmentShader, {
+		  "maxTexturesNumber": this.getMaxTexturesNumber()}),
+		uniforms: {
+      uRatio : { type: "f", value: this.zFactor},
+      uBackCoord: { type: "t",  value: this._rtTexture },
+      uSliceMaps: { type: "tv", value: this._slicemaps_textures },
+      uLightPos: {type:"v3", value: new THREE.Vector3() },
+      uSetViewMode: {type:"i", value: 0 },
+
+      uSteps: { type: "i", value: this._steps },
+      uSlicemapWidth: { type: "f", value: this._slicemaps_width },
+      uNumberOfSlices: { type: "f", value:  (parseFloat(this.getSlicesRange()[1]) + 1.0) },
+      uSlicesOverX: { type: "f", value: this._slicemap_row_col[0] },
+      uSlicesOverY: { type: "f", value: this._slicemap_row_col[1] },
+      uOpacityVal: { type: "f", value: this._opacity_factor },
+      darkness: { type: "f", value: this._color_factor },
+
+      l: { type: "f", value: this.l },
+      s: { type: "f", value: this.s },
+      hMin: { type: "f", value: this.hMin },
+      hMax: { type: "f", value: this.hMax },
+
+      minSos: { type: "f", value: this.minSos },
+      maxSos: { type: "f", value: this.maxSos },
+      minAtten: { type: "f", value: this.minAtten },
+      maxAtten: { type: "f", value: this.maxAtten },
+      minRefl: { type: "f", value: this.minRefl },
+      maxRefl: { type: "f", value: this.maxRefl },
+
+     uTransferFunction: { type: "t",  value: this._transfer_function },
+     uColorVal: { type: "f", value: this._color_factor },
+     uAbsorptionModeIndex: { type: "f", value: this._absorption_mode_index },
+     uMinGrayVal: { type: "f", value: this._gray_value[0] },
+     uMaxGrayVal: { type: "f", value: this._gray_value[1] },
+     uIndexOfImage: { type: "f", value: this._indexOfImage },
+
+    uSosThresholdBot: { type: "f", value: this._sosThresholdBot },
+    uSosThresholdTop: { type: "f", value: this._sosThresholdTop },
+    uAttenThresholdBot: { type: "f", value: this._attenThresholdBot },
+    uAttenThresholdTop: { type: "f", value: this._attenThresholdTop },
+		},
+		//side: THREE.FrontSide,
+        side: THREE.BackSide,
+		transparent: true
+	    });
+
+
+	    this._meshSecondPass = new THREE.Mesh( this._geometry, this._materialSecondPass );
+
+	    this._sceneSecondPass = new THREE.Scene();
+	    this._sceneSecondPass.add( this._meshSecondPass );
+
+      this.addWireframe();
+
+    }
+}
+/////////////////////////////////////////////////////////////////////
+
 
 
 Core.prototype.setShader = function(codeblock) {
