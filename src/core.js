@@ -235,6 +235,9 @@ Core.prototype.init = function() {
 		transparent: true
 	    } );
 
+        var cm = THREE.ImageUtils.loadTexture( "http://katrin.kit.edu/vis/colormap/cm_jet.png" );
+        cm.minFilter = THREE.LinearFilter;
+
 	    this._materialSecondPass = new THREE.ShaderMaterial( {
 		vertexShader: this._shaders[this._shader_name].vertexShader,
 		fragmentShader: ejs.render( this._shaders[this._shader_name].fragmentShader, {
@@ -245,7 +248,7 @@ Core.prototype.init = function() {
 		    uSliceMaps: { type: "tv", value: this._slicemaps_textures },
 		    uLightPos: {type:"v3", value: new THREE.Vector3() },
 		    uSetViewMode: {type:"i", value: 0 },
-
+            uColormap : {type:'t',value:cm },
 		    uSteps: { type: "i", value: this._steps },
 		    uSlicemapWidth: { type: "f", value: this._slicemaps_width },
 		    uNumberOfSlices: { type: "f", value:  (parseFloat(this.getSlicesRange()[1]) + 1.0) },
@@ -271,7 +274,7 @@ Core.prototype.init = function() {
 		   uAbsorptionModeIndex: { type: "f", value: this._absorption_mode_index },
 		   uMinGrayVal: { type: "f", value: this._gray_value[0] },
 		   uMaxGrayVal: { type: "f", value: this._gray_value[1] },
-       uIndexOfImage: { type: "f", value: this._indexOfImage }
+           uIndexOfImage: { type: "f", value: this._indexOfImage }
 		},
 		//side: THREE.FrontSide,
         side: THREE.BackSide,
