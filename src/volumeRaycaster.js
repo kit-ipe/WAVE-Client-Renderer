@@ -52,7 +52,7 @@
                     me.isChange = false;
                     console.log("WAVE: stop()");
                     clearInterval(me._token);
-                }, 5000);
+                }, 1000);
 
             });
 

@@ -394,24 +394,27 @@ Core.prototype.init = function() {
     requestAnimationFrame( update );
 
     window.addEventListener( 'resize', function() {
+        console.log("WAVE: trigger");
         me.onResizeWindow.call();
     }, false );
 
     this._controls.addEventListener("change", function() {
+        console.log("WAVE: trigger");
         me.onCameraChange.call();
     });
 
     this._controls.addEventListener("scroll", function() {
+        console.log("WAVE: trigger");
         me.onCameraChange.call();
     });
 
     this._controls.addEventListener("start", function() {
-        console.log("WAVE: start()");
+        console.log("WAVE: start trigger");
         me.onCameraChangeStart.call();
     });
 
     this._controls.addEventListener("end", function() {
-        console.log("WAVE: stop()");
+        console.log("WAVE: end trigger");
         me.onCameraChangeEnd.call();
     });
 
