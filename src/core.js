@@ -194,6 +194,7 @@ Core.prototype.init = function() {
 
     // 2D
     if(this._mode == "2d") {
+        /*
 	    this._tex1 = THREE.ImageUtils.loadTexture( this._slicemaps_paths[0] );
 	    this._tex1.minFilter = THREE.LinearFilter;
 	    this._tex2 = THREE.ImageUtils.loadTexture( this._slicemaps_paths[1] );
@@ -221,7 +222,7 @@ Core.prototype.init = function() {
 	    this._meshFirstPass = new THREE.Mesh( geometry, this._material2D );
 	    this._sceneFirstPass = new THREE.Scene();
 	    this._sceneFirstPass.add(this._meshFirstPass);
-
+        */
 	    //var sprite = new THREE.Mesh( geometry,material );
 	    //scene.add( sprite );
 	    //sprite.position.z = -1;//Move it back so we can see it
@@ -235,8 +236,9 @@ Core.prototype.init = function() {
 		transparent: true
 	    } );
 
-        var cm = THREE.ImageUtils.loadTexture( "http://katrin.kit.edu/vis/colormap/cm_jet.png" );
-        cm.minFilter = THREE.LinearFilter;
+        // TODO: Load colourmap, but should be from local
+        //var cm = THREE.ImageUtils.loadTexture( "http://katrin.kit.edu/vis/colormap/cm_jet.png" );
+        //cm.minFilter = THREE.LinearFilter;
 
 	    this._materialSecondPass = new THREE.ShaderMaterial( {
 		vertexShader: this._shaders[this._shader_name].vertexShader,
@@ -248,7 +250,7 @@ Core.prototype.init = function() {
 		    uSliceMaps: { type: "tv", value: this._slicemaps_textures },
 		    uLightPos: {type:"v3", value: new THREE.Vector3() },
 		    uSetViewMode: {type:"i", value: 0 },
-            uColormap : {type:'t',value:cm },
+            //uColormap : {type:'t',value:cm },
 		    uSteps: { type: "i", value: this._steps },
 		    uSlicemapWidth: { type: "f", value: this._slicemaps_width },
 		    uNumberOfSlices: { type: "f", value:  (parseFloat(this.getSlicesRange()[1]) + 1.0) },
