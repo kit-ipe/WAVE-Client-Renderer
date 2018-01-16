@@ -1,3 +1,11 @@
+/**
+Usage:
+    1. Set mode:
+        rcl2.setAbsorptionMode(1.0) 
+    2. Set threshold:
+        rcl2.setGrayMinValue(0.43)
+ **/
+
 #ifdef GL_FRAGMENT_PRECISION_HIGH 
  // highp is supported 
  precision highp int; 

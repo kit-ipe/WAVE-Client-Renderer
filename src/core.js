@@ -340,9 +340,9 @@ Core.prototype.init = function() {
     this._sceneSecondPass.add( this._wireframe2 );
     */
 
-    if(this._mode == "3d") {
-        this.setTransferFunctionByColors(this._transfer_function_colors);
-    }
+    // TODO: only when transfer function is required.
+    //this.setTransferFunctionByColors(this._transfer_function_colors);
+    
     // Arrow Helper
     /*
     var xdir = new THREE.Vector3( 1, 0, 0 );
@@ -398,22 +398,20 @@ Core.prototype.init = function() {
     }, false );
 
     this._controls.addEventListener("change", function() {
-        console.log("Controls Changes");
         me.onCameraChange.call();
     });
 
     this._controls.addEventListener("scroll", function() {
-        console.log("Controls Changes");
         me.onCameraChange.call();
     });
 
     this._controls.addEventListener("start", function() {
-        console.log("Controls Starts");
+        console.log("WAVE: start()");
         me.onCameraChangeStart.call();
     });
 
     this._controls.addEventListener("end", function() {
-        console.log("Controls End");
+        console.log("WAVE: stop()");
         me.onCameraChangeEnd.call();
     });
 
@@ -454,7 +452,6 @@ Core.prototype._setSlicemapsTextures = function(images) {
 
 
 Core.prototype.setTransferFunctionByImage = function(image) {
-    console.log("Core: setTransferFunctionByImage()");
     this._transfer_function_as_image = image;
     var texture = new THREE.Texture(image);
     texture.magFilter = THREE.LinearFilter;
@@ -472,7 +469,6 @@ Core.prototype.setTransferFunctionByImage = function(image) {
 
 
 Core.prototype.setTransferFunctionByColors = function(colors) {
-    console.log("Core: setTransferFunctionByColors()");
     this._transfer_function_colors = colors;
 
     var canvas = document.createElement('canvas');
@@ -572,7 +568,6 @@ Core.prototype.setMode = function(conf) {
 
 
 Core.prototype.setZoom = function(x1, x2, y1, y2) {
-    console.log("apply Zooming.");
     //this._material2D.uniforms["uZoom"].value = new THREE.Vector4(0.1875, 0.28125, 0.20117, 0.29492);
     this._material2D.uniforms["uZoom"].value = new THREE.Vector4(x1, x2, y1, y2);
     //uSetViewMode: {type: "i", value: 0 }
@@ -580,7 +575,6 @@ Core.prototype.setZoom = function(x1, x2, y1, y2) {
 }
 
 Core.prototype.set2DTexture = function(urls) {
-    console.log("apply new Textures");
     var chosen_cm = THREE.ImageUtils.loadTexture( urls[0] );
     var chosen_cm2 = THREE.ImageUtils.loadTexture( urls[1] );
 
@@ -594,7 +588,6 @@ Core.prototype.set2DTexture = function(urls) {
 
 /////////////////////////////////////////////////////////////////////
 Core.prototype.setShaderName = function(value) {
-    // console.log("Core: setShaderName()");
 
     // new THREE.BoxGeometry( 1, 1, 1 ),
 
@@ -740,7 +733,6 @@ Core.prototype._setGeometry = function(geometryDimensions, volumeSizes) {
 
 
 Core.prototype.setSlicemapsImages = function(images, imagesPaths) {
-    console.log("Core: setSlicemapsImages()");
     this._slicemaps_images = images;
     this._slicemaps_paths = imagesPaths != undefined ? imagesPaths : this._slicemaps_paths;
     this._setSlicemapsTextures(images);
@@ -756,7 +748,6 @@ Core.prototype.setSlicemapsImages = function(images, imagesPaths) {
 
 
 Core.prototype.setSteps = function(steps) {
-    //console.log("Core: setSteps(" + steps + ")");
     this._steps = steps;
     if(this._mode == "3d") {
         this._secondPassSetUniformValue("uSteps", this._steps);
@@ -765,7 +756,6 @@ Core.prototype.setSteps = function(steps) {
 
 
 Core.prototype.setSlicesRange = function(from, to) {
-    console.log("Core: setSlicesRange()");
     this._slices_gap = [from, to];
     if(this._mode == "3d") {
         this._secondPassSetUniformValue("uNumberOfSlices", (parseFloat(this.getSlicesRange()[1]) + 1.0));
@@ -774,7 +764,6 @@ Core.prototype.setSlicesRange = function(from, to) {
 
 
 Core.prototype.setOpacityFactor = function(opacity_factor) {
-    console.log("Core: setOpacityFactor()");
     this._opacity_factor = opacity_factor;
     if(this._mode == "3d") {
         this._secondPassSetUniformValue("uOpacityVal", this._opacity_factor);
@@ -783,7 +772,6 @@ Core.prototype.setOpacityFactor = function(opacity_factor) {
 
 
 Core.prototype.setColorFactor = function(color_factor) {
-    console.log("Core: setColorFactor()");
     this._color_factor = color_factor;
     if(this._mode == "3d") {
         this._secondPassSetUniformValue("darkness", this._color_factor);
@@ -792,7 +780,6 @@ Core.prototype.setColorFactor = function(color_factor) {
 
 
 Core.prototype.setAbsorptionMode = function(mode_index) {
-    console.log("Core: setAbsorptionMode()");
     this._absorption_mode_index = mode_index;
     if(this._mode == "3d") {
         this._secondPassSetUniformValue("uAbsorptionModeIndex", this._absorption_mode_index);
@@ -800,7 +787,6 @@ Core.prototype.setAbsorptionMode = function(mode_index) {
 };
 
 Core.prototype.setIndexOfImage = function(indexOfImage) {
-    console.log("Core: setIndexOfImage()");
     this._indexOfImage = indexOfImage;
     if(this._mode == "3d") {
         this._secondPassSetUniformValue("uIndexOfImage", this._indexOfImage);
@@ -809,7 +795,6 @@ Core.prototype.setIndexOfImage = function(indexOfImage) {
 
 
 Core.prototype.setVolumeSize = function(width, height, depth) {
-    console.log("Core: setVolumeSize()");
     this._volume_sizes = [width, height, depth];
 
     var maxSize = Math.max(this.getVolumeSize()[0], this.getVolumeSize()[1], this.getVolumeSize()[2]);
@@ -820,7 +805,6 @@ Core.prototype.setVolumeSize = function(width, height, depth) {
 
 
 Core.prototype.setGeometryDimensions = function(geometryDimension) {
-    console.log("Core: setGeometryDimension()");
     this._geometry_dimensions = geometryDimension;
 
     this._setGeometry(this._geometry_dimensions, this.getVolumeSizeNormalized());
@@ -828,7 +812,6 @@ Core.prototype.setGeometryDimensions = function(geometryDimension) {
 
 
 Core.prototype.setRenderCanvasSize = function(width, height) {
-    console.log("Core: setRenderCanvasSize()");
     this._canvas_size = [width, height];
 
     if( (this._canvas_size[0] == '*' || this._canvas_size[1] == '*') && !this.onResizeWindow.isStart(this._onWindowResizeFuncIndex_canvasSize) ) {
@@ -851,14 +834,12 @@ Core.prototype.setRenderCanvasSize = function(width, height) {
 
 
 Core.prototype.setBackgroundColor = function(color) {
-    console.log("Core: setBackgroundColor()");
     this._render_clear_color = color;
     this._render.setClearColor(color);
 };
 
 
 Core.prototype.setRowCol = function(row, col) {
-    console.log("Core: setRowCol()");
     this._slicemap_row_col = [row, col];
     if(this._mode == "3d") {
         this._secondPassSetUniformValue("uSlicesOverX", this._slicemap_row_col[0]);
@@ -868,7 +849,6 @@ Core.prototype.setRowCol = function(row, col) {
 
 
 Core.prototype.setGrayMinValue = function(value) {
-    console.log("Core: setMinGrayValue()");
     this._gray_value[0] = value;
     if(this._mode == "3d") {
         this._secondPassSetUniformValue("uMinGrayVal", this._gray_value[0]);
@@ -877,7 +857,6 @@ Core.prototype.setGrayMinValue = function(value) {
 
 
 Core.prototype.applyThresholding = function(threshold_name) {
-    console.log("Core: applyThresholding()");
     switch( threshold_name ) {
         case "otsu": {
             this.setGrayMinValue( this._threshold_otsu_index );
@@ -899,7 +878,6 @@ Core.prototype.applyThresholding = function(threshold_name) {
 
 
 Core.prototype.setThresholdIndexes = function(otsu, isodata, yen, li) {
-    console.log("Core: setThresholdIndexes()");
     this._threshold_otsu_index       = otsu;
     this._threshold_isodata_index    = isodata;
     this._threshold_yen_index        = yen;
@@ -908,7 +886,6 @@ Core.prototype.setThresholdIndexes = function(otsu, isodata, yen, li) {
 
 
 Core.prototype.setGrayMaxValue = function(value) {
-    console.log("Core: setMaxGrayValue()");
     this._gray_value[1] = value;
     if(this._mode == "3d") {
         this._secondPassSetUniformValue("uMaxGrayVal", this._gray_value[1]);
@@ -917,19 +894,16 @@ Core.prototype.setGrayMaxValue = function(value) {
 
 
 Core.prototype.startRotate = function() {
-    console.log("Core: startRotate()");
     this._isRotate = true;
 };
 
 
 Core.prototype.stopRotate = function() {
-    console.log("Core: stopRotate()");
     this._isRotate = false;
 };
 
 
 Core.prototype.addWireframe = function() {
-    console.log("Core: addFrame()");
     this._sceneSecondPass.add( this._wireframe );
 
     // Controls
@@ -946,7 +920,6 @@ Core.prototype.addWireframe = function() {
 
 
 Core.prototype.removeWireframe = function() {
-    console.log("Core: removeFrame()");
     this._sceneSecondPass.remove( this._wireframe );
 
     // Controls
@@ -963,9 +936,6 @@ Core.prototype.removeWireframe = function() {
 
 
 Core.prototype.setStats = function(value) {
-    console.log("Core: setStats()");
-    console.log("Enable Stats: " + this.isStatsOn);
-
     if (value == true) {
         this.isStatsOn = true;
         // FramesPerSecond
@@ -983,9 +953,6 @@ Core.prototype.setStats = function(value) {
 
 
 Core.prototype.setAxis = function(value) {
-    console.log("Core: setAxis()");
-    console.log("Axis status: " + this.isAxisOn);
-
     if (this.isAxisOn) {
         this._sceneSecondPass.remove(this._axes);
         this.isAxisOn = false;
@@ -1104,7 +1071,6 @@ Core.prototype.draw = function(fps) {
         this._render.render( this._sceneSecondPass, this._camera );
     }
 
-    // console.log("NTJ HACKING!!");
     //this._meshSecondPass.updateMatrixWorld();
     //console.log(this._meshSecondPass.matrixWorld.elements);
 
@@ -1237,14 +1203,13 @@ Core.prototype.getMaxStepsNumber = function() {
 
 
 Core.prototype.getVolumeSizeNormalized = function() {
-    var maxSize = Math.max(this.getVolumeSize()[0], this.getVolumeSize()[1], this.getVolumeSize()[2]);
+    var maxSize = Math.max(this.getVolumeSize()[0],
+                           this.getVolumeSize()[1],
+                           this.getVolumeSize()[2]);
     var normalizedVolumeSizes = [
         parseFloat(this.getVolumeSize()[0]) / parseFloat(maxSize),
         parseFloat(this.getVolumeSize()[1]) / parseFloat(maxSize),
         parseFloat(this.getVolumeSize()[2]) / parseFloat(maxSize)];
-
-    console.log("Check normalized SIZE");
-    console.log(normalizedVolumeSizes);
 
     return normalizedVolumeSizes;
 };

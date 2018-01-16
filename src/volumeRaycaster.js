@@ -50,7 +50,7 @@
                 me._token = setInterval(function(){
                     me._needRedraw = false;
                     me.isChange = false;
-                    console.log("DEACTIVATE");
+                    console.log("WAVE: stop()");
                     clearInterval(me._token);
                 }, 5000);
 
@@ -160,12 +160,12 @@
 
         me.start = function() {
             me._isStart = true;
-            console.log("VRC: start()");
+            console.log("WAVE: start()");
         };
 
         me.stop = function() {
             me._isStart = false;
-            console.log("VRC: stop()");
+            console.log("WAVE: stop()");
         };
 
         me.setSteps = function(steps_number) {
