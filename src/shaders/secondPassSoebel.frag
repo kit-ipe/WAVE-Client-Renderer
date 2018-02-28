@@ -405,12 +405,14 @@ void main(void)
           gray_val.x = sum_gray_val / 27.0; // 27.0 = pow(mask_size, 3)
         } // end of Mean filtering
         */
+        
         if(gray_val.z < 0.05 ||
            gray_val.x < uMinGrayVal ||
-           gray_val.x > uMaxGrayVal)
+           gray_val.x > uMaxGrayVal) {
             colorValue = vec4(0.0);
-        else {
+        } else {
 
+            /* surface rendering
             vec3 V = normalize(cameraPosition - vpos.xyz);
             vec3 N = normalize(getNormal(vpos.xyz));
             for(int light_i = 0; light_i < 3; ++light_i) {
@@ -421,27 +423,33 @@ void main(void)
               sample.rgb += (Iamb + Idif + Ispe);
             }
             sample.a = 1.0;
+            */
             
-            // if ( uSetViewMode == 1 ) {
-            //   vec3 V = normalize(cameraPosition - vpos.xyz);
-            //   vec3 N = normalize(getNormal(vpos.xyz));
-            //   for(int light_i = 0; light_i < 3; ++light_i) {
-            //     vec3 L = normalize(lightPos[light_i] - vpos.xyz);
-            //     vec3 Iamb = ambientLighting();
-            //     vec3 Idif = diffuseLighting(N, L);
-            //     vec3 Ispe = specularLighting(N, L, V);
-            //     sample.rgb += (Iamb + Idif + Ispe);
-            //   }
-            //   sample.a = 1.0;
-            // } else {
-            //     sample.rgb = (1.0 - accum.a) * colorValue.xxx * sample.a;
-            //     sample.a = colorValue.a * opacityFactor * (1.0 / uStepsF);
-            // }
+            
+            if ( uSetViewMode == 1 ) {
+                vec3 V = normalize(cameraPosition - vpos.xyz);
+                vec3 N = normalize(getNormal(vpos.xyz));
+                for(int light_i = 0; light_i < 3; ++light_i) {
+                    vec3 L = normalize(lightPos[light_i] - vpos.xyz);
+                    vec3 Iamb = ambientLighting();
+                    vec3 Idif = diffuseLighting(N, L);
+                    vec3 Ispe = specularLighting(N, L, V);
+                    sample.rgb += (Iamb + Idif + Ispe);
+                }
+                sample.a = 1.0;
+            } else {
+                colorValue.x = (darkness * 2.0 - gray_val.x) * l * 0.4;
+                //colorValue.x = gray_val.x;
+                colorValue.w = 0.1;
+                sample.rgb = (1.0 - accum.a) * colorValue.xxx * sample.a;
+                sample.a = colorValue.a * opacityFactor * (1.0 / uStepsF);
+            }
+            
             accum += sample;
+            
             if(accum.a>=1.0)
                break;
         }
-      // }
 
         //advance the current position
         vpos.xyz += Step;

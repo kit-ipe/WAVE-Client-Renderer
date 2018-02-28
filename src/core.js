@@ -394,27 +394,27 @@ Core.prototype.init = function() {
     requestAnimationFrame( update );
 
     window.addEventListener( 'resize', function() {
-        console.log("WAVE: trigger");
+        //console.log("WAVE: trigger: resize");
         me.onResizeWindow.call();
     }, false );
 
     this._controls.addEventListener("change", function() {
-        console.log("WAVE: trigger");
+        //console.log("WAVE: trigger: change");
         me.onCameraChange.call();
     });
 
     this._controls.addEventListener("scroll", function() {
-        console.log("WAVE: trigger");
+        //console.log("WAVE: trigger: scroll");
         me.onCameraChange.call();
     });
 
     this._controls.addEventListener("start", function() {
-        console.log("WAVE: start trigger");
+        //console.log("WAVE: start trigger");
         me.onCameraChangeStart.call();
     });
 
     this._controls.addEventListener("end", function() {
-        console.log("WAVE: end trigger");
+        //console.log("WAVE: end trigger");
         me.onCameraChangeEnd.call();
     });
 
@@ -980,7 +980,7 @@ Core.prototype.setAxis = function(value) {
 Core.prototype.showISO = function() {
     if(this._mode == "3d") {
         this._secondPassSetUniformValue("uSetViewMode", 1);
-        this._pivot.add( this._light1 );
+        //this._pivot.add( this._light1 );
         this._render.render( this._sceneSecondPass, this._camera );
     }
 };
@@ -1001,7 +1001,7 @@ Core.prototype.hideLight = function() {
 Core.prototype.showVolren = function() {
     if(this._mode == "3d") {
         this._secondPassSetUniformValue("uSetViewMode", 0);
-        this._pivot.remove( this._light1 );
+        //this._pivot.remove( this._light1 );
         this._render.render( this._sceneSecondPass, this._camera );
     }
 };
