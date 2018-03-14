@@ -1,12 +1,3 @@
-/**
- * @classdesc
- * Core
- * 
- * @class Core
- * @this {Core}
- * @author sogimu@nxt.ru Aleksandr Lizin aka sogimu
- */
-
 (function(namespace) {
     var GeometryHelper = function() {
 

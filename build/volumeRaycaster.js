@@ -1,26 +1,7 @@
-/**
- * @classdesc
- * NamespaceKTV
- * 
- * @class NamespaceKTV
- * @this NamespaceKTV;
- * @author sogimu@nxt.ru Aleksandr Lizin aka sogimu
- * @version 0.1
- * 
- */
-
 (function(namespace) {
 
 	namespace.VRC = {};
 })(window);
-/**
- * @classdesc
- * EventDispatcher
- * 
- * @class EventDispatcher
- * @this {RC.EventDispatcher}
- * @author sogimu@nxt.ru Aleksandr Lizin aka sogimu
- */
 
 (function(namespace) {
     var EventDispatcher = function(O) {
@@ -109,15 +90,6 @@
     namespace.EventDispatcher = EventDispatcher;
 
 })(window.VRC);
-/**
- * @classdesc
- * AdaptationManager
- * 
- * @class AdaptationManager
- * @this {AdaptationManager}
- * @author sogimu@nxt.ru Aleksandr Lizin aka sogimu
- *
- */
 
 (function(namespace) {
     var AdaptationManager = function() {
@@ -272,15 +244,6 @@
     namespace.AdaptationManager = AdaptationManager;
 
 })(window.VRC);
-
-/**
- * @classdesc
- * Core
- * 
- * @class Core
- * @this {Core}
- * @author sogimu@nxt.ru Aleksandr Lizin aka sogimu
- */
 
 (function(namespace) {
     var GeometryHelper = function() {
@@ -5073,17 +5036,6 @@ window.VRC.Core.prototype._shaders.secondPassStevenTri = {
 		' gl_FragColor = accum;',
 		'}'].join("\n")
 };
-
-/**
- * @classdesc
- * RaycasterLib
- *
- * @class RaycasterLib
- * @this {RaycasterLib}
- * @author sogimu@nxt.ru Aleksandr Lizin aka sogimu
- * @version 0.1
- *
- */
 
 (function(namespace) {
     var VolumeRaycaster = function(config) {

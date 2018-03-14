@@ -1,12 +1,3 @@
-/**
- * @classdesc
- * EventDispatcher
- * 
- * @class EventDispatcher
- * @this {RC.EventDispatcher}
- * @author sogimu@nxt.ru Aleksandr Lizin aka sogimu
- */
-
 (function(namespace) {
     var EventDispatcher = function(O) {
 

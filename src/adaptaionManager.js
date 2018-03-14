@@ -1,13 +1,3 @@
-/**
- * @classdesc
- * AdaptationManager
- * 
- * @class AdaptationManager
- * @this {AdaptationManager}
- * @author sogimu@nxt.ru Aleksandr Lizin aka sogimu
- *
- */
-
 (function(namespace) {
     var AdaptationManager = function() {
 

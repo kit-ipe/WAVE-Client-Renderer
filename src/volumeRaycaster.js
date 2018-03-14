@@ -1,14 +1,3 @@
-/**
- * @classdesc
- * RaycasterLib
- *
- * @class RaycasterLib
- * @this {RaycasterLib}
- * @author sogimu@nxt.ru Aleksandr Lizin aka sogimu
- * @version 0.1
- *
- */
-
 (function(namespace) {
     var VolumeRaycaster = function(config) {
 
