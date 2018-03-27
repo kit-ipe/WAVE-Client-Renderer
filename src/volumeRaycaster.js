@@ -83,7 +83,6 @@
 
         me.uploadSlicemapsImages = function(imagesPaths, userOnLoadImage, userOnLoadImages, userOnError) {
 
-
             var downloadImages = function(imagesPaths, onLoadImage, onLoadImages, onError) {
                 var downloadedImages = [];
                 var downloadedImagesNumber = 0;
@@ -117,7 +116,6 @@
                 };
 
             };
-
             downloadImages(imagesPaths,
                 function(image) {
                     // downloaded one of the images
@@ -127,7 +125,7 @@
                 function(images) {
                     // downloaded all images
                     me.setSlicemapsImages(images, imagesPaths);
-                    // me.start();
+                    me.start();
 
                     me._onLoadSlicemaps.call(images);
 
@@ -750,6 +748,7 @@
 
             if(config['slicemaps_paths'] != undefined) {
                 me.uploadSlicemapsImages(
+
                     config['slicemaps_paths'],
                     function(image) {
                         if(onLoadImage != undefined) onLoadImage(image);
@@ -758,16 +757,11 @@
                         if(config['slices_range'] != undefined) {
                             me.setSlicesRange( config['slices_range'][0], config['slices_range'][1] );
                         }
-                        //
-
-
-
                         me.stop();
                         if(onLoadImages != undefined) onLoadImages(images);
 
                         me.start();
                     }
-
                 );
             }
 

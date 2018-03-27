@@ -239,7 +239,6 @@ Core.prototype.init = function() {
         // TODO: Load colourmap, but should be from local
         //var cm = THREE.ImageUtils.loadTexture( "http://katrin.kit.edu/vis/colormap/cm_jet.png" );
         //cm.minFilter = THREE.LinearFilter;
-
         this._materialSecondPass = new THREE.ShaderMaterial( {
         vertexShader: this._shaders[this._shader_name].vertexShader,
         fragmentShader: ejs.render( this._shaders[this._shader_name].fragmentShader, {
@@ -436,22 +435,44 @@ Core.prototype._secondPassSetUniformValue = function(key, value) {
 
 
 Core.prototype._setSlicemapsTextures = function(images) {
+    var allPromises = [];
+    var me = this;
     var textures = [];
     var loader = new THREE.TextureLoader();
     loader.crossOrigin = ''; 
-    for(var i=0; i<images.length; i++) {
-        this_img = images[i];
-        loader.load(this_img.src, function (texture) {
-            texture.magFilter = THREE.LinearFilter;
-            texture.minFilter = THREE.LinearFilter;
-            texture.wrapS = texture.wrapT = THREE.ClampToEdgeWrapping;
-            texture.generateMipmaps = false;
-            texture.flipY = false;
-            texture.needsUpdate = true;
-            textures.push(texture);
-        }, function (err) { console.log("error");} );
-    }
-    this._slicemaps_textures = textures;
+
+    images.forEach( function( image ) {
+        allPromises.push( new Promise( function( resolve, reject ) {
+
+            loader.load(image.src, function (texture) {
+                texture.magFilter = THREE.LinearFilter;
+                texture.minFilter = THREE.LinearFilter;
+                texture.wrapS = texture.wrapT = THREE.ClampToEdgeWrapping;
+                texture.generateMipmaps = false;
+                texture.flipY = false;
+                texture.needsUpdate = true;
+                //textures.push(texture);
+                resolve( texture );
+            }, 
+            function( xhr ) {
+               // Progress callback of TextureLoader
+               // ...
+            },    
+            function (err) {
+                console.log(err);
+                console.log("error");
+            });
+        }));
+    });
+    Promise.all( allPromises )
+        .then( function( promises ) {
+            // All textures are now loaded, and this array
+            // contains all the materials that you created
+            me._secondPassSetUniformValue("uSliceMaps", promises);
+        }, function( error ) {
+            console.error( "Could not load all textures:", error );
+        });
+    //this._slicemaps_textures = textures;
 };
 
 
@@ -738,7 +759,6 @@ Core.prototype.setSlicemapsImages = function(images, imagesPaths) {
     this._slicemaps_images = images;
     this._slicemaps_paths = imagesPaths != undefined ? imagesPaths : this._slicemaps_paths;
     this._setSlicemapsTextures(images);
-
     if(this._mode == "3d") {
         this._secondPassSetUniformValue("uSliceMaps", this._slicemaps_textures);
     }
