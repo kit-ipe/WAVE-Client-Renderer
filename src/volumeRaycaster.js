@@ -4,6 +4,7 @@
         var me = {};
 
         me._token;
+        me._token_array = [];
 
         me._needRedraw = true;
 
@@ -33,6 +34,10 @@
                 me._needRedraw = true;
                 me.isChange = true;
                 clearInterval(me._token);
+                for (i = 0; i < me._token_array.length; i++) {
+                    clearInterval(me._token_array[i]);
+                }
+                me._token_array = [];
             });
 
             me.addCallback("onCameraChangeEnd", function() {
@@ -40,9 +45,12 @@
                     me._needRedraw = false;
                     me.isChange = false;
                     console.log("WAVE: stop()");
-                    clearInterval(me._token);
+                    for (i = 0; i < me._token_array.length; i++) {
+                        clearInterval(me._token_array[i]);
+                    }
+                    me._token_array = [];
                 }, 1000);
-
+                me._token_array.push(me._token);
             });
 
 
@@ -460,6 +468,41 @@
             me._core.setRowCol(row, col);
             me._needRedraw = true;
 
+        };
+        
+        me.setZoomColor = function(value) {
+            me._core.setZoomColor(value);
+            me._needRedraw = true;
+        };
+        
+        me.setZoomXMinValue = function(value) {
+            me._core.setZoomXMinValue(value);
+            me._needRedraw = true;
+        };
+        
+        me.setZoomXMaxValue = function(value) {
+            me._core.setZoomXMaxValue(value);
+            me._needRedraw = true;
+        };
+        
+        me.setZoomYMinValue = function(value) {
+            me._core.setZoomYMinValue(value);
+            me._needRedraw = true;
+        };
+        
+        me.setZoomYMaxValue = function(value) {
+            me._core.setZoomYMaxValue(value);
+            me._needRedraw = true;
+        };
+        
+        me.setZoomZMinValue = function(value) {
+            me._core.setZoomZMinValue(value);
+            me._needRedraw = true;
+        };
+        
+        me.setZoomZMaxValue = function(value) {
+            me._core.setZoomZMaxValue(value);
+            me._needRedraw = true;
         };
 
         me.setGrayMinValue = function(value) {

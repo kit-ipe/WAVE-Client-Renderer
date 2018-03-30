@@ -13,6 +13,16 @@ var Core = function(conf) {
     this.isStatsOn = false;
     this._isRotate = false;
 
+    // Zoom Box parameters
+    this._zoom_parameters = {
+        xmin: 0.0,
+        xmax: 1.0,
+        ymin: 0.0,
+        ymax: 1.0,
+        zmin: 0.0,
+        zmax: 1.0
+    }
+
     // USCT Parameters
     // Slowly need to deprecate this section; can be generalized into rgb.
     this.l = conf.l;
@@ -170,10 +180,10 @@ Core.prototype.init = function() {
     this._controls.panSpeed = 2.0;
 
     this._controls.noZoom = false;
-    this._controls.noPan = false;
+    this._controls.noPan = true;
 
     this._controls.staticMoving = true;
-    this._controls.dynamicDampingFactor = 0.3;
+    this._controls.dynamicDampingFactor = 0.1;
 
     this._controls.autoRotate = true;
 
@@ -294,7 +304,6 @@ Core.prototype.init = function() {
         this._sceneSecondPass.add(this._meshSecondPass);
         //this._sceneSecondPass.add(this._axes);
 
-
         var mesh = new THREE.Mesh(
             new THREE.BoxGeometry( 1, 1, 1 ),
             new THREE.MeshNormalMaterial()
@@ -303,6 +312,14 @@ Core.prototype.init = function() {
         this._wireframe.material.color.set( 0xe3e3e3 );
         this._sceneSecondPass.add( this._wireframe );
 
+        var mesh_zoom = new THREE.Mesh(
+            new THREE.BoxGeometry( 1.0, 1.0, 1.0 ),
+            new THREE.MeshNormalMaterial()
+        );
+        this._wireframe_zoom = new THREE.BoxHelper( mesh_zoom );
+        this._wireframe_zoom.material.color.set( 0x0000ff );
+        this._sceneSecondPass.add( this._wireframe_zoom );
+        
         var sphere = new THREE.SphereGeometry( 0.1 );
         this._light1 = new THREE.PointLight( 0xff0040, 2, 50 );
         this._light1.add( new THREE.Mesh( sphere, new THREE.MeshBasicMaterial( { color: 0xff0040 } ) ) );
@@ -341,10 +358,11 @@ Core.prototype.init = function() {
     // TODO: only when transfer function is required.
     //this.setTransferFunctionByColors(this._transfer_function_colors);
     
-    // Arrow Helper
     /*
+    // Arrow Helper
     var xdir = new THREE.Vector3( 1, 0, 0 );
     var xorigin = new THREE.Vector3( -0.8, -0.5, 0.5 );
+    //var xorigin = new THREE.Vector3( 0.0, 0.0, 0.0 );
     var xlength = 0.2;
     var xhex = 0xff0000;
     var xarrowHelper = new THREE.ArrowHelper( xdir, xorigin, xlength, xhex );
@@ -426,6 +444,64 @@ Core.prototype.init = function() {
     try{
         this._callback();
     } catch(e){}
+};
+
+
+/**
+ * API 
+ *
+ **/
+Core.prototype._setUpBox = function(parameters) {
+    width = parameters.xmax - parameters.xmin;
+    height = parameters.ymax - parameters.ymin;
+    depth = parameters.zmax - parameters.zmin;
+    this._wireframe_zoom.scale.x = width;
+    this._wireframe_zoom.scale.y = height;
+    this._wireframe_zoom.scale.z = depth;
+    this._wireframe_zoom.position.x = (parameters.xmax - 0.5) - (width / 2.0 );
+    this._wireframe_zoom.position.y = (parameters.ymax - 0.5) - (height / 2.0 );
+    this._wireframe_zoom.position.z = (parameters.zmax - 0.5) - (depth / 2.0 );
+};
+
+
+Core.prototype.setZoomColor = function(value) {
+    this._wireframe_zoom.material.color.set( value );
+};
+
+
+Core.prototype.setZoomXMinValue = function(value) {
+    this._zoom_parameters.xmin = value;
+    this._setUpBox( this._zoom_parameters );
+};
+
+
+Core.prototype.setZoomXMaxValue = function(value) {
+    this._zoom_parameters.xmax = value;
+    this._setUpBox( this._zoom_parameters );
+};
+
+
+Core.prototype.setZoomYMinValue = function(value) {
+    this._zoom_parameters.ymin = value;
+    this._setUpBox( this._zoom_parameters );
+};
+
+
+Core.prototype.setZoomYMaxValue = function(value) {
+    this._zoom_parameters.ymax = value;
+    this._setUpBox( this._zoom_parameters );
+};
+
+
+Core.prototype.setZoomZMinValue = function(value) {
+    this._zoom_parameters.zmin = value;
+    this._setUpBox( this._zoom_parameters );
+};
+
+
+Core.prototype.setZoomZMaxValue = function(value) {
+    this._zoom_parameters.zmax = value;
+    this._setUpBox( this._zoom_parameters );
 };
 
 
