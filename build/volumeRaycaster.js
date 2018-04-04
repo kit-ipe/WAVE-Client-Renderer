@@ -911,6 +911,16 @@ Core.prototype.setZoomZMaxValue = function(value) {
 };
 
 
+Core.prototype.showZoomBox = function(value) {
+    if (value == true) {
+        this._sceneSecondPass.add( this._wireframe_zoom );
+    } else {
+        this._sceneSecondPass.remove( this._wireframe_zoom );
+    }
+    this._render.render( this._sceneSecondPass, this._camera );
+};
+
+
 Core.prototype._secondPassSetUniformValue = function(key, value) {
     this._materialSecondPass.uniforms[key].value = value;
 };
@@ -5639,6 +5649,11 @@ window.VRC.Core.prototype._shaders.secondPassStevenTri = {
             me._needRedraw = true;
         };
 
+        me.showZoomBox = function(value) {
+            me._core.showZoomBox(value);
+            me._needRedraw = true;
+        };
+        
         me.setGrayMinValue = function(value) {
             if(value > 1.0 || value < 0.0) {
                 throw Error("Gray value should be in range [0.0 - 1.0] !");
