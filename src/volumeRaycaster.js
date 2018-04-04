@@ -505,6 +505,11 @@
             me._needRedraw = true;
         };
 
+        me.showZoomBox = function(value) {
+            me._core.showZoomBox(value);
+            me._needRedraw = true;
+        };
+        
         me.setGrayMinValue = function(value) {
             if(value > 1.0 || value < 0.0) {
                 throw Error("Gray value should be in range [0.0 - 1.0] !");

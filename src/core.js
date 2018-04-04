@@ -505,6 +505,16 @@ Core.prototype.setZoomZMaxValue = function(value) {
 };
 
 
+Core.prototype.showZoomBox = function(value) {
+    if (value == true) {
+        this._sceneSecondPass.add( this._wireframe_zoom );
+    } else {
+        this._sceneSecondPass.remove( this._wireframe_zoom );
+    }
+    this._render.render( this._sceneSecondPass, this._camera );
+};
+
+
 Core.prototype._secondPassSetUniformValue = function(key, value) {
     this._materialSecondPass.uniforms[key].value = value;
 };
