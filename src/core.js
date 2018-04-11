@@ -355,8 +355,8 @@ Core.prototype.init = function() {
     this._sceneSecondPass.add( this._wireframe2 );
     */
 
-    // TODO: only when transfer function is required.
-    //this.setTransferFunctionByColors(this._transfer_function_colors);
+
+    this.setTransferFunctionByColors(this._transfer_function_colors);
     
     /*
     // Arrow Helper
@@ -572,9 +572,9 @@ Core.prototype.setTransferFunctionByImage = function(image) {
     texture.flipY = true;
     texture.needsUpdate = true;
     if(this._mode == "3d") {
-    this._secondPassSetUniformValue("uTransferFunction", texture);
+        this._secondPassSetUniformValue("uTransferFunction", texture);
     }
-    this.onChangeTransferFunction.call(image);
+    //this.onChangeTransferFunction.call(image);
 };
 
 

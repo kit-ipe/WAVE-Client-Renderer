@@ -10,6 +10,7 @@ precision mediump float;
 varying vec4 frontColor;
 varying vec4 pos;
 uniform sampler2D uBackCoord;
+uniform sampler2D uTransferFunction;
 uniform sampler2D uSliceMaps[<%= maxTexturesNumber %>];
 uniform float uNumberOfSlices;
 uniform float uOpacityVal;
@@ -438,10 +439,11 @@ void main(void)
                 }
                 sample.a = 1.0;
             } else {
-                colorValue.x = (darkness * 2.0 - gray_val.x) * l * 0.4;
+                //float test = (darkness * 2.0 - gray_val.x) * l * 0.4;
+                colorValue = texture2D(uTransferFunction, vec2(gray_val.x, 0.5));
                 //colorValue.x = gray_val.x;
                 colorValue.w = 0.1;
-                sample.rgb = (1.0 - accum.a) * colorValue.xxx * sample.a;
+                sample.rgb = (1.0 - accum.a) * colorValue.xyz * sample.a;
                 sample.a = colorValue.a * opacityFactor * (1.0 / uStepsF);
             }
             

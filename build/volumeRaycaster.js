@@ -761,8 +761,8 @@ Core.prototype.init = function() {
     this._sceneSecondPass.add( this._wireframe2 );
     */
 
-    // TODO: only when transfer function is required.
-    //this.setTransferFunctionByColors(this._transfer_function_colors);
+
+    this.setTransferFunctionByColors(this._transfer_function_colors);
     
     /*
     // Arrow Helper
@@ -978,9 +978,9 @@ Core.prototype.setTransferFunctionByImage = function(image) {
     texture.flipY = true;
     texture.needsUpdate = true;
     if(this._mode == "3d") {
-    this._secondPassSetUniformValue("uTransferFunction", texture);
+        this._secondPassSetUniformValue("uTransferFunction", texture);
     }
-    this.onChangeTransferFunction.call(image);
+    //this.onChangeTransferFunction.call(image);
 };
 
 
@@ -2810,6 +2810,7 @@ window.VRC.Core.prototype._shaders.secondPassSoebel = {
 	uniforms: THREE.UniformsUtils.merge([
 		{
 		"uBackCoord" : { type: "t", value: null },
+		"uTransferFunction" : { type: "t", value: null },
 		"uSliceMaps" : { type: "tv", value: [] },
 		"uNumberOfSlices" : { type: "f", value: -1 },
 		"uOpacityVal" : { type: "f", value: -1 },
@@ -2852,6 +2853,7 @@ window.VRC.Core.prototype._shaders.secondPassSoebel = {
 		'varying vec4 frontColor;',
 		'varying vec4 pos;',
 		'uniform sampler2D uBackCoord;',
+		'uniform sampler2D uTransferFunction;',
 		'uniform sampler2D uSliceMaps[<%= maxTexturesNumber %>];',
 		'uniform float uNumberOfSlices;',
 		'uniform float uOpacityVal;',
@@ -3213,10 +3215,11 @@ window.VRC.Core.prototype._shaders.secondPassSoebel = {
 		'                }',
 		'                sample.a = 1.0;',
 		'            } else {',
-		'                colorValue.x = (darkness * 2.0 - gray_val.x) * l * 0.4;',
+		'                //float test = (darkness * 2.0 - gray_val.x) * l * 0.4;',
+		'                colorValue = texture2D(uTransferFunction, vec2(gray_val.x, 0.5));',
 		'                //colorValue.x = gray_val.x;',
 		'                colorValue.w = 0.1;',
-		'                sample.rgb = (1.0 - accum.a) * colorValue.xxx * sample.a;',
+		'                sample.rgb = (1.0 - accum.a) * colorValue.xyz * sample.a;',
 		'                sample.a = colorValue.a * opacityFactor * (1.0 / uStepsF);',
 		'            }',
 		'            ',
