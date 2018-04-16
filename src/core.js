@@ -8,8 +8,6 @@
  */
 
 var Core = function(conf) {
-    // Stats
-   this._isRotate = false;
 
     // Zoom Box parameters
     this._zoom_parameters = {
@@ -36,8 +34,6 @@ var Core = function(conf) {
     this.maxRefl = conf.maxRefl;
     this.maxSos = conf.maxSos;
     this.maxAtten = conf.maxAtten;
-
-    this.lightRotation = 0;
 
     // General Parameters
     this.zFactor = conf.zFactor != undefined ? conf.zFactor : 1;
@@ -67,13 +63,10 @@ var Core = function(conf) {
         "zmin": 0.0,
         "zmax": 1.0
     };
-    this._threshold_otsu_index = 0;
-    this._threshold_isodata_index = 0;
-    this._threshold_yen_index = 0;
-    this._threshold_li_index = 0;
 
     this._transfer_function_colors = [
-        {'color': '#00004c', 'pos': 0.0}, {'color': '#000054', 'pos': 0.013888888888888888}, {'color': '#000060', 'pos': 0.027777777777777776}, {'color': '#000068', 'pos': 0.041666666666666664}, {'color': '#000073', 'pos': 0.05555555555555555}, {'color': '#00007c', 'pos': 0.06944444444444445}, {'color': '#000087', 'pos': 0.08333333333333333}, {'color': '#00008f', 'pos': 0.09722222222222221}, {'color': '#00009a', 'pos': 0.1111111111111111}, {'color': '#0000a6', 'pos': 0.125}, {'color': '#0000ae', 'pos': 0.1388888888888889}, {'color': '#0000b9', 'pos': 0.15277777777777776}, {'color': '#0000c2', 'pos': 0.16666666666666666}, {'color': '#0000cd', 'pos': 0.18055555555555555}, {'color': '#0000d5', 'pos': 0.19444444444444442}, {'color': '#0000e0', 'pos': 0.20833333333333331}, {'color': '#0000e9', 'pos': 0.2222222222222222}, {'color': '#0000f4', 'pos': 0.2361111111111111}, {'color': '#0101ff', 'pos': 0.25}, {'color': '#0d0dff', 'pos': 0.2638888888888889}, {'color': '#1d1dff', 'pos': 0.2777777777777778}, {'color': '#2828ff', 'pos': 0.29166666666666663}, {'color': '#3939ff', 'pos': 0.3055555555555555}, {'color': '#4545ff', 'pos': 0.3194444444444444}, {'color': '#5555ff', 'pos': 0.3333333333333333}, {'color': '#6161ff', 'pos': 0.3472222222222222}, {'color': '#7171ff', 'pos': 0.3611111111111111}, {'color': '#8181ff', 'pos': 0.375}, {'color': '#8d8dff', 'pos': 0.38888888888888884}, {'color': '#9d9dff', 'pos': 0.40277777777777773}, {'color': '#a8a8ff', 'pos': 0.41666666666666663}, {'color': '#b9b9ff', 'pos': 0.4305555555555555}, {'color': '#c5c5ff', 'pos': 0.4444444444444444}, {'color': '#d5d5ff', 'pos': 0.4583333333333333}, {'color': '#e1e1ff', 'pos': 0.4722222222222222}, {'color': '#f1f1ff', 'pos': 0.4861111111111111}, {'color': '#fffdfd', 'pos': 0.5}, {'color': '#fff1f1', 'pos': 0.5138888888888888}, {'color': '#ffe1e1', 'pos': 0.5277777777777778}, {'color': '#ffd5d5', 'pos': 0.5416666666666666}, {'color': '#ffc5c5', 'pos': 0.5555555555555556}, {'color': '#ffb9b9', 'pos': 0.5694444444444444}, {'color': '#ffa9a9', 'pos': 0.5833333333333333}, {'color': '#ff9d9d', 'pos': 0.5972222222222222}, {'color': '#ff8d8d', 'pos': 0.611111111111111}, {'color': '#ff7d7d', 'pos': 0.625}, {'color': '#ff7171', 'pos': 0.6388888888888888}, {'color': '#ff6161', 'pos': 0.6527777777777778}, {'color': '#ff5555', 'pos': 0.6666666666666666}, {'color': '#ff4545', 'pos': 0.6805555555555555}, {'color': '#ff3838', 'pos': 0.6944444444444444}, {'color': '#ff2828', 'pos': 0.7083333333333333}, {'color': '#ff1d1d', 'pos': 0.7222222222222222}, {'color': '#ff0d0d', 'pos': 0.736111111111111}, {'color': '#fd0000', 'pos': 0.75}, {'color': '#f70000', 'pos': 0.7638888888888888}, {'color': '#ef0000', 'pos': 0.7777777777777777}, {'color': '#e90000', 'pos': 0.7916666666666666}, {'color': '#e10000', 'pos': 0.8055555555555555}, {'color': '#db0000', 'pos': 0.8194444444444444}, {'color': '#d30000', 'pos': 0.8333333333333333}, {'color': '#cd0000', 'pos': 0.8472222222222222}, {'color': '#c50000', 'pos': 0.861111111111111}, {'color': '#bd0000', 'pos': 0.875}, {'color': '#b70000', 'pos': 0.8888888888888888}, {'color': '#af0000', 'pos': 0.9027777777777777}, {'color': '#a90000', 'pos': 0.9166666666666666}, {'color': '#a10000', 'pos': 0.9305555555555555}, {'color': '#9b0000', 'pos': 0.9444444444444444}, {'color': '#930000', 'pos': 0.9583333333333333}, {'color': '#8d0000', 'pos': 0.9722222222222222}, {'color': '#850000', 'pos': 0.986111111111111}
+        {"color": "#000000", "pos": 0.0},
+        {"color": "#ffffff", "pos": 1.0}
     ];
 
     this._dom_container_id = conf.dom_container != undefined ? conf.dom_container : "wave-container";
@@ -167,7 +160,6 @@ Core.prototype.init = function() {
     this._camera.rotation.z = this._camera_settings["rotation"]["z"];
 
     this.isAxisOn = false;
-    //this.isStatsOn = false;
 
     // Control
     this._controls = new THREE.TrackballControls(
@@ -1051,18 +1043,6 @@ Core.prototype.showISO = function() {
 };
 
 
-Core.prototype.showLight = function() {
-    this._pivot.add( this._light1 );
-    this._render.render( this._sceneSecondPass, this._camera );
-};
-
-
-Core.prototype.hideLight = function() {
-    this._pivot.remove( this._light1 );
-    this._render.render( this._sceneSecondPass, this._camera );
-};
-
-
 Core.prototype.showVolren = function() {
     if(this._mode == "3d") {
         this._secondPassSetUniformValue("uSetViewMode", 0);
@@ -1072,28 +1052,8 @@ Core.prototype.showVolren = function() {
 };
 
 
-Core.prototype.startLightRotation = function() {
-    this.lightRotation = 1;
-    this.draw(0.0);
-};
-
-
-Core.prototype.stopLightRotation = function() {
-    this.lightRotation = 0;
-    this.draw(0.0);
-};
-
-rotSpeed = 0.01;
 Core.prototype.draw = function(fps) {
     this.onPreDraw.call(fps.toFixed(3));
-
-    if (this.lightRotation > 0) {
-        this._pivot.rotation.y += 0.01;
-    }
-
-    //var cameraPosition = new THREE.Vector3();
-    //cameraPosition.setFromMatrixPosition(this._light1.worldMatrix);
-    //console.log(cameraPosition);
 
     //3D
     if(this._mode == "3d") {
@@ -1105,22 +1065,6 @@ Core.prototype.draw = function(fps) {
     //this._controls.position.x -= 0.01 * 2;
     this._controls.update();
 
-    if (this._isRotate) {
-        var x = this._camera.position.x,
-            y = this._camera.position.y,
-            z = this._camera.position.z;
-
-        //if (keyboard.pressed("left")){
-        this._camera.position.x = x * Math.cos(rotSpeed) + z * Math.sin(rotSpeed);
-        this._camera.position.z = z * Math.cos(rotSpeed) - x * Math.sin(rotSpeed);
-        //} else if (keyboard.pressed("right")){
-        //camera.position.x = x * Math.cos(rotSpeed) - z * Math.sin(rotSpeed);
-        //camera.position.z = z * Math.cos(rotSpeed) + x * Math.sin(rotSpeed);
-        //}
-
-        this._camera.lookAt(this._sceneFirstPass.position);
-    }
-
     //3D
     this._render.render( this._sceneFirstPass, this._camera, this._rtTexture, true );
     this._render.render( this._sceneFirstPass, this._camera );
@@ -1128,14 +1072,6 @@ Core.prototype.draw = function(fps) {
     // Render the second pass and perform the volume rendering.
     if(this._mode == "3d") {
 
-        /*
-        rotation += 0.05;
-        this._camera.position.x = 0;
-        this._camera.position.y = Math.sin(rotation);
-        this._camera.position.z = Math.cos(rotation);
-
-        this._camera.lookAt( this._sceneSecondPass.position ); // the origin
-        */
         this._render.render( this._sceneSecondPass, this._camera );
     }
 

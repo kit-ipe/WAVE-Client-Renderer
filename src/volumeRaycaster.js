@@ -355,29 +355,8 @@
             return me._core.showVolren();
         };
 
-        me.showLight = function() {
-            return me._core.showLight();
-        };
-
-        me.hideLight = function() {
-            return me._core.hideLight();
-        };
-
-        me.startLightRotation = function() {
-            return me._core.startLightRotation();
-        };
-
-        me.stopLightRotation = function() {
-            return me._core.stopLightRotation();
-        };
-
         me.setAxis = function() {
             me._core.setAxis();
-            me._needRedraw = true;
-        };
-
-        me.setStats = function(value) {
-            me._core.setStats(value);
             me._needRedraw = true;
         };
 
@@ -391,77 +370,10 @@
             me._needRedraw = true;
         };
 
-        me.startRotate = function() {
-            me._core.startRotate();
-            me._needRedraw = true;
-        };
-
-        me.stopRotate = function() {
-            me._core.stopRotate();
-            me._needRedraw = true;
-        };
-
         me.setBackgroundColor = function(color) {
             me._core.setBackgroundColor(color);
             me._needRedraw = true;
 
-        };
-        me.setScrewThreshold = function(value) {
-            me._core.setScrewThreshold(value);
-            me._needRedraw = true;
-        };
-
-        me.setJointThreshold = function(value) {
-            me._core.setJointThreshold(value);
-            me._needRedraw = true;
-        };
-
-        me.setL = function(value) {
-            me._core.setL(value);
-            me._needRedraw = true;
-        };
-
-        me.setS = function(value) {
-            me._core.setS(value);
-            me._needRedraw = true;
-        };
-
-        me.setHMin = function(value) {
-            me._core.setHMin(value);
-            me._needRedraw = true;
-        };
-
-        me.setHMax = function(value) {
-            me._core.setHMax(value);
-            me._needRedraw = true;
-        };
-
-        me.setMinRefl = function(value) {
-            me._core.setMinRefl(value);
-            me._needRedraw = true;
-
-        };
-        me.setMinSos = function(value) {
-            me._core.setMinSos(value);
-            me._needRedraw = true;
-        };
-        me.setMinAtten = function(value) {
-            me._core.setMinAtten(value);
-            me._needRedraw = true;
-        };
-
-       me.setMaxRefl = function(value) {
-            me._core.setMaxRefl(value);
-            me._needRedraw = true;
-
-        };
-        me.setMaxSos = function(value) {
-            me._core.setMaxSos(value);
-            me._needRedraw = true;
-        };
-        me.setMaxAtten = function(value) {
-            me._core.setMaxAtten(value);
-            me._needRedraw = true;
         };
 
         me.setRowCol = function(row, col) {
@@ -534,17 +446,6 @@
             }
 
             me._core.setGrayMaxValue(value);
-            me._needRedraw = true;
-
-        };
-
-        me.Axis = function() {
-            me._core.setAxis();
-            me._needRedraw = true;
-        };
-
-        me.applyThresholding = function(threshold_name) {
-            me._core.applyThresholding( threshold_name );
             me._needRedraw = true;
 
         };
