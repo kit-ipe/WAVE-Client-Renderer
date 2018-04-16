@@ -9,9 +9,7 @@
 
 var Core = function(conf) {
     // Stats
-    this.stats;
-    this.isStatsOn = false;
-    this._isRotate = false;
+   this._isRotate = false;
 
     // Zoom Box parameters
     this._zoom_parameters = {
@@ -386,28 +384,7 @@ Core.prototype.init = function() {
     this._sceneSecondPass.add( zarrowHelper );
     */
 
-    //var light = new THREE.DirectionalLight( 0xffffff );
-    //light.position.set( 2, 3, 5 ).normalize();
-    //light.shadowCameraVisible = true;
-
-    /*
-    // alternate method
-    var helper = new THREE.EdgesHelper( mesh, 0xff0000 );
-    scene.add( helper );
-    */
-
-    // fixed the bleeding edge
     this.setGeometryDimensions(this.getGeometryDimensions());
-
-    var update = function () {
-        if (me.isStatsOn == true) {
-            me.stats.begin();
-            me.stats.end();
-        }
-        requestAnimationFrame( update );
-    };
-
-    requestAnimationFrame( update );
 
     window.addEventListener( 'resize', function() {
         //console.log("WAVE: trigger: resize");
@@ -1041,23 +1018,6 @@ Core.prototype.removeWireframe = function() {
     // Render the second pass and perform the volume rendering.
     this._render.render( this._sceneSecondPass, this._camera );
 };
-
-
-Core.prototype.setStats = function(value) {
-    if (value == true) {
-        this.isStatsOn = true;
-        // FramesPerSecond
-
-        this.stats = new Stats();
-        this.stats.setMode(0); // 0: fps, 1: ms, 2: mb
-        this.stats.domElement.style.position = 'absolute';
-        this.stats.domElement.style.right = '10px';
-        this.stats.domElement.style.top = '10px';
-        document.body.appendChild( this.stats.domElement );
-    } else {
-       document.getElementById("stats").remove();
-    }
-}
 
 
 Core.prototype.setAxis = function(value) {
