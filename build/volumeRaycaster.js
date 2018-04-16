@@ -414,10 +414,6 @@
  */
 
 var Core = function(conf) {
-    // Stats
-    this.stats;
-    this.isStatsOn = false;
-    this._isRotate = false;
 
     // Zoom Box parameters
     this._zoom_parameters = {
@@ -429,27 +425,8 @@ var Core = function(conf) {
         zmax: 1.0
     }
 
-    // USCT Parameters
-    // Slowly need to deprecate this section; can be generalized into rgb.
-    this.l = conf.l;
-    this.s = conf.s;
-
-    this.hMin = conf.hMin;
-    this.hMax = conf.hMax;
-
-    this.minRefl = conf.minRefl;
-    this.minSos = conf.minSos;
-    this.minAtten = conf.minAtten;
-
-    this.maxRefl = conf.maxRefl;
-    this.maxSos = conf.maxSos;
-    this.maxAtten = conf.maxAtten;
-
-    this.lightRotation = 0;
-
     // General Parameters
     this.zFactor = conf.zFactor != undefined ? conf.zFactor : 1;
-    this._mode = conf.mode == undefined ? "3d" : conf.mode;
     this._steps = conf.steps == undefined ? 20 : conf.steps;
     this._slices_gap = typeof conf.slices_range == undefined ? [0, '*'] : conf.slices_range;
 
@@ -475,13 +452,10 @@ var Core = function(conf) {
         "zmin": 0.0,
         "zmax": 1.0
     };
-    this._threshold_otsu_index = 0;
-    this._threshold_isodata_index = 0;
-    this._threshold_yen_index = 0;
-    this._threshold_li_index = 0;
 
     this._transfer_function_colors = [
-        {'color': '#00004c', 'pos': 0.0}, {'color': '#000054', 'pos': 0.013888888888888888}, {'color': '#000060', 'pos': 0.027777777777777776}, {'color': '#000068', 'pos': 0.041666666666666664}, {'color': '#000073', 'pos': 0.05555555555555555}, {'color': '#00007c', 'pos': 0.06944444444444445}, {'color': '#000087', 'pos': 0.08333333333333333}, {'color': '#00008f', 'pos': 0.09722222222222221}, {'color': '#00009a', 'pos': 0.1111111111111111}, {'color': '#0000a6', 'pos': 0.125}, {'color': '#0000ae', 'pos': 0.1388888888888889}, {'color': '#0000b9', 'pos': 0.15277777777777776}, {'color': '#0000c2', 'pos': 0.16666666666666666}, {'color': '#0000cd', 'pos': 0.18055555555555555}, {'color': '#0000d5', 'pos': 0.19444444444444442}, {'color': '#0000e0', 'pos': 0.20833333333333331}, {'color': '#0000e9', 'pos': 0.2222222222222222}, {'color': '#0000f4', 'pos': 0.2361111111111111}, {'color': '#0101ff', 'pos': 0.25}, {'color': '#0d0dff', 'pos': 0.2638888888888889}, {'color': '#1d1dff', 'pos': 0.2777777777777778}, {'color': '#2828ff', 'pos': 0.29166666666666663}, {'color': '#3939ff', 'pos': 0.3055555555555555}, {'color': '#4545ff', 'pos': 0.3194444444444444}, {'color': '#5555ff', 'pos': 0.3333333333333333}, {'color': '#6161ff', 'pos': 0.3472222222222222}, {'color': '#7171ff', 'pos': 0.3611111111111111}, {'color': '#8181ff', 'pos': 0.375}, {'color': '#8d8dff', 'pos': 0.38888888888888884}, {'color': '#9d9dff', 'pos': 0.40277777777777773}, {'color': '#a8a8ff', 'pos': 0.41666666666666663}, {'color': '#b9b9ff', 'pos': 0.4305555555555555}, {'color': '#c5c5ff', 'pos': 0.4444444444444444}, {'color': '#d5d5ff', 'pos': 0.4583333333333333}, {'color': '#e1e1ff', 'pos': 0.4722222222222222}, {'color': '#f1f1ff', 'pos': 0.4861111111111111}, {'color': '#fffdfd', 'pos': 0.5}, {'color': '#fff1f1', 'pos': 0.5138888888888888}, {'color': '#ffe1e1', 'pos': 0.5277777777777778}, {'color': '#ffd5d5', 'pos': 0.5416666666666666}, {'color': '#ffc5c5', 'pos': 0.5555555555555556}, {'color': '#ffb9b9', 'pos': 0.5694444444444444}, {'color': '#ffa9a9', 'pos': 0.5833333333333333}, {'color': '#ff9d9d', 'pos': 0.5972222222222222}, {'color': '#ff8d8d', 'pos': 0.611111111111111}, {'color': '#ff7d7d', 'pos': 0.625}, {'color': '#ff7171', 'pos': 0.6388888888888888}, {'color': '#ff6161', 'pos': 0.6527777777777778}, {'color': '#ff5555', 'pos': 0.6666666666666666}, {'color': '#ff4545', 'pos': 0.6805555555555555}, {'color': '#ff3838', 'pos': 0.6944444444444444}, {'color': '#ff2828', 'pos': 0.7083333333333333}, {'color': '#ff1d1d', 'pos': 0.7222222222222222}, {'color': '#ff0d0d', 'pos': 0.736111111111111}, {'color': '#fd0000', 'pos': 0.75}, {'color': '#f70000', 'pos': 0.7638888888888888}, {'color': '#ef0000', 'pos': 0.7777777777777777}, {'color': '#e90000', 'pos': 0.7916666666666666}, {'color': '#e10000', 'pos': 0.8055555555555555}, {'color': '#db0000', 'pos': 0.8194444444444444}, {'color': '#d30000', 'pos': 0.8333333333333333}, {'color': '#cd0000', 'pos': 0.8472222222222222}, {'color': '#c50000', 'pos': 0.861111111111111}, {'color': '#bd0000', 'pos': 0.875}, {'color': '#b70000', 'pos': 0.8888888888888888}, {'color': '#af0000', 'pos': 0.9027777777777777}, {'color': '#a90000', 'pos': 0.9166666666666666}, {'color': '#a10000', 'pos': 0.9305555555555555}, {'color': '#9b0000', 'pos': 0.9444444444444444}, {'color': '#930000', 'pos': 0.9583333333333333}, {'color': '#8d0000', 'pos': 0.9722222222222222}, {'color': '#850000', 'pos': 0.986111111111111}
+        {"color": "#000000", "pos": 0.0},
+        {"color": "#ffffff", "pos": 1.0}
     ];
 
     this._dom_container_id = conf.dom_container != undefined ? conf.dom_container : "wave-container";
@@ -575,7 +549,6 @@ Core.prototype.init = function() {
     this._camera.rotation.z = this._camera_settings["rotation"]["z"];
 
     this.isAxisOn = false;
-    //this.isStatsOn = false;
 
     // Control
     this._controls = new THREE.TrackballControls(
@@ -608,42 +581,6 @@ Core.prototype.init = function() {
         }
     );
 
-    // 2D
-    if(this._mode == "2d") {
-        /*
-        this._tex1 = THREE.ImageUtils.loadTexture( this._slicemaps_paths[0] );
-        this._tex1.minFilter = THREE.LinearFilter;
-        this._tex2 = THREE.ImageUtils.loadTexture( this._slicemaps_paths[1] );
-        this._tex2.minFilter = THREE.LinearFilter;
-        this._cm = THREE.ImageUtils.loadTexture( "http://katrin.kit.edu/static/colormaps/cm_BrBG.png" );
-        this._cm.minFilter = THREE.LinearFilter;
-
-        this._material2D = new THREE.ShaderMaterial({
-        vertexShader: this._shaders["secondPass2DCustom"].vertexShader,
-        fragmentShader: ejs.render(
-            this._shaders["secondPass2DCustom"].fragmentShader,
-            {"maxTexturesNumber": this.getMaxTexturesNumber()}
-        ),
-        uniforms: {
-            uSetViewMode: {type: "i", value: 0},
-            texture1: {type: 't', value: this._tex1},
-            texture2: {type: 't', value: this._tex2},
-            colourmap: {type: 't', value: this._cm},
-            uZoom: {type:'v4', value: new THREE.Vector4(0.0, 1.0, 0.0, 1.0)},
-            //uZoom: {type:'v4', value: new THREE.Vector4(0.1875, 0.28125, 0.20117, 0.29492)},
-            resolution: {type: 'v2',value: new THREE.Vector2(this._render_size[0], this._render_size[1])}
-        }
-        });
-        var geometry = new THREE.PlaneBufferGeometry( 10, 10 );
-        this._meshFirstPass = new THREE.Mesh( geometry, this._material2D );
-        this._sceneFirstPass = new THREE.Scene();
-        this._sceneFirstPass.add(this._meshFirstPass);
-        */
-        //var sprite = new THREE.Mesh( geometry,material );
-        //scene.add( sprite );
-        //sprite.position.z = -1;//Move it back so we can see it
-
-    } else {
         this._materialFirstPass = new THREE.ShaderMaterial( {
         vertexShader: this._shaders.firstPass.vertexShader,
         fragmentShader: this._shaders.firstPass.fragmentShader,
@@ -674,16 +611,6 @@ Core.prototype.init = function() {
             uOpacityVal: { type: "f", value: this._opacity_factor },
             darkness: { type: "f", value: this._color_factor },
 
-            l: { type: "f", value: this.l },
-            s: { type: "f", value: this.s },
-            hMin: { type: "f", value: this.hMin },
-            hMax: { type: "f", value: this.hMax },  
-            minSos: { type: "f", value: this.minSos },
-            maxSos: { type: "f", value: this.maxSos },
-            minAtten: { type: "f", value: this.minAtten },
-            maxAtten: { type: "f", value: this.maxAtten },
-            minRefl: { type: "f", value: this.minRefl },
-            maxRefl: { type: "f", value: this.maxRefl },
 
             uTransferFunction: { type: "t",  value: this._transfer_function },
             uColorVal: { type: "f", value: this._color_factor },
@@ -739,81 +666,11 @@ Core.prototype.init = function() {
         // pivot
         this._pivot = new THREE.Object3D();
         this._parent.add( this._pivot );
-    }
-
-    // mesh
-    //mesh1 = new THREE.Mesh( geometry, material1 );
-    //mesh2 = new THREE.Mesh( geometry, material2 );
-    //this._light1.position.x = 2;
-    //mesh2.scale.multiplyScalar( 0.5 );
-    //this._parent.add( mesh1 );
-
-    //this._pivot.add( this._light1 );
-
-    /*
-    var mesh2 = new THREE.Mesh(
-        new THREE.BoxGeometry( 0.5, 0.5, 0.5 ),
-        new THREE.MeshNormalMaterial()
-    );
-    this._wireframe2 = new THREE.BoxHelper( mesh2 );
-    this._wireframe2.material.color.set( 0xff0000 );
-    this._wireframe2.position.set( -0.8, -0.5, 0.5 );
-    this._sceneSecondPass.add( this._wireframe2 );
-    */
 
 
     this.setTransferFunctionByColors(this._transfer_function_colors);
-    
-    /*
-    // Arrow Helper
-    var xdir = new THREE.Vector3( 1, 0, 0 );
-    var xorigin = new THREE.Vector3( -0.8, -0.5, 0.5 );
-    //var xorigin = new THREE.Vector3( 0.0, 0.0, 0.0 );
-    var xlength = 0.2;
-    var xhex = 0xff0000;
-    var xarrowHelper = new THREE.ArrowHelper( xdir, xorigin, xlength, xhex );
-
-
-    var ydir = new THREE.Vector3( 0, 1, 0 );
-    var yorigin = new THREE.Vector3( -0.8, -0.5, 0.5 );
-    var ylength = 0.2;
-    var yhex = 0x00ff00;
-    var yarrowHelper = new THREE.ArrowHelper( ydir, yorigin, ylength, yhex );
-
-
-    var zdir = new THREE.Vector3( 0, 0, 1 );
-    var zorigin = new THREE.Vector3( -0.8, -0.5, 0.5 );
-    var zlength = 0.2;
-    var zhex = 0x0000ff;
-    var zarrowHelper = new THREE.ArrowHelper( zdir, zorigin, zlength, zhex );
-
-    this._sceneSecondPass.add( xarrowHelper );
-    this._sceneSecondPass.add( yarrowHelper );
-    this._sceneSecondPass.add( zarrowHelper );
-    */
-
-    //var light = new THREE.DirectionalLight( 0xffffff );
-    //light.position.set( 2, 3, 5 ).normalize();
-    //light.shadowCameraVisible = true;
-
-    /*
-    // alternate method
-    var helper = new THREE.EdgesHelper( mesh, 0xff0000 );
-    scene.add( helper );
-    */
-
-    // fixed the bleeding edge
     this.setGeometryDimensions(this.getGeometryDimensions());
 
-    var update = function () {
-        if (me.isStatsOn == true) {
-            me.stats.begin();
-            me.stats.end();
-        }
-        requestAnimationFrame( update );
-    };
-
-    requestAnimationFrame( update );
 
     window.addEventListener( 'resize', function() {
         //console.log("WAVE: trigger: resize");
@@ -977,9 +834,7 @@ Core.prototype.setTransferFunctionByImage = function(image) {
     texture.generateMipmaps = false;
     texture.flipY = true;
     texture.needsUpdate = true;
-    if(this._mode == "3d") {
-        this._secondPassSetUniformValue("uTransferFunction", texture);
-    }
+    this._secondPassSetUniformValue("uTransferFunction", texture);
     //this.onChangeTransferFunction.call(image);
 };
 
@@ -1036,7 +891,6 @@ Core.prototype.setMode = function(conf) {
     this._shader_name =  conf.shader_name;
 
 
-    if(this._mode == "3d") {
         this._materialSecondPass = new THREE.ShaderMaterial( {
             vertexShader: this._shaders[this._shader_name].vertexShader,
             fragmentShader: ejs.render(
@@ -1057,17 +911,6 @@ Core.prototype.setMode = function(conf) {
                 uSlicesOverX: { type: "f", value: this._slicemap_row_col[0] },
                 uSlicesOverY: { type: "f", value: this._slicemap_row_col[1] },
                 uOpacityVal: { type: "f", value: this._opacity_factor },
-                darkness: { type: "f", value: this._color_factor },
-                l: { type: "f", value: this.l },
-                s: { type: "f", value: this.s },
-                hMin: { type: "f", value: this.hMin },
-                hMax: { type: "f", value: this.hMax },
-                minSos: { type: "f", value: this.minSos },
-                maxSos: { type: "f", value: this.maxSos },
-                minAtten: { type: "f", value: this.minAtten },
-                maxAtten: { type: "f", value: this.maxAtten },
-                minRefl: { type: "f", value: this.minRefl },
-                maxRefl: { type: "f", value: this.maxRefl }
             },
             side: THREE.BackSide,
             transparent: true
@@ -1077,7 +920,6 @@ Core.prototype.setMode = function(conf) {
 
         this._sceneSecondPass = new THREE.Scene();
         this._sceneSecondPass.add( this._meshSecondPass );
-    }
 }
 
 
@@ -1108,9 +950,6 @@ Core.prototype.setShaderName = function(value) {
     this._shader_name = value;
     // this._shader_name =  conf.shader_name;
 
-    if(this._mode == "3d") {
-
-
         this._materialSecondPass = new THREE.ShaderMaterial( {
             vertexShader: this._shaders[this._shader_name].vertexShader,
             fragmentShader: ejs.render( this._shaders[this._shader_name].fragmentShader, {
@@ -1129,19 +968,6 @@ Core.prototype.setShaderName = function(value) {
                 uSlicesOverX: { type: "f", value: this._slicemap_row_col[0] },
                 uSlicesOverY: { type: "f", value: this._slicemap_row_col[1] },
                 uOpacityVal: { type: "f", value: this._opacity_factor },
-                darkness: { type: "f", value: this._color_factor },
-
-                l: { type: "f", value: this.l },
-                s: { type: "f", value: this.s },
-                hMin: { type: "f", value: this.hMin },
-                hMax: { type: "f", value: this.hMax },
-
-                minSos: { type: "f", value: this.minSos },
-                maxSos: { type: "f", value: this.maxSos },
-                minAtten: { type: "f", value: this.minAtten },
-                maxAtten: { type: "f", value: this.maxAtten },
-                minRefl: { type: "f", value: this.minRefl },
-                maxRefl: { type: "f", value: this.maxRefl },
 
                 uTransferFunction: { type: "t",  value: this._transfer_function },
                 uColorVal: { type: "f", value: this._color_factor },
@@ -1168,7 +994,6 @@ Core.prototype.setShaderName = function(value) {
 
         this.addWireframe();
 
-    }
 }
 /////////////////////////////////////////////////////////////////////
 
@@ -1251,60 +1076,44 @@ Core.prototype.setSlicemapsImages = function(images, imagesPaths) {
     this._slicemaps_images = images;
     this._slicemaps_paths = imagesPaths != undefined ? imagesPaths : this._slicemaps_paths;
     this._setSlicemapsTextures(images);
-    if(this._mode == "3d") {
-        this._secondPassSetUniformValue("uSliceMaps", this._slicemaps_textures);
-    }
+    this._secondPassSetUniformValue("uSliceMaps", this._slicemaps_textures);
     this._slicemaps_width = images[0].width;
-    if(this._mode == "3d") {
-        this._secondPassSetUniformValue("uSlicemapWidth", this._slicemaps_width);
-    }
+    this._secondPassSetUniformValue("uSlicemapWidth", this._slicemaps_width);
 };
 
 
 Core.prototype.setSteps = function(steps) {
     this._steps = steps;
-    if(this._mode == "3d") {
-        this._secondPassSetUniformValue("uSteps", this._steps);
-    }
+    this._secondPassSetUniformValue("uSteps", this._steps);
 };
 
 
 Core.prototype.setSlicesRange = function(from, to) {
     this._slices_gap = [from, to];
-    if(this._mode == "3d") {
-        this._secondPassSetUniformValue("uNumberOfSlices", (parseFloat(this.getSlicesRange()[1]) + 1.0));
-    }
+    this._secondPassSetUniformValue("uNumberOfSlices", (parseFloat(this.getSlicesRange()[1]) + 1.0));
 };
 
 
 Core.prototype.setOpacityFactor = function(opacity_factor) {
     this._opacity_factor = opacity_factor;
-    if(this._mode == "3d") {
-        this._secondPassSetUniformValue("uOpacityVal", this._opacity_factor);
-    }
+    this._secondPassSetUniformValue("uOpacityVal", this._opacity_factor);
 };
 
 
 Core.prototype.setColorFactor = function(color_factor) {
     this._color_factor = color_factor;
-    if(this._mode == "3d") {
-        this._secondPassSetUniformValue("darkness", this._color_factor);
-    }
+    this._secondPassSetUniformValue("darkness", this._color_factor);
 };
 
 
 Core.prototype.setAbsorptionMode = function(mode_index) {
     this._absorption_mode_index = mode_index;
-    if(this._mode == "3d") {
-        this._secondPassSetUniformValue("uAbsorptionModeIndex", this._absorption_mode_index);
-    }
+    this._secondPassSetUniformValue("uAbsorptionModeIndex", this._absorption_mode_index);
 };
 
 Core.prototype.setIndexOfImage = function(indexOfImage) {
     this._indexOfImage = indexOfImage;
-    if(this._mode == "3d") {
-        this._secondPassSetUniformValue("uIndexOfImage", this._indexOfImage);
-    }
+    this._secondPassSetUniformValue("uIndexOfImage", this._indexOfImage);
 };
 
 
@@ -1355,18 +1164,14 @@ Core.prototype.setBackgroundColor = function(color) {
 
 Core.prototype.setRowCol = function(row, col) {
     this._slicemap_row_col = [row, col];
-    if(this._mode == "3d") {
-        this._secondPassSetUniformValue("uSlicesOverX", this._slicemap_row_col[0]);
-        this._secondPassSetUniformValue("uSlicesOverY", this._slicemap_row_col[1]);
-    }
+    this._secondPassSetUniformValue("uSlicesOverX", this._slicemap_row_col[0]);
+    this._secondPassSetUniformValue("uSlicesOverY", this._slicemap_row_col[1]);
 };
 
 
 Core.prototype.setGrayMinValue = function(value) {
     this._gray_value[0] = value;
-    if(this._mode == "3d") {
-        this._secondPassSetUniformValue("uMinGrayVal", this._gray_value[0]);
-    }
+    this._secondPassSetUniformValue("uMinGrayVal", this._gray_value[0]);
 };
 
 
@@ -1401,9 +1206,7 @@ Core.prototype.setThresholdIndexes = function(otsu, isodata, yen, li) {
 
 Core.prototype.setGrayMaxValue = function(value) {
     this._gray_value[1] = value;
-    if(this._mode == "3d") {
-        this._secondPassSetUniformValue("uMaxGrayVal", this._gray_value[1]);
-    }
+    this._secondPassSetUniformValue("uMaxGrayVal", this._gray_value[1]);
 };
 
 
@@ -1419,14 +1222,8 @@ Core.prototype.stopRotate = function() {
 
 Core.prototype.addWireframe = function() {
     this._sceneSecondPass.add( this._wireframe );
-
-    // Controls
-    //this._controls.update();
-    //3D
-    if(this._mode == "3d") {
-        this._render.render( this._sceneFirstPass, this._camera, this._rtTexture, true );
-        this._render.render( this._sceneFirstPass, this._camera );
-    }
+    this._render.render( this._sceneFirstPass, this._camera, this._rtTexture, true );
+    this._render.render( this._sceneFirstPass, this._camera );
 
     // Render the second pass and perform the volume rendering.
     this._render.render( this._sceneSecondPass, this._camera );
@@ -1435,35 +1232,12 @@ Core.prototype.addWireframe = function() {
 
 Core.prototype.removeWireframe = function() {
     this._sceneSecondPass.remove( this._wireframe );
-
-    // Controls
-    //this._controls.update();
-    //3D
-    if(this._mode == "3d") {
-        this._render.render( this._sceneFirstPass, this._camera, this._rtTexture, true );
-        this._render.render( this._sceneFirstPass, this._camera );
-    }
+    this._render.render( this._sceneFirstPass, this._camera, this._rtTexture, true );
+    this._render.render( this._sceneFirstPass, this._camera );
 
     // Render the second pass and perform the volume rendering.
     this._render.render( this._sceneSecondPass, this._camera );
 };
-
-
-Core.prototype.setStats = function(value) {
-    if (value == true) {
-        this.isStatsOn = true;
-        // FramesPerSecond
-
-        this.stats = new Stats();
-        this.stats.setMode(0); // 0: fps, 1: ms, 2: mb
-        this.stats.domElement.style.position = 'absolute';
-        this.stats.domElement.style.right = '10px';
-        this.stats.domElement.style.top = '10px';
-        document.body.appendChild( this.stats.domElement );
-    } else {
-       document.getElementById("stats").remove();
-    }
-}
 
 
 Core.prototype.setAxis = function(value) {
@@ -1475,13 +1249,8 @@ Core.prototype.setAxis = function(value) {
         this.isAxisOn = true;
     }
 
-    // Controls
-    //this._controls.update();
-    //3D
-    if(this._mode == "3d") {
-        this._render.render( this._sceneFirstPass, this._camera, this._rtTexture, true );
-        this._render.render( this._sceneFirstPass, this._camera );
-    }
+    this._render.render( this._sceneFirstPass, this._camera, this._rtTexture, true );
+    this._render.render( this._sceneFirstPass, this._camera );
 
     // Render the second pass and perform the volume rendering.
     this._render.render( this._sceneSecondPass, this._camera );
@@ -1489,123 +1258,30 @@ Core.prototype.setAxis = function(value) {
 
 
 Core.prototype.showISO = function() {
-    if(this._mode == "3d") {
-        this._secondPassSetUniformValue("uSetViewMode", 1);
-        //this._pivot.add( this._light1 );
-        this._render.render( this._sceneSecondPass, this._camera );
-    }
-};
-
-
-Core.prototype.showLight = function() {
-    this._pivot.add( this._light1 );
-    this._render.render( this._sceneSecondPass, this._camera );
-};
-
-
-Core.prototype.hideLight = function() {
-    this._pivot.remove( this._light1 );
+    this._secondPassSetUniformValue("uSetViewMode", 1);
     this._render.render( this._sceneSecondPass, this._camera );
 };
 
 
 Core.prototype.showVolren = function() {
-    if(this._mode == "3d") {
-        this._secondPassSetUniformValue("uSetViewMode", 0);
-        //this._pivot.remove( this._light1 );
-        this._render.render( this._sceneSecondPass, this._camera );
-    }
+    this._secondPassSetUniformValue("uSetViewMode", 0);
+    this._render.render( this._sceneSecondPass, this._camera );
 };
 
 
-Core.prototype.startLightRotation = function() {
-    this.lightRotation = 1;
-    this.draw(0.0);
-};
-
-
-Core.prototype.stopLightRotation = function() {
-    this.lightRotation = 0;
-    this.draw(0.0);
-};
-
-rotSpeed = 0.01;
 Core.prototype.draw = function(fps) {
     this.onPreDraw.call(fps.toFixed(3));
 
-    if (this.lightRotation > 0) {
-        this._pivot.rotation.y += 0.01;
-    }
+    var cameraPosition = this._light1.getWorldPosition();
+    this._secondPassSetUniformValue("uLightPos", cameraPosition);
 
-    //var cameraPosition = new THREE.Vector3();
-    //cameraPosition.setFromMatrixPosition(this._light1.worldMatrix);
-    //console.log(cameraPosition);
-
-    //3D
-    if(this._mode == "3d") {
-        var cameraPosition = this._light1.getWorldPosition();
-        this._secondPassSetUniformValue("uLightPos", cameraPosition);
-    }
-
-    //Controls
-    //this._controls.position.x -= 0.01 * 2;
     this._controls.update();
 
-    if (this._isRotate) {
-        var x = this._camera.position.x,
-            y = this._camera.position.y,
-            z = this._camera.position.z;
-
-        //if (keyboard.pressed("left")){
-        this._camera.position.x = x * Math.cos(rotSpeed) + z * Math.sin(rotSpeed);
-        this._camera.position.z = z * Math.cos(rotSpeed) - x * Math.sin(rotSpeed);
-        //} else if (keyboard.pressed("right")){
-        //camera.position.x = x * Math.cos(rotSpeed) - z * Math.sin(rotSpeed);
-        //camera.position.z = z * Math.cos(rotSpeed) + x * Math.sin(rotSpeed);
-        //}
-
-        this._camera.lookAt(this._sceneFirstPass.position);
-    }
-
-    //3D
     this._render.render( this._sceneFirstPass, this._camera, this._rtTexture, true );
     this._render.render( this._sceneFirstPass, this._camera );
 
     // Render the second pass and perform the volume rendering.
-    if(this._mode == "3d") {
-
-        /*
-        rotation += 0.05;
-        this._camera.position.x = 0;
-        this._camera.position.y = Math.sin(rotation);
-        this._camera.position.z = Math.cos(rotation);
-
-        this._camera.lookAt( this._sceneSecondPass.position ); // the origin
-        */
-        this._render.render( this._sceneSecondPass, this._camera );
-    }
-
-    //this._meshSecondPass.updateMatrixWorld();
-    //console.log(this._meshSecondPass.matrixWorld.elements);
-
-    // this._camera.updateMatrixWorld();
-    // var vectorQ = new THREE.Matrix4();
-    // vectorQ.copy(this._camera.position);
-    // vectorQ.applyMatrix(this._camera.matrixWorld);
-
-    // console.log(this._camera.position);
-    // console.log(this._camera.up);
-
-    /*
-    // Enable this for compass or birdview
-    var vector = this._camera.getWorldDirection();
-    theta = Math.atan2(vector.x,vector.z);
-    theta = theta + 3.142; // add/minux pi to inverse
-    var degree = theta * (180/3.142);
-    //console.log(degree);
-    compassDraw(degree);
-    */
-
+    this._render.render( this._sceneSecondPass, this._camera );
     this.onPostDraw.call(fps.toFixed(3));
 };
 
@@ -5502,29 +5178,8 @@ window.VRC.Core.prototype._shaders.secondPassStevenTri = {
             return me._core.showVolren();
         };
 
-        me.showLight = function() {
-            return me._core.showLight();
-        };
-
-        me.hideLight = function() {
-            return me._core.hideLight();
-        };
-
-        me.startLightRotation = function() {
-            return me._core.startLightRotation();
-        };
-
-        me.stopLightRotation = function() {
-            return me._core.stopLightRotation();
-        };
-
         me.setAxis = function() {
             me._core.setAxis();
-            me._needRedraw = true;
-        };
-
-        me.setStats = function(value) {
-            me._core.setStats(value);
             me._needRedraw = true;
         };
 
@@ -5538,77 +5193,10 @@ window.VRC.Core.prototype._shaders.secondPassStevenTri = {
             me._needRedraw = true;
         };
 
-        me.startRotate = function() {
-            me._core.startRotate();
-            me._needRedraw = true;
-        };
-
-        me.stopRotate = function() {
-            me._core.stopRotate();
-            me._needRedraw = true;
-        };
-
         me.setBackgroundColor = function(color) {
             me._core.setBackgroundColor(color);
             me._needRedraw = true;
 
-        };
-        me.setScrewThreshold = function(value) {
-            me._core.setScrewThreshold(value);
-            me._needRedraw = true;
-        };
-
-        me.setJointThreshold = function(value) {
-            me._core.setJointThreshold(value);
-            me._needRedraw = true;
-        };
-
-        me.setL = function(value) {
-            me._core.setL(value);
-            me._needRedraw = true;
-        };
-
-        me.setS = function(value) {
-            me._core.setS(value);
-            me._needRedraw = true;
-        };
-
-        me.setHMin = function(value) {
-            me._core.setHMin(value);
-            me._needRedraw = true;
-        };
-
-        me.setHMax = function(value) {
-            me._core.setHMax(value);
-            me._needRedraw = true;
-        };
-
-        me.setMinRefl = function(value) {
-            me._core.setMinRefl(value);
-            me._needRedraw = true;
-
-        };
-        me.setMinSos = function(value) {
-            me._core.setMinSos(value);
-            me._needRedraw = true;
-        };
-        me.setMinAtten = function(value) {
-            me._core.setMinAtten(value);
-            me._needRedraw = true;
-        };
-
-       me.setMaxRefl = function(value) {
-            me._core.setMaxRefl(value);
-            me._needRedraw = true;
-
-        };
-        me.setMaxSos = function(value) {
-            me._core.setMaxSos(value);
-            me._needRedraw = true;
-        };
-        me.setMaxAtten = function(value) {
-            me._core.setMaxAtten(value);
-            me._needRedraw = true;
         };
 
         me.setRowCol = function(row, col) {
@@ -5681,17 +5269,6 @@ window.VRC.Core.prototype._shaders.secondPassStevenTri = {
             }
 
             me._core.setGrayMaxValue(value);
-            me._needRedraw = true;
-
-        };
-
-        me.Axis = function() {
-            me._core.setAxis();
-            me._needRedraw = true;
-        };
-
-        me.applyThresholding = function(threshold_name) {
-            me._core.applyThresholding( threshold_name );
             me._needRedraw = true;
 
         };
