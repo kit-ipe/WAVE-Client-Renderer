@@ -605,7 +605,7 @@ Core.prototype.init = function() {
             //uColormap : {type:'t',value:cm },
             uSteps: { type: "i", value: this._steps },
             uSlicemapWidth: { type: "f", value: this._slicemaps_width },
-            uNumberOfSlices: { type: "f", value:  (parseFloat(this.getSlicesRange()[1]) + 1.0) },
+            uNumberOfSlices: { type: "f", value: parseFloat(this.getSlicesRange()[1]) },
             uSlicesOverX: { type: "f", value: this._slicemap_row_col[0] },
             uSlicesOverY: { type: "f", value: this._slicemap_row_col[1] },
             uOpacityVal: { type: "f", value: this._opacity_factor },
@@ -906,7 +906,7 @@ Core.prototype.setMode = function(conf) {
                 uSliceMaps: { type: "tv", value: this._slicemaps_textures },
                 uLightPos: {type:"v3", value: new THREE.Vector3() },
                 uSetViewMode: {type:"i", value: 0 },
-                uNumberOfSlices: { type: "f", value: (parseFloat(this.getSlicesRange()[1]) + 1.0) },
+                uNumberOfSlices: { type: "f", value: parseFloat(this.getSlicesRange()[1]) },
                 uSlicemapWidth: { type: "f", value: this._slicemaps_width},
                 uSlicesOverX: { type: "f", value: this._slicemap_row_col[0] },
                 uSlicesOverY: { type: "f", value: this._slicemap_row_col[1] },
@@ -964,7 +964,7 @@ Core.prototype.setShaderName = function(value) {
 
                 uSteps: { type: "i", value: this._steps },
                 uSlicemapWidth: { type: "f", value: this._slicemaps_width },
-                uNumberOfSlices: { type: "f", value:  (parseFloat(this.getSlicesRange()[1]) + 1.0) },
+                uNumberOfSlices: { type: "f", value: parseFloat(this.getSlicesRange()[1]) },
                 uSlicesOverX: { type: "f", value: this._slicemap_row_col[0] },
                 uSlicesOverY: { type: "f", value: this._slicemap_row_col[1] },
                 uOpacityVal: { type: "f", value: this._opacity_factor },
@@ -1090,7 +1090,7 @@ Core.prototype.setSteps = function(steps) {
 
 Core.prototype.setSlicesRange = function(from, to) {
     this._slices_gap = [from, to];
-    this._secondPassSetUniformValue("uNumberOfSlices", (parseFloat(this.getSlicesRange()[1]) + 1.0));
+    this._secondPassSetUniformValue("uNumberOfSlices", parseFloat(this.getSlicesRange()[1]));
 };
 
 
@@ -2860,7 +2860,7 @@ window.VRC.Core.prototype._shaders.secondPassSoebel = {
 		'        } // end of Mean filtering',
 		'        */',
 		'        ',
-		'        if(gray_val.z < 0.05 ||',
+		'        if(gray_val.z < 0.00 ||',
 		'           gray_val.x < uMinGrayVal ||',
 		'           gray_val.x > uMaxGrayVal) {',
 		'            colorValue = vec4(0.0);',
@@ -2877,7 +2877,6 @@ window.VRC.Core.prototype._shaders.secondPassSoebel = {
 		'            }',
 		'            sample.a = 1.0;',
 		'            */',
-		'            ',
 		'            ',
 		'            if ( uSetViewMode == 1 ) {',
 		'                vec3 V = normalize(cameraPosition - vpos.xyz);',
@@ -2906,7 +2905,7 @@ window.VRC.Core.prototype._shaders.secondPassSoebel = {
 		'        }',
 		'        //advance the current position',
 		'        vpos.xyz += Step;',
-		'        if(vpos.x > 1.0 || vpos.y > 1.0 || vpos.z > 1.0 || vpos.x < 0.0 || vpos.y < 0.0 || vpos.z < 0.0)',
+		'        if(vpos.x > 1.0 || vpos.y > 1.0 || vpos.z > (1.0 - pow(2.0,-16.0))|| vpos.x < 0.0 || vpos.y < 0.0 || vpos.z < 0.0)',
 		'            break;',
 		'    }',
 		'    gl_FragColor = accum;',
@@ -4401,6 +4400,7 @@ window.VRC.Core.prototype._shaders.secondPassStevenNN = {
 		' float dir_length = length(dir);',
 		' float uStepsF = ceil((dir_length)*(uNumberOfSlices-1.0));',
 		' vec3 Step = dir/(uStepsF);',
+		' vec3 Step2 = dir/10.0;',
 		' int uStepsI = int(uStepsF);',
 		' ',
 		' vec4 accum = vec4(0, 0, 0, 0);',
@@ -4413,7 +4413,7 @@ window.VRC.Core.prototype._shaders.secondPassStevenNN = {
 		' ',
 		' ',
 		' // Empty Skipping',
-		' for(int i = 0; i < 4096; i+=1)',
+		' for(int i = 0; i < 1024; i+=1)',
 		' {',
 		'     if(i == uStepsI) ',
 		'         break;',
@@ -4423,7 +4423,7 @@ window.VRC.Core.prototype._shaders.secondPassStevenNN = {
 		'     if(gray_val <= uMinGrayVal || gray_val >= uMaxGrayVal) ',
 		'         uStepsF -= 1.0;',
 		'     ',
-		'     vpos.xyz += Step;',
+		'     vpos.xyz += Step2;',
 		'     ',
 		'     if(vpos.x > 1.0 || vpos.y > 1.0 || vpos.z > 1.0 || vpos.x < 0.0 || vpos.y < 0.0 || vpos.z < 0.0) ',
 		'         break; ',
@@ -4431,7 +4431,7 @@ window.VRC.Core.prototype._shaders.secondPassStevenNN = {
 		' vpos = frontColor;',
 		' ',
 		' ',
-		' for(int i = 0; i < 4096; i+=1)',
+		' for(int i = 0; i < 1024; i+=1)',
 		' {',
 		'     if(i == uStepsI) {',
 		'         break;',

@@ -407,7 +407,7 @@ void main(void)
         } // end of Mean filtering
         */
         
-        if(gray_val.z < 0.05 ||
+        if(gray_val.z < 0.00 ||
            gray_val.x < uMinGrayVal ||
            gray_val.x > uMaxGrayVal) {
             colorValue = vec4(0.0);
@@ -425,7 +425,6 @@ void main(void)
             }
             sample.a = 1.0;
             */
-            
             
             if ( uSetViewMode == 1 ) {
                 vec3 V = normalize(cameraPosition - vpos.xyz);
@@ -456,7 +455,7 @@ void main(void)
         //advance the current position
         vpos.xyz += Step;
 
-        if(vpos.x > 1.0 || vpos.y > 1.0 || vpos.z > 1.0 || vpos.x < 0.0 || vpos.y < 0.0 || vpos.z < 0.0)
+        if(vpos.x > 1.0 || vpos.y > 1.0 || vpos.z > (1.0 - pow(2.0,-16.0))|| vpos.x < 0.0 || vpos.y < 0.0 || vpos.z < 0.0)
             break;
     }
     gl_FragColor = accum;

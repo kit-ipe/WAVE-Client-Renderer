@@ -199,7 +199,7 @@ Core.prototype.init = function() {
             //uColormap : {type:'t',value:cm },
             uSteps: { type: "i", value: this._steps },
             uSlicemapWidth: { type: "f", value: this._slicemaps_width },
-            uNumberOfSlices: { type: "f", value:  (parseFloat(this.getSlicesRange()[1]) + 1.0) },
+            uNumberOfSlices: { type: "f", value: parseFloat(this.getSlicesRange()[1]) },
             uSlicesOverX: { type: "f", value: this._slicemap_row_col[0] },
             uSlicesOverY: { type: "f", value: this._slicemap_row_col[1] },
             uOpacityVal: { type: "f", value: this._opacity_factor },
@@ -500,7 +500,7 @@ Core.prototype.setMode = function(conf) {
                 uSliceMaps: { type: "tv", value: this._slicemaps_textures },
                 uLightPos: {type:"v3", value: new THREE.Vector3() },
                 uSetViewMode: {type:"i", value: 0 },
-                uNumberOfSlices: { type: "f", value: (parseFloat(this.getSlicesRange()[1]) + 1.0) },
+                uNumberOfSlices: { type: "f", value: parseFloat(this.getSlicesRange()[1]) },
                 uSlicemapWidth: { type: "f", value: this._slicemaps_width},
                 uSlicesOverX: { type: "f", value: this._slicemap_row_col[0] },
                 uSlicesOverY: { type: "f", value: this._slicemap_row_col[1] },
@@ -558,7 +558,7 @@ Core.prototype.setShaderName = function(value) {
 
                 uSteps: { type: "i", value: this._steps },
                 uSlicemapWidth: { type: "f", value: this._slicemaps_width },
-                uNumberOfSlices: { type: "f", value:  (parseFloat(this.getSlicesRange()[1]) + 1.0) },
+                uNumberOfSlices: { type: "f", value: parseFloat(this.getSlicesRange()[1]) },
                 uSlicesOverX: { type: "f", value: this._slicemap_row_col[0] },
                 uSlicesOverY: { type: "f", value: this._slicemap_row_col[1] },
                 uOpacityVal: { type: "f", value: this._opacity_factor },
@@ -684,7 +684,7 @@ Core.prototype.setSteps = function(steps) {
 
 Core.prototype.setSlicesRange = function(from, to) {
     this._slices_gap = [from, to];
-    this._secondPassSetUniformValue("uNumberOfSlices", (parseFloat(this.getSlicesRange()[1]) + 1.0));
+    this._secondPassSetUniformValue("uNumberOfSlices", parseFloat(this.getSlicesRange()[1]));
 };
 
 
