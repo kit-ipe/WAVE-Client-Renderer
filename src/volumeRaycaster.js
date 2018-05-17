@@ -535,6 +535,10 @@
 
         };
 
+        me.version = function() {
+            return me._core.getVersion();
+        };
+        
         me.getGrayMaxValue = function() {
             return me._core.getGrayMaxValue();
         };

@@ -415,6 +415,8 @@
 
 var Core = function(conf) {
 
+    this.version = "1.0.0";
+
     // Zoom Box parameters
     this._zoom_parameters = {
         xmin: 0.0,
@@ -714,6 +716,11 @@ Core.prototype.init = function() {
  * API 
  *
  **/
+Core.prototype.getVersion = function() {
+    console.log(this.version);
+};
+
+
 Core.prototype._setUpBox = function(parameters) {
     width = parameters.xmax - parameters.xmin;
     height = parameters.ymax - parameters.ymin;
@@ -5357,6 +5364,10 @@ window.VRC.Core.prototype._shaders.secondPassStevenTri = {
 
         };
 
+        me.version = function() {
+            return me._core.getVersion();
+        };
+        
         me.getGrayMaxValue = function() {
             return me._core.getGrayMaxValue();
         };
