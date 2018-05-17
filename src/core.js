@@ -377,17 +377,17 @@ Core.prototype._secondPassSetUniformValue = function(key, value) {
 };
 
 
-Core.prototype._setSlicemapsTextures = function(images) {
+Core.prototype._setSlicemapsTextures = function(imagePaths) {
     var allPromises = [];
     var me = this;
     var textures = [];
     var loader = new THREE.TextureLoader();
     loader.crossOrigin = ''; 
-
-    images.forEach( function( image ) {
+    
+    imagePaths.forEach( function( path ) {
         allPromises.push( new Promise( function( resolve, reject ) {
 
-            loader.load(image.src, function (texture) {
+            loader.load(path, function (texture) {
                 texture.magFilter = THREE.LinearFilter;
                 texture.minFilter = THREE.LinearFilter;
                 texture.wrapS = texture.wrapT = THREE.ClampToEdgeWrapping;
@@ -412,10 +412,12 @@ Core.prototype._setSlicemapsTextures = function(images) {
             // All textures are now loaded, and this array
             // contains all the materials that you created
             me._secondPassSetUniformValue("uSliceMaps", promises);
+            this._slicemaps_textures = promises;
+            this._slicemaps_width = promises[0].image.width;
+            me._secondPassSetUniformValue("uSlicemapWidth", this._slicemaps_width);
         }, function( error ) {
             console.error( "Could not load all textures:", error );
         });
-    //this._slicemaps_textures = textures;
 };
 
 
@@ -671,8 +673,6 @@ Core.prototype.setSlicemapsImages = function(images, imagesPaths) {
     this._slicemaps_paths = imagesPaths != undefined ? imagesPaths : this._slicemaps_paths;
     this._setSlicemapsTextures(images);
     this._secondPassSetUniformValue("uSliceMaps", this._slicemaps_textures);
-    this._slicemaps_width = images[0].width;
-    this._secondPassSetUniformValue("uSlicemapWidth", this._slicemaps_width);
 };
 
 

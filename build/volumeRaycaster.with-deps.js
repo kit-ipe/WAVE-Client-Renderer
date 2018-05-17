@@ -783,17 +783,17 @@ Core.prototype._secondPassSetUniformValue = function(key, value) {
 };
 
 
-Core.prototype._setSlicemapsTextures = function(images) {
+Core.prototype._setSlicemapsTextures = function(imagePaths) {
     var allPromises = [];
     var me = this;
     var textures = [];
     var loader = new THREE.TextureLoader();
     loader.crossOrigin = ''; 
-
-    images.forEach( function( image ) {
+    
+    imagePaths.forEach( function( path ) {
         allPromises.push( new Promise( function( resolve, reject ) {
 
-            loader.load(image.src, function (texture) {
+            loader.load(path, function (texture) {
                 texture.magFilter = THREE.LinearFilter;
                 texture.minFilter = THREE.LinearFilter;
                 texture.wrapS = texture.wrapT = THREE.ClampToEdgeWrapping;
@@ -818,10 +818,12 @@ Core.prototype._setSlicemapsTextures = function(images) {
             // All textures are now loaded, and this array
             // contains all the materials that you created
             me._secondPassSetUniformValue("uSliceMaps", promises);
+            this._slicemaps_textures = promises;
+            this._slicemaps_width = promises[0].image.width;
+            me._secondPassSetUniformValue("uSlicemapWidth", this._slicemaps_width);
         }, function( error ) {
             console.error( "Could not load all textures:", error );
         });
-    //this._slicemaps_textures = textures;
 };
 
 
@@ -1077,8 +1079,6 @@ Core.prototype.setSlicemapsImages = function(images, imagesPaths) {
     this._slicemaps_paths = imagesPaths != undefined ? imagesPaths : this._slicemaps_paths;
     this._setSlicemapsTextures(images);
     this._secondPassSetUniformValue("uSliceMaps", this._slicemaps_textures);
-    this._slicemaps_width = images[0].width;
-    this._secondPassSetUniformValue("uSlicemapWidth", this._slicemaps_width);
 };
 
 
@@ -4400,7 +4400,6 @@ window.VRC.Core.prototype._shaders.secondPassStevenNN = {
 		' float dir_length = length(dir);',
 		' float uStepsF = ceil((dir_length)*(uNumberOfSlices-1.0));',
 		' vec3 Step = dir/(uStepsF);',
-		' vec3 Step2 = dir/10.0;',
 		' int uStepsI = int(uStepsF);',
 		' ',
 		' vec4 accum = vec4(0, 0, 0, 0);',
@@ -4413,7 +4412,7 @@ window.VRC.Core.prototype._shaders.secondPassStevenNN = {
 		' ',
 		' ',
 		' // Empty Skipping',
-		' for(int i = 0; i < 1024; i+=1)',
+		' for(int i = 0; i < 4096; i+=1)',
 		' {',
 		'     if(i == uStepsI) ',
 		'         break;',
@@ -4423,7 +4422,7 @@ window.VRC.Core.prototype._shaders.secondPassStevenNN = {
 		'     if(gray_val <= uMinGrayVal || gray_val >= uMaxGrayVal) ',
 		'         uStepsF -= 1.0;',
 		'     ',
-		'     vpos.xyz += Step2;',
+		'     vpos.xyz += Step;',
 		'     ',
 		'     if(vpos.x > 1.0 || vpos.y > 1.0 || vpos.z > 1.0 || vpos.x < 0.0 || vpos.y < 0.0 || vpos.z < 0.0) ',
 		'         break; ',
@@ -4431,7 +4430,7 @@ window.VRC.Core.prototype._shaders.secondPassStevenNN = {
 		' vpos = frontColor;',
 		' ',
 		' ',
-		' for(int i = 0; i < 1024; i+=1)',
+		' for(int i = 0; i < 4096; i+=1)',
 		' {',
 		'     if(i == uStepsI) {',
 		'         break;',
@@ -4896,20 +4895,14 @@ window.VRC.Core.prototype._shaders.secondPassStevenTri = {
             var maxTexSize = me._core.getMaxTextureSize();
             var maxTexturesNumber = me._core.getMaxTexturesNumber();
 
-            var firstImage = images[0];
             var imagesNumber = images.length;
 
             if( imagesNumber > maxTexturesNumber ) {
                 throw Error("Number of slicemaps bigger then number of available texture units. Available texture units: " + maxTexturesNumber);
             };
 
-            if( (Math.max(firstImage.width, firstImage.height) > maxTexSize) || (imagesNumber > maxTexturesNumber) ) {
-                throw Error("Size of slice bigger than maximum possible on current GPU. Maximum size of texture: " + maxTexSize);
-            };
-
-            me._core.setSlicemapsImages(images, imagesPaths);
+            me._core.setSlicemapsImages(imagesPaths);
             me._needRedraw = true;
-
         };
 
         me.uploadSlicemapsImages = function(imagesPaths, userOnLoadImage, userOnLoadImages, userOnError) {
@@ -4931,21 +4924,16 @@ window.VRC.Core.prototype._shaders.secondPassStevenTri = {
                                 if(downloadedImagesNumber == imagesPaths.length) {
                                     onLoadImages(downloadedImages);
                                 };
-
                             };
-
                             image.onerror = onError;
-                            image.src = imagesPaths[imageIndex];
-
+                            image.src = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNgYAAAAAMAASsJTYQAAAAASUVORK5CYII=";
                         })(image, imageIndex);
 
                     };
                 }
                 catch(e) {
                     onError(e);
-
                 };
-
             };
             downloadImages(imagesPaths,
                 function(image) {
