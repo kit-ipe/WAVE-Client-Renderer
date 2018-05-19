@@ -8,8 +8,7 @@
  */
 
 var Core = function(conf) {
-
-    this.version = "1.0.1";
+    this.version = "1.0.2";
 
     // Zoom Box parameters
     this._zoom_parameters = {

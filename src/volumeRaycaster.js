@@ -122,12 +122,8 @@
                 function(images) {
                     // downloaded all images
                     me.setSlicemapsImages(images, imagesPaths);
-                    me.start();
-
                     me._onLoadSlicemaps.call(images);
-
                     if(userOnLoadImages != undefined) userOnLoadImages(images);
-
                 },
                 function(error) {
                     // error appears
@@ -694,9 +690,8 @@
                         if(config['slices_range'] != undefined) {
                             me.setSlicesRange( config['slices_range'][0], config['slices_range'][1] );
                         }
-                        me.stop();
+                        //me.stop();
                         if(onLoadImages != undefined) onLoadImages(images);
-
                         me.start();
                     }
                 );

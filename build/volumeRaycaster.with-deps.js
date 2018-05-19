@@ -4893,7 +4893,7 @@ window.VRC.Core.prototype._shaders.secondPassStevenTri = {
                 function(images) {
                     // downloaded all images
                     me.setSlicemapsImages(images, imagesPaths);
-                    me.start();
+                    //me.start();
 
                     me._onLoadSlicemaps.call(images);
 
@@ -5465,7 +5465,7 @@ window.VRC.Core.prototype._shaders.secondPassStevenTri = {
                         if(config['slices_range'] != undefined) {
                             me.setSlicesRange( config['slices_range'][0], config['slices_range'][1] );
                         }
-                        me.stop();
+                        //me.stop();
                         if(onLoadImages != undefined) onLoadImages(images);
 
                         me.start();
