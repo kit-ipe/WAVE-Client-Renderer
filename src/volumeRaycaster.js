@@ -61,7 +61,7 @@
                 requestAnimationFrame( animate );
                 // Note: isStart is a flag to indicate texture maps finished loaded.
                 if(me._needRedraw && me._isStart) {
-                    me._core.draw(0);
+                    me._core.draw();
                 }
             };
 
@@ -349,13 +349,8 @@
             me._needRedraw = true;
         };
 
-        me.removeWireframe = function() {
-            me._core.removeWireframe();
-            me._needRedraw = true;
-        };
-
-        me.addWireframe = function() {
-            me._core.addWireframe();
+        me.showWireframe = function(value) {
+            me._core.showWireframe(value);
             me._needRedraw = true;
         };
 

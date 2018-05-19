@@ -40,6 +40,15 @@ You can call the API from your web developer console:
 $ wave.version();
 ```
 
+### Control.
+1. Start raycast.
+```bash
+$ wave.start();
+```
+2. Stop raycast.
+```bash
+$ wave.stop();
+
 ### Rendering modes
 1. Volume raycasting.
 ```bash
@@ -54,17 +63,41 @@ $ wave.showISO();
 $ wave.setTransferFunctionByColors( [ {'color': '#ff0000', 'pos': 0.0},{'color': '#0000ff', 'pos': 0.50},{'color': '#ffffff', 'pos': 1.0}] );
 ```
 ### Container
-3. Show cube container wireframe.
+3. Enable/disable cube container wireframe (val: [true | false]).
 ```bash
-$ wave.addWireframe( );
-```
-3. Remove cube container wireframe.
-```bash
-$ wave.removeWireframe( );
+$ wave.showWireframe(val);
 ```
 3. Enable/disable showing hint container (val: [true | false]).
 ```bash
-$ wave.showZoomBox( val );
+$ wave.showZoomBox(val);
+```
+3. Set Zoom Box X-min (val: [0,1]).
+```bash
+$ wave.setZoomXMinValue(val)
+```
+3. Set Zoom Box X-max (val: [0,1]).
+```bash
+$ wave.setZoomXMaxValue(val)
+```
+3. Set Zoom Box Y-min (val: [0,1]).
+```bash
+$ wave.setZoomYMinValue(val)
+```
+3. Set Zoom Box Y-max (val: [0,1]).
+```bash
+$ wave.setZoomYMaxValue(val)
+```
+3. Set Zoom Box Z-min (val: [0,1]).
+```bash
+$ wave.setZoomZMinValue(val)
+```
+3. Set Zoom Box Z-max (val: [0,1]).
+```bash
+$ wave.setZoomZMaxValue(val)
+```
+3. Set Zoom Box Colour (val: HEX-codei, e.g., 0xff00ff).
+```bash
+$ wave.setZoomColor(val)
 ```
 
 ### Data
@@ -100,3 +133,4 @@ $ wave.setGeometryMinZ( val );
 ```bash
 $ wave.setGeometryMaxZ( val );
 ```
+
