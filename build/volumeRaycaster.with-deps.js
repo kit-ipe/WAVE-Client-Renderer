@@ -414,7 +414,7 @@
  */
 
 var Core = function(conf) {
-    this.version = "1.0.2";
+    this.version = "1.0.3";
 
     // Zoom Box parameters
     this._zoom_parameters = {
@@ -712,8 +712,6 @@ Core.prototype.getVersion = function() {
 
 
 Core.prototype._setUpBox = function(parameters) {
-    console.log("SetupBox");
-    console.log(parameters);
     width = parameters.xmax - parameters.xmin;
     height = parameters.ymax - parameters.ymin;
     depth = parameters.zmax - parameters.zmin;
@@ -724,7 +722,6 @@ Core.prototype._setUpBox = function(parameters) {
     this._wireframe_zoom.position.setX( (parameters.xmax - 0.5) - (width / 2.0 ));
     this._wireframe_zoom.position.setY( (parameters.ymax - 0.5) - (height / 2.0 ));
     this._wireframe_zoom.position.setZ( (parameters.zmax - 0.5) - (depth / 2.0 ));
-    console.log(this._wireframe_zoom);
     this._wireframe_zoom.updateMatrix();
 };
 
