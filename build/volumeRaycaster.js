@@ -414,8 +414,7 @@
  */
 
 var Core = function(conf) {
-
-    this.version = "1.0.1";
+    this.version = "1.0.2";
 
     // Zoom Box parameters
     this._zoom_parameters = {
@@ -651,7 +650,7 @@ Core.prototype.init = function() {
         );
         this._wireframe_zoom = new THREE.BoxHelper( mesh_zoom );
         this._wireframe_zoom.material.color.set( 0x0000ff );
-        //this._sceneSecondPass.add( this._wireframe_zoom );
+        this._sceneSecondPass.add( this._wireframe_zoom );
         
         // parent
         this._parent = new THREE.Object3D();
@@ -713,15 +712,20 @@ Core.prototype.getVersion = function() {
 
 
 Core.prototype._setUpBox = function(parameters) {
+    console.log("SetupBox");
+    console.log(parameters);
     width = parameters.xmax - parameters.xmin;
     height = parameters.ymax - parameters.ymin;
     depth = parameters.zmax - parameters.zmin;
-    this._wireframe_zoom.scale.x = width;
-    this._wireframe_zoom.scale.y = height;
-    this._wireframe_zoom.scale.z = depth;
-    this._wireframe_zoom.position.x = (parameters.xmax - 0.5) - (width / 2.0 );
-    this._wireframe_zoom.position.y = (parameters.ymax - 0.5) - (height / 2.0 );
-    this._wireframe_zoom.position.z = (parameters.zmax - 0.5) - (depth / 2.0 );
+    this._wireframe_zoom.scale.setX(width);
+    this._wireframe_zoom.scale.setY(height);
+    this._wireframe_zoom.scale.setZ(depth);
+
+    this._wireframe_zoom.position.setX( (parameters.xmax - 0.5) - (width / 2.0 ));
+    this._wireframe_zoom.position.setY( (parameters.ymax - 0.5) - (height / 2.0 ));
+    this._wireframe_zoom.position.setZ( (parameters.zmax - 0.5) - (depth / 2.0 ));
+    console.log(this._wireframe_zoom);
+    this._wireframe_zoom.updateMatrix();
 };
 
 
@@ -981,6 +985,7 @@ Core.prototype.setShaderName = function(value) {
         this._sceneSecondPass.add( this._meshSecondPass );
 
         this.showWireframe(true);
+        this.showZoomBox(false);
 }
 /////////////////////////////////////////////////////////////////////
 
@@ -4893,12 +4898,8 @@ window.VRC.Core.prototype._shaders.secondPassStevenTri = {
                 function(images) {
                     // downloaded all images
                     me.setSlicemapsImages(images, imagesPaths);
-                    //me.start();
-
                     me._onLoadSlicemaps.call(images);
-
                     if(userOnLoadImages != undefined) userOnLoadImages(images);
-
                 },
                 function(error) {
                     // error appears
@@ -5467,7 +5468,6 @@ window.VRC.Core.prototype._shaders.secondPassStevenTri = {
                         }
                         //me.stop();
                         if(onLoadImages != undefined) onLoadImages(images);
-
                         me.start();
                     }
                 );
