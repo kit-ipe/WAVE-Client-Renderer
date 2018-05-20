@@ -48,6 +48,7 @@ $ wave.start();
 2. Stop raycast.
 ```bash
 $ wave.stop();
+```
 
 ### Rendering modes
 1. Volume raycasting.
