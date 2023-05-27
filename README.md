@@ -22,6 +22,10 @@ $ sudo zypper in npm
 ```bash
 $ sudo pacman -S npm
 ```
+* Mac OS
+```bash
+$ brew install node
+```
 ### 4. Prepare Grunt
 ```bash
 $ ./prepare_grunt.sh
