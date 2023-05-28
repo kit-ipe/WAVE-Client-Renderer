@@ -10,4 +10,3 @@ utils/slice_map_creator/data
 node_modules
 *.gen.js
 *~
-examples
