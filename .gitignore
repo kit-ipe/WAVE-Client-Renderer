@@ -1,5 +1,6 @@
 .DS_Store
-build
+src/.DS_Store
+build/*
 *.log
 data
 utils/slice_map_creator/*.png

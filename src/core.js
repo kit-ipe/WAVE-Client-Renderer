@@ -119,7 +119,8 @@ Core.prototype.init = function() {
         antialias: true,
         alpha : true
     });
-    this._render.domElement.id = 'wave-'+this._dom_container_id;
+    this._render.domElement.id = this._dom_container_id;
+    console.log(this._dom_container_id);
     this._render.setSize(this.getRenderSizeInPixels()[0],
                          this.getRenderSizeInPixels()[1]);
     this._render.setClearColor(this._render_clear_color, 0);

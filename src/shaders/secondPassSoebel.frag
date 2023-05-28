@@ -354,6 +354,7 @@ vec3 specularLighting(in vec3 N, in vec3 L, in vec3 V)
    }
    return u_matSpecularReflectance * u_lightSpecularIntensity * specularTerm;
 }
+
 void main(void)
 {
     float xw = uSlicemapWidth / uSlicesOverX;

@@ -22,14 +22,17 @@
         };
 
         me.stop = function(index) {
+            console.log("STOP!");
             me._functions[index]["is_start"] = false;
         };
 
         me.start = function(index) {
+            console.log("START!");
             me._functions[index]["is_start"] = true;
         };
 
         me.isStart = function(index) {
+            console.log("is START!");
             return me._functions[index]["is_start"];
         };
 
