@@ -1,0 +1,44 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>The IPE Box</title>
+</head>
+
+<body style="background-color: #000;">
+    <div id="container" style="width:256px; height: 256px; background-color: #aaa;"></div>
+    <script src="js/three.min.js"></script>
+    <script src="js/TrackballControls.js"></script>
+    <script src="js/ejs.js"></script>
+    <script src="js/volumeRaycaster.js"></script>
+    <script src="js/stats.min.js"></script>
+    <script>
+        // USCT
+        config = {
+            "dom_container": "container",
+            "slicemaps_paths": [
+                'dataset/usct_1/phantom1.png',
+                'dataset/usct_1/phantom2.png',
+                'dataset/usct_1/phantom3.png',
+                'dataset/usct_1/phantom4.png',
+                'dataset/usct_1/phantom5.png',
+                'dataset/usct_1/phantom6.png',
+                'dataset/usct_1/phantom7.png',
+                'dataset/usct_1/phantom8.png',
+                'dataset/usct_1/phantom9.png'
+			 ],
+            "steps" : 1024,
+            "shader_name": "secondPassFinal",
+            "slices_range": [0, "*"],
+            "row_col": [4, 4],
+            "renderer_size": [1024, 1024],
+            "renderer_canvas_size": ['fullscreen','fullscreen'],
+            //"renderer_canvas_size": ['*','*'],
+            "zFactor" : 0.54,
+        };
+
+        wave = new VRC.VolumeRaycaster(config);
+    </script>
+</body>
+</html>
