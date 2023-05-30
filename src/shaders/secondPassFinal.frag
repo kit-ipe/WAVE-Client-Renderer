@@ -27,6 +27,8 @@ uniform float s;
 uniform float hMin;
 uniform float hMax;
 
+
+
 //Acts like a texture3D using Z slices and trilinear filtering.
 vec3 getVolumeValue(vec3 volpos)
 {
@@ -59,9 +61,6 @@ vec3 getVolumeValue(vec3 volpos)
         {
             value = texture2D(uSliceMaps[<%=i%>],texpos1).xyz;
         }
-        <% if( i < maxTexturesNumber-1 ) { %>
-            else
-        <% } %>
     <% } %>
     return value;
 }
@@ -314,6 +313,7 @@ vec3 getNormal(vec3 at)
 // returns intensity of reflected ambient lighting
 const vec3 lightColor = vec3(1.0, 0.88, 0.74);
 const vec3 u_intensity = vec3(0.1, 0.1, 0.1);
+
 vec3 ambientLighting()
 {
     const vec3 u_matAmbientReflectance = lightColor;
@@ -355,6 +355,230 @@ vec3 specularLighting(in vec3 N, in vec3 L, in vec3 V)
    return u_matSpecularReflectance * u_lightSpecularIntensity * specularTerm;
 }
 
+float ambientOcclusion (in vec3 at)
+{
+    float xw = uSlicemapWidth / uSlicesOverX;
+    float yw = uSlicemapWidth / uSlicesOverY;
+    float zw = uNumberOfSlices;
+
+    float fSliceLower, fSliceUpper, s1, s2;
+    float dx1, dy1, dx2, dy2;
+    int iTexLowerIndex, iTexUpperIndex;
+    vec2 texpos1,texpos2;
+    float slicesPerSprite = uSlicesOverX * uSlicesOverY;
+    fSliceLower = floor(at.z*uNumberOfSlices); // z value is between 0 and 1. Multiplying the total number of slices
+                                               // gives the position in between. By flooring the value, you get the lower
+                                               // slice position.
+    fSliceUpper = min(fSliceLower + 1.0, uNumberOfSlices); // return the mininimum between the two values
+                                                           // act as a upper clamp.
+    // At this point, we get our lower slice and upper slice
+    // Now we need to get which texture image contains our slice.
+    iTexLowerIndex = int(floor(fSliceLower / slicesPerSprite));
+    iTexUpperIndex = int(floor(fSliceUpper / slicesPerSprite));
+    // mod returns the value of x modulo y. This is computed as x - y * floor(x/y).
+    s1 = mod(fSliceLower, slicesPerSprite); // returns the index of slice in slicemap
+    s2 = mod(fSliceUpper, slicesPerSprite);
+    dx1 = fract(s1/uSlicesOverX);
+    dy1 = floor(s1/uSlicesOverY)/uSlicesOverY; // first term is the row within the slicemap
+                                               // second division is normalize along y-axis
+    dx2 = fract(s2/uSlicesOverX);
+    dy2 = floor(s2/uSlicesOverY)/uSlicesOverY; // first term is the row within the slicemap
+                                               // second division is normalize along y-axis
+    float weight = at.z - floor(at.z);
+    float w1 = at.z - floor(at.z);
+    float w0 = (at.z - (1.0/zw)) - floor(at.z);
+    float w2 = (at.z + (1.0/zw)) - floor(at.z);
+
+
+    float fx, fy, fz;
+    
+    float res = 0.0;
+    
+    float threshold_occlusion = 40.0;
+    
+
+    float L0, L1, L2, L3, L4, L5, L6, L7, L8;
+    float H0, H1, H2, H3, H4, H5, H6, H7, H8;
+    <% for(var i=0; i < maxTexturesNumber; i++) { %>
+        if( iTexLowerIndex == <%=i%> )
+        {
+            texpos1.x = dx1+((at.x - 1.0/xw)/uSlicesOverX);
+            texpos1.y = dy1+((at.y + 1.0/yw)/uSlicesOverY);
+            L0 = texture2D(uSliceMaps[<%=i%>],texpos1).x;
+            if (L0 > threshold_occlusion) {
+                res += 1.0;
+            }
+
+            texpos1.x = dx1+((at.x + 0.0/xw)/uSlicesOverX);
+            texpos1.y = dy1+((at.y + 1.0/yw)/uSlicesOverY);
+            L1 = texture2D(uSliceMaps[<%=i%>],texpos1).x;
+            if (L1 > threshold_occlusion) {
+                res += 1.0;
+            }
+
+            texpos1.x = dx1+((at.x + 1.0/xw)/uSlicesOverX);
+            texpos1.y = dy1+((at.y + 1.0/yw)/uSlicesOverY);
+            L2 = texture2D(uSliceMaps[<%=i%>],texpos1).x;
+            if (L2 > threshold_occlusion) {
+                res += 1.0;
+            }
+
+            texpos1.x = dx1+((at.x - 1.0/xw)/uSlicesOverX);
+            texpos1.y = dy1+((at.y + 0.0/yw)/uSlicesOverY);
+            L3 = texture2D(uSliceMaps[<%=i%>],texpos1).x;
+            if (L3 > threshold_occlusion) {
+                res += 1.0;
+            }
+
+            texpos1.x = dx1+((at.x + 0.0/xw)/uSlicesOverX);
+            texpos1.y = dy1+((at.y + 0.0/yw)/uSlicesOverY);
+            L4 = texture2D(uSliceMaps[<%=i%>],texpos1).x;
+            if (L4 > threshold_occlusion) {
+                res += 1.0;
+            }
+
+            texpos1.x = dx1+((at.x + 1.0/xw)/uSlicesOverX);
+            texpos1.y = dy1+((at.y + 0.0/yw)/uSlicesOverY);
+            L5 = texture2D(uSliceMaps[<%=i%>],texpos1).x;
+            if (L5 > threshold_occlusion) {
+                res += 1.0;
+            }
+
+            texpos1.x = dx1+((at.x - 1.0/xw)/uSlicesOverX);
+            texpos1.y = dy1+((at.y - 1.0/yw)/uSlicesOverY);
+            L6 = texture2D(uSliceMaps[<%=i%>],texpos1).x;
+            if (L6 > threshold_occlusion) {
+                res += 1.0;
+            }
+
+            texpos1.x = dx1+((at.x + 0.0/xw)/uSlicesOverX);
+            texpos1.y = dy1+((at.y - 1.0/yw)/uSlicesOverY);
+            L7 = texture2D(uSliceMaps[<%=i%>],texpos1).x;
+            if (L7 > threshold_occlusion) {
+                res += 1.0;
+            }
+
+            texpos1.x = dx1+((at.x + 1.0/xw)/uSlicesOverX);
+            texpos1.y = dy1+((at.y - 1.0/yw)/uSlicesOverY);
+            L8 = texture2D(uSliceMaps[<%=i%>],texpos1).x;
+            if (L8 > threshold_occlusion) {
+                res += 1.0;
+            }
+
+        }
+        if( iTexUpperIndex == <%=i%> ) {
+            texpos1.x = dx2+((at.x - 1.0/xw)/uSlicesOverX);
+            texpos1.y = dy2+((at.y + 1.0/yw)/uSlicesOverY);
+            H0 = texture2D(uSliceMaps[<%=i%>],texpos1).x;
+            if (H0 > threshold_occlusion) {
+                res += 1.0;
+            }
+
+            texpos1.x = dx2+((at.x + 0.0/xw)/uSlicesOverX);
+            texpos1.y = dy2+((at.y + 1.0/yw)/uSlicesOverY);
+            H1 = texture2D(uSliceMaps[<%=i%>],texpos1).x;
+            if (H1 > threshold_occlusion) {
+                res += 1.0;
+            }
+
+            texpos1.x = dx2+((at.x + 1.0/xw)/uSlicesOverX);
+            texpos1.y = dy2+((at.y + 1.0/yw)/uSlicesOverY);
+            H2 = texture2D(uSliceMaps[<%=i%>],texpos1).x;
+            if (H2 > threshold_occlusion) {
+                res += 1.0;
+            }
+
+            texpos1.x = dx2+((at.x - 1.0/xw)/uSlicesOverX);
+            texpos1.y = dy2+((at.y + 0.0/yw)/uSlicesOverY);
+            H3 = texture2D(uSliceMaps[<%=i%>],texpos1).x;
+            if (H3 > threshold_occlusion) {
+                res += 1.0;
+            }
+
+            texpos1.x = dx2+((at.x + 0.0/xw)/uSlicesOverX);
+            texpos1.y = dy2+((at.y + 0.0/yw)/uSlicesOverY);
+            H4 = texture2D(uSliceMaps[<%=i%>],texpos1).x;
+            if (H4 > threshold_occlusion) {
+                res += 1.0;
+            }
+
+            texpos1.x = dx2+((at.x + 1.0/xw)/uSlicesOverX);
+            texpos1.y = dy2+((at.y + 0.0/yw)/uSlicesOverY);
+            H5 = texture2D(uSliceMaps[<%=i%>],texpos1).x;
+            if (H5 > threshold_occlusion) {
+                res += 1.0;
+            }
+
+            texpos1.x = dx2+((at.x - 1.0/xw)/uSlicesOverX);
+            texpos1.y = dy2+((at.y - 1.0/yw)/uSlicesOverY);
+            H6 = texture2D(uSliceMaps[<%=i%>],texpos1).x;
+            if (H6 > threshold_occlusion) {
+                res += 1.0;
+            }
+
+            texpos1.x = dx2+((at.x + 0.0/xw)/uSlicesOverX);
+            texpos1.y = dy2+((at.y - 1.0/yw)/uSlicesOverY);
+            H7 = texture2D(uSliceMaps[<%=i%>],texpos1).x;
+            if (H7 > threshold_occlusion) {
+                res += 1.0;
+            }
+
+            texpos1.x = dx2+((at.x + 1.0/xw)/uSlicesOverX);
+            texpos1.y = dy2+((at.y - 1.0/yw)/uSlicesOverY);
+            H8 = texture2D(uSliceMaps[<%=i%>],texpos1).x;
+            if (H8 > threshold_occlusion) {
+                res += 1.0;
+            }
+        }
+    <% } %>
+    // we need to get interpolation of 2 x points
+    // x direction
+    // -1 -3 -1   0  0  0   1  3  1
+    // -3 -6 -3   0  0  0   3  6  3
+    // -1 -3 -1   0  0  0   1  3  1
+    // y direction
+    //  1  3  1   3  6  3   1  3  1
+    //  0  0  0   0  0  0   0  0  0
+    // -1 -3 -1  -3 -6 -3  -1 -3 -1
+    // z direction
+    // -1  0  1   -3  0  3   -1  0  1
+    // -3  0  3   -6  0  6   -3  0  3
+    // -1  0  1   -3  0  3   -1  0  1
+
+    return res/18.0;
+}
+
+float sceneDistance(vec3 point) {
+  vec3 spherePos = circlePath(1.0, 2.0, timeSec / 2.0);
+  vec3 miniPos = translate(circlePath(0.0, 2.3, timeSec), -spherePos);
+  vec3 wavePos = translate(point, vec3(0.0, 0.1 * sin((timeSec + point.z) * 2.0), 0.0));
+  float boxGapSize = sin(timeSec) * 0.04;
+  float planets = min(
+    sphere(translate(point, spherePos), 1.0),
+    sphere(translate(point, miniPos), 0.3)
+  );
+  float boxes = max(
+    box(translate(wavePos, vec3(0.0, -1.0, 0.0)), vec3(5.0, 1.0, 5.0)),
+    box(repeat(wavePos, vec3(0.25 + boxGapSize)), vec3(0.1))
+  );
+  return min(
+    planets,
+    boxes
+  );
+}
+
+float ambientOcclusion(in vec3 surfacePos, in vec3 surfaceNormal, in float stepSize) {
+  float rayLength = stepSize;
+  float occlusion = 0.0;
+  for (int i = 0; i < 10; i++) {
+    float distToScene = sceneDistance(surfacePos + surfaceNormal * rayLength);
+    occlusion += (rayLength - distToScene) / (rayLength / stepSize);
+    rayLength += stepSize;
+  }
+  return 1.0 - clamp(occlusion, 0.0, 1.0);
+}
+
+
 void main(void)
 {
     float xw = uSlicemapWidth / uSlicesOverX;
@@ -380,94 +604,43 @@ void main(void)
     lightPos[1] = vec3(-1, -1, -1);
     lightPos[2] = vec3(1, 1, -1);
 
-    // float xsqu;
-    // float ysqu;
-    // float distanceFromCenter;
-
     for(int i = 0; i < uStepsI; i++) {
-      // xsqu = (0.5 - vpos.x) * (0.5 - vpos.x);
-      // ysqu = (0.5 - vpos.y) * (0.5 - vpos.y);
-      // distanceFromCenter = sqrt(xsqu + ysqu);
-      //
-      // if (distanceFromCenter < 0.4534 && vpos.z > 0.1 && vpos.z < 0.9) {
+
         vec3 gray_val = getVolumeValue(vpos.xyz);
-
-        /************************************/
-        /*         Mean filtering           */
-        /************************************/
-
-        /*
-        if (gray_val.x > uMinGrayVal && gray_val.x < uMaxGrayVal) {
-          float sum_gray_val = 0.0;
-
-          int mask_size = 3;
-          vec3 offset;
-          vec3 curDotPos;
-
-          for(int m_i = 0; m_i < 3; ++m_i) { // 3 = mask_size
-            for(int j = 0; j < 3; ++j) {
-              for(int k = 0; k < 3; ++k) {
-                offset = vec3((float(m_i) - 1.0) / xw, // 1.0 = (int)mask_size / 2
-                              (float(j) - 1.0) / yw,
-                              (float(k) - 1.0) / zw);
-                curDotPos = vpos.xyz + offset;
-                sum_gray_val += getVolumeValue(curDotPos).x;
-              }
-            }
-          }
-          gray_val.x = sum_gray_val / 27.0; // 27.0 = pow(mask_size, 3)
-        } // end of Mean filtering
-        */
         
-        if(gray_val.z < 0.00 ||
-           gray_val.x < uMinGrayVal ||
+        if(gray_val.x < uMinGrayVal ||
            gray_val.x > uMaxGrayVal) {
             colorValue = vec4(0.0);
         } else {
-
-            /* surface rendering
-            vec3 V = normalize(cameraPosition - vpos.xyz);
-            vec3 N = normalize(getNormal(vpos.xyz));
-            for(int light_i = 0; light_i < 3; ++light_i) {
-              vec3 L = normalize(lightPos[light_i] - vpos.xyz);
-              vec3 Iamb = ambientLighting();
-              vec3 Idif = diffuseLighting(N, L);
-              vec3 Ispe = specularLighting(N, L, V);
-              sample.rgb += (Iamb + Idif + Ispe);
-            }
-            sample.a = 1.0;
-            */
-            
             if ( uSetViewMode == 1 ) {
                 vec3 V = normalize(cameraPosition - vpos.xyz);
-                vec3 N = normalize(getNormal(vpos.xyz));
+                vec3 N = normalize(getNormal(vpos.xyz)); // normally + 1.0
                 for(int light_i = 0; light_i < 3; ++light_i) {
                     vec3 L = normalize(lightPos[light_i] - vpos.xyz);
                     vec3 Iamb = ambientLighting();
                     vec3 Idif = diffuseLighting(N, L);
                     vec3 Ispe = specularLighting(N, L, V);
-                    sample.rgb += (Iamb + Idif + Ispe);
+                    //sample.rgb += (Iamb + Idif + Ispe);
+                    sample.rgb += (Iamb);
+                    //sample.rgb += N + 1.0;
+                    //break;
                 }
                 sample.a = 1.0;
-            } else {
-                //float test = (darkness * 2.0 - gray_val.x) * l * 0.4;
+            } else { // uSetViewMode == 0
                 colorValue = texture2D(uTransferFunction, vec2(gray_val.x, 0.5));
-                //colorValue.x = gray_val.x;
                 colorValue.w = 0.1;
                 sample.rgb = (1.0 - accum.a) * colorValue.xyz * sample.a;
                 sample.a = colorValue.a * opacityFactor * (1.0 / uStepsF);
             }
-            
             accum += sample;
             
             if(accum.a>=1.0)
                break;
         }
-
         //advance the current position
         vpos.xyz += Step;
 
-        if(vpos.x > 1.0 || vpos.y > 1.0 || vpos.z > (1.0 - pow(2.0,-16.0))|| vpos.x < 0.0 || vpos.y < 0.0 || vpos.z < 0.0)
+        if(vpos.x > 1.0 || vpos.y > 1.0 || vpos.z > 1.0|| vpos.x < 0.0 || vpos.y < 0.0 || vpos.z < 0.0)
             break;
     }
     gl_FragColor = accum;
