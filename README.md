@@ -2,6 +2,30 @@ WAVE Client Renderer
 ====================
 A JavaScript framework for client-side data rendering. The WAVE Client Renderer is a subset of the WAVE framework, mainly to provide visual previews for large data sets.
 
+If you use this library, please cite the following paper:
+
+Tan Jerome, N., Chilingaryan, S., Shkarin, A., Kopmann, A., Zapf, M., Lizin, A., & Bergmann, T. (2017, February). WAVE: A 3D Online Previewing Framework for Big Data Archives. In VISIGRAPP (3: IVAPP) (pp. 152-163).
+
+@inproceedings{tanjerome2017wave,
+  title={WAVE: A 3D Online Previewing Framework for Big Data Archives.},
+  author={Tan Jerome, Nicholas and Chilingaryan, Suren and Shkarin, Andrei and Kopmann, Andreas and Zapf, Michael and Lizin, Alexander and Bergmann, Till},
+  booktitle={VISIGRAPP (3: IVAPP)},
+  pages={152--163},
+  year={2017}
+}
+
+
+This library help creates the visualizations in the following publications:
+1. Sebastian Schmelzle, Michael Heethoff, Vincent Heuveline, Philipp Lösel, Jürgen Becker, Felix Beckmann, Frank Schluenzen, Jörg U. Hammel, Andreas Kopmann, Wolfgang Mexner, Matthias Vogelgesang, Nicholas Tan Jerome, Oliver Betz, Rolf Beutel, Benjamin Wipfler, Alexander Blanke, Steffen Harzsch, Marie Hörnig, Tilo Baumbach, Thomas van de Kamp, "The NOVA project: maximizing beam time efficiency through synergistic analyses of SRμCT data," Proc. SPIE 10391, Developments in X-Ray Tomography XI, 103910P (26 September 2017); https://doi.org/10.1117/12.2275959 
+2. Tan Jerome, N., Ateyev, Z., Lebedev, V., Hopp, T., Zapf, M., Chilingaryan, S., & Kopmann, A. (2018). Visualisation of Ultrasound Computer Tomography Breast Dataset. KIT Scientific Publishing.
+3. Tan Jerome, N., & Kopmann, A. (2018). Digital Visual Exploration Library. In VISIGRAPP (3: IVAPP) (pp. 341-348).
+4. Tan Jerome, N. (2019). Low-latency big data visualisation. KIT Scientific Publishing.
+5. Tan Jerome, N., Ateyev, Z., Schmelzle, S., Chilingaryan, S., & Kopmann, A. (2019). Real-Time Local Noise Filter in 3-D Visualization of CT Data. IEEE Transactions on Nuclear Science, 66(7), 1296-1303.
+6. Tan Jerome, N., Chilingaryan, S., van de Kamp, T., & Kopmann, A. (2023). Low-latency Visual Previews of Large Synchrotron Micro-CT Datasets. arXiv preprint arXiv:2311.15038.
+
+
+Due to the rapid change of the web development landscape, the information might be outdated. Please contact nicholas.tanjerome@kit.edu to help setup or update the repository.
+
 ## Workflow:
 ### 1. Clone this repo
 ```bash
